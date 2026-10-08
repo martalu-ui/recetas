@@ -1,0 +1,62 @@
+import { useState } from 'react';
+import { useData } from '../data';
+import { formatMinutes } from '../lib/dates';
+import type { Recipe } from '../lib/types';
+import { MealTags, Photo } from './RecipeCard';
+
+export default function RecipeDetail({ recipe, onDeleted }: { recipe: Recipe; onDeleted(): void }) {
+  const { editRecipe, deleteRecipe } = useData();
+  const [busy, setBusy] = useState(false);
+
+  async function remove() {
+    if (!confirm(`¿Borrar «${recipe.title}»? También se quitará del menú semanal.`)) return;
+    setBusy(true);
+    try {
+      await deleteRecipe(recipe);
+      onDeleted();
+    } catch (e) {
+      alert(`No se ha podido borrar: ${(e as Error).message}`);
+      setBusy(false);
+    }
+  }
+
+  return (
+    <article className="detail">
+      <Photo recipe={recipe} className="detail-photo" />
+      <div className="detail-body">
+        <h2>{recipe.title}</h2>
+        <div className="meta">
+          <MealTags recipe={recipe} />
+          {recipe.timeMinutes != null && <span className="time">⏱ {formatMinutes(recipe.timeMinutes)}</span>}
+          {recipe.createdBy && <span className="muted">Subida por {recipe.createdBy}</span>}
+        </div>
+
+        <h3>Ingredientes</h3>
+        <ul className="ingredients">
+          {recipe.ingredients.map((i, idx) => (
+            <li key={idx}>
+              <span>{i.name}</span>
+              {i.quantity && <span className="muted">{i.quantity}</span>}
+            </li>
+          ))}
+        </ul>
+
+        {recipe.instructions && (
+          <>
+            <h3>Preparación</h3>
+            <p className="instructions">{recipe.instructions}</p>
+          </>
+        )}
+
+        <div className="actions">
+          <button className="btn" onClick={() => editRecipe(recipe)} disabled={busy}>
+            ✏️ Editar
+          </button>
+          <button className="btn danger" onClick={remove} disabled={busy}>
+            🗑 Borrar
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}

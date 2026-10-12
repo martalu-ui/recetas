@@ -20,28 +20,25 @@ npm install
 npm run dev
 ```
 
-Sin configurar nada arranca en **modo local**: todo se guarda solo en ese navegador. Sirve para probar, pero no se comparte.
+La app ya está conectada a nuestro proyecto de Supabase **recetas** (base de datos, fotos y login), configurado en el archivo `.env`. Para probar sin tocar los datos reales, crea un `.env.local` con `VITE_SUPABASE_URL=` y `VITE_SUPABASE_ANON_KEY=` vacíos: arrancará en **modo local** (todo se guarda solo en ese navegador).
 
-## Compartirla entre los dos (Supabase, gratis)
+## Supabase
 
-Para que los dos veáis las mismas recetas, desde el móvil o el ordenador, la app usa [Supabase](https://supabase.com) (base de datos + fotos + login). El plan gratuito sobra.
+El proyecto ya tiene creadas las tablas, los permisos y el almacén de fotos ([`supabase/schema.sql`](supabase/schema.sql)). Solo los usuarios con sesión iniciada pueden leer y escribir recetas y menú. Las fotos están en un bucket público (se ven con su enlace, que es imposible de adivinar).
 
-1. Crea una cuenta en supabase.com y un proyecto nuevo.
-2. Ve a **SQL Editor → New query**, pega el contenido de [`supabase/schema.sql`](supabase/schema.sql) y dale a **Run**. Crea las tablas, los permisos y el almacén de fotos.
-3. **Authentication → Users → Add user → Create new user**: crea un usuario para cada uno (email + contraseña, marca *Auto Confirm User*).
-4. **Authentication → Sign In / Providers**: desactiva *Allow new users to sign up*, para que nadie más pueda registrarse.
-5. **Project Settings → API**: copia la *Project URL* y la clave *anon public*.
-6. Copia `.env.example` a `.env.local` y pega esos dos valores. Al volver a arrancar `npm run dev` os pedirá iniciar sesión.
+Para gestionarlo, entra en supabase.com → proyecto **recetas**:
 
-Solo los usuarios con sesión iniciada pueden leer y escribir recetas y menú. Las fotos están en un bucket público (se ven con su enlace, que es imposible de adivinar).
+- **Authentication → Users → Add user → Create new user**: un usuario para cada uno (email + contraseña, marca *Auto Confirm User*).
+- **Authentication → Sign In / Providers**: desactiva *Allow new users to sign up*, para que nadie más pueda crearse una cuenta.
+
+La URL y la clave del `.env` son públicas por diseño (van dentro de la web); lo que protege los datos es el login.
 
 ## Publicarla en internet (GitHub Pages)
 
-El repositorio ya trae el flujo [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), que publica la web cada vez que se sube algo a `main`.
+El flujo [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) publica la web cada vez que se sube algo a `main`.
 
-1. En GitHub: **Settings → Secrets and variables → Actions → New repository secret** y crea `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` con los valores del paso 5.
-2. **Settings → Pages → Source: GitHub Actions**.
-3. Sube a `main` (o lanza el flujo a mano desde la pestaña **Actions**). La web quedará en `https://<usuario>.github.io/recetas/`.
+1. **Settings → Pages → Source: GitHub Actions**.
+2. Sube a `main` (o lanza el flujo a mano desde la pestaña **Actions**). La web quedará en `https://<usuario>.github.io/recetas/`.
 
 En el móvil podéis abrirla y usar «Añadir a pantalla de inicio» para tenerla como una app.
 

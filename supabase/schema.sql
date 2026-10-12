@@ -21,6 +21,8 @@ create table if not exists public.meal_plan (
   primary key (day, slot)
 );
 
+create index if not exists meal_plan_recipe_id_idx on public.meal_plan (recipe_id);
+
 -- Solo los usuarios con sesión iniciada (vosotros dos) pueden leer y escribir.
 alter table public.recipes   enable row level security;
 alter table public.meal_plan enable row level security;

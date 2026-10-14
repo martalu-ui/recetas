@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useData } from '../data';
 import { compressImage } from '../lib/image';
-import { allIngredients } from '../lib/match';
+import { allIngredients, ingredientKey, normalize } from '../lib/match';
 import { COURSE_LABEL, COURSES, MEAL_LABEL, MEAL_TYPES, type Course, type Ingredient, type MealType, type Recipe } from '../lib/types';
 
 const EMPTY_INGREDIENT: Ingredient = { name: '', quantity: '' };
@@ -21,6 +21,10 @@ export default function RecipeForm({ recipe, onDone }: { recipe: Recipe | null; 
   const [removePhoto, setRemovePhoto] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  /** Fila de ingrediente que se está escribiendo, para sugerir los que ya usamos */
+  const [activeRow, setActiveRow] = useState<number | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerQuery, setPickerQuery] = useState('');
 
   // Sugerir ingredientes que ya usamos ayuda a escribirlos siempre igual (y mejora el buscador)
   const knownIngredients = useMemo(() => allIngredients(recipes), [recipes]);
@@ -36,6 +40,26 @@ export default function RecipeForm({ recipe, onDone }: { recipe: Recipe | null; 
   function updateIngredient(idx: number, patch: Partial<Ingredient>) {
     setIngredients((list) => list.map((ing, i) => (i === idx ? { ...ing, ...patch } : ing)));
   }
+
+  const usedKeys = new Set(ingredients.map((i) => ingredientKey(i.name)).filter(Boolean));
+  const unused = knownIngredients.filter((k) => !usedKeys.has(ingredientKey(k)));
+
+  /** Sugerencias para la fila que se está escribiendo */
+  function suggestionsFor(text: string): string[] {
+    const q = normalize(text);
+    if (!q) return [];
+    return unused.filter((k) => normalize(k).includes(q)).slice(0, 6);
+  }
+
+  /** Añade un ingrediente ya usado: rellena la primera fila vacía o crea una nueva */
+  function addKnown(name: string) {
+    setIngredients((list) => {
+      const empty = list.findIndex((i) => !i.name.trim());
+      return empty >= 0 ? list.map((ing, i) => (i === empty ? { ...ing, name } : ing)) : [...list, { name, quantity: '' }];
+    });
+  }
+
+  const pickerItems = pickerQuery ? unused.filter((k) => normalize(k).includes(normalize(pickerQuery))) : unused;
 
   async function onPhoto(file: File | undefined) {
     if (!file) return;
@@ -160,42 +184,90 @@ export default function RecipeForm({ recipe, onDone }: { recipe: Recipe | null; 
 
       <div className="field">
         <span>Ingredientes</span>
-        <datalist id="known-ingredients">
-          {knownIngredients.map((i) => (
-            <option key={i} value={i} />
-          ))}
-        </datalist>
         <div className="ingredient-rows">
           {ingredients.map((ing, idx) => (
-            <div className="ingredient-row" key={idx}>
-              <input
-                list="known-ingredients"
-                placeholder="Ingrediente (p. ej. tomate)"
-                value={ing.name}
-                onChange={(e) => updateIngredient(idx, { name: e.target.value })}
-                aria-label={`Ingrediente ${idx + 1}`}
-              />
-              <input
-                className="qty"
-                placeholder="Cantidad"
-                value={ing.quantity}
-                onChange={(e) => updateIngredient(idx, { quantity: e.target.value })}
-                aria-label={`Cantidad del ingrediente ${idx + 1}`}
-              />
-              <button
-                type="button"
-                className="icon-btn"
-                aria-label="Quitar ingrediente"
-                onClick={() => setIngredients((list) => (list.length > 1 ? list.filter((_, i) => i !== idx) : [{ ...EMPTY_INGREDIENT }]))}
-              >
-                ×
-              </button>
+            <div className="ingredient-item" key={idx}>
+              <div className="ingredient-row">
+                <input
+                  placeholder="Ingrediente (p. ej. tomate)"
+                  value={ing.name}
+                  onChange={(e) => {
+                    setActiveRow(idx);
+                    updateIngredient(idx, { name: e.target.value });
+                  }}
+                  onFocus={() => setActiveRow(idx)}
+                  autoComplete="off"
+                  aria-label={`Ingrediente ${idx + 1}`}
+                />
+                <input
+                  className="qty"
+                  placeholder="Cantidad"
+                  value={ing.quantity}
+                  onChange={(e) => updateIngredient(idx, { quantity: e.target.value })}
+                  aria-label={`Cantidad del ingrediente ${idx + 1}`}
+                />
+                <button
+                  type="button"
+                  className="icon-btn"
+                  aria-label="Quitar ingrediente"
+                  onClick={() => setIngredients((list) => (list.length > 1 ? list.filter((_, i) => i !== idx) : [{ ...EMPTY_INGREDIENT }]))}
+                >
+                  ×
+                </button>
+              </div>
+              {activeRow === idx && suggestionsFor(ing.name).length > 0 && (
+                <div className="chips suggestions" aria-label="Ingredientes que ya usamos">
+                  {suggestionsFor(ing.name).map((k) => (
+                    <button
+                      type="button"
+                      key={k}
+                      className="chip"
+                      onClick={() => {
+                        updateIngredient(idx, { name: k });
+                        setActiveRow(null);
+                      }}
+                    >
+                      {k}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>
-        <button type="button" className="btn ghost small add-ingredient" onClick={() => setIngredients((l) => [...l, { ...EMPTY_INGREDIENT }])}>
-          + Añadir ingrediente
-        </button>
+        <div className="ingredient-actions">
+          <button type="button" className="btn ghost small add-ingredient" onClick={() => setIngredients((l) => [...l, { ...EMPTY_INGREDIENT }])}>
+            + Añadir ingrediente
+          </button>
+          {knownIngredients.length > 0 && (
+            <button type="button" className="btn ghost small add-ingredient" aria-expanded={pickerOpen} onClick={() => setPickerOpen((o) => !o)}>
+              {pickerOpen ? '▾' : '▸'} Elegir de los que ya usamos
+            </button>
+          )}
+        </div>
+        {pickerOpen && (
+          <div className="ingredient-picker">
+            {knownIngredients.length > 12 && (
+              <input
+                type="search"
+                placeholder="Buscar ingrediente…"
+                value={pickerQuery}
+                onChange={(e) => setPickerQuery(e.target.value)}
+                aria-label="Buscar entre los ingredientes que ya usamos"
+              />
+            )}
+            <div className="chips">
+              {pickerItems.map((k) => (
+                <button type="button" key={k} className="chip" onClick={() => addKnown(k)}>
+                  + {k}
+                </button>
+              ))}
+              {pickerItems.length === 0 && (
+                <span className="muted small">{unused.length === 0 ? 'Ya has añadido todos.' : 'Ninguno coincide.'}</span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       <label className="field">

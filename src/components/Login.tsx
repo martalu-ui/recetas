@@ -20,7 +20,7 @@ export default function Login() {
     <div className="center-screen">
       <form className="card login" onSubmit={submit}>
         <img className="login-logo" src={`${import.meta.env.BASE_URL}icon-192.png`} alt="" />
-        <h1>Nuestras recetas</h1>
+        <h1>MajoChef</h1>
         <label className="field">
           <span>Email</span>
           <input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />

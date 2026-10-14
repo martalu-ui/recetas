@@ -1,6 +1,6 @@
 {
-  "name": "Nuestras recetas",
-  "short_name": "Recetas",
+  "name": "MajoChef",
+  "short_name": "MajoChef",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

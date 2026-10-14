@@ -1,6 +1,6 @@
-# 🍳 Nuestras recetas
+# 🍟 MajoChef
 
-Plataforma para guardar y compartir nuestras recetas entre los dos.
+MajoChef: nuestra plataforma para guardar y compartir recetas entre los dos.
 
 ## Qué tiene
 

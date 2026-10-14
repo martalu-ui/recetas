@@ -21,20 +21,20 @@ export function Photo({ recipe, className }: { recipe: Recipe; className?: strin
     <img className={`photo ${className ?? ''}`} src={recipe.photoUrl} alt={recipe.title} loading="lazy" />
   ) : (
     <div className={`photo photo-empty ${className ?? ''}`} aria-hidden>
-      🍽️
+      <span>Sin foto</span>
     </div>
   );
 }
 
 export default function RecipeCard({ recipe, onClick, children }: { recipe: Recipe; onClick(): void; children?: ReactNode }) {
   return (
-    <button className="recipe-card" onClick={onClick}>
+    <button className="recipe-card ticket" onClick={onClick}>
       <Photo recipe={recipe} />
       <div className="recipe-card-body">
         <h3>{recipe.title}</h3>
         <div className="meta">
           <MealTags recipe={recipe} />
-          {recipe.timeMinutes != null && <span className="time">⏱ {formatMinutes(recipe.timeMinutes)}</span>}
+          {recipe.timeMinutes != null && <span className="time">{formatMinutes(recipe.timeMinutes)}</span>}
         </div>
         {children}
       </div>

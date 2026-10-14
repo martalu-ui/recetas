@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useData } from '../data';
 import { formatMinutes } from '../lib/dates';
 import { pickRandom } from '../lib/match';
+import Icon from '../components/Icon';
 import { MealTags, Photo } from '../components/RecipeCard';
 import Empty from './Empty';
 import MealFilter, { filterByMeal, type MealFilterValue } from './MealFilter';
@@ -50,7 +51,7 @@ export default function RandomView() {
       <MealFilter value={meal} onChange={setMeal} allLabel="Cualquiera" />
 
       <button className="btn primary big dice" onClick={roll} disabled={pool.length === 0 || rolling !== null}>
-        🎲 {result ? 'Otra' : '¡Dame una receta!'}
+        <Icon name="dice" size={24} /> {result ? 'Otra' : '¡Dame una receta!'}
       </button>
       {pool.length === 0 && <p className="muted">No hay recetas marcadas para {meal}.</p>}
 
@@ -60,13 +61,13 @@ export default function RandomView() {
         </div>
       ) : (
         result && (
-          <button className="random-result" onClick={() => openRecipe(result)}>
+          <button className="random-result ticket" onClick={() => openRecipe(result)}>
             <Photo recipe={result} />
             <div className="random-result-body">
               <h2>{result.title}</h2>
               <div className="meta">
                 <MealTags recipe={result} />
-                {result.timeMinutes != null && <span className="time">⏱ {formatMinutes(result.timeMinutes)}</span>}
+                {result.timeMinutes != null && <span className="time">{formatMinutes(result.timeMinutes)}</span>}
               </div>
               <p className="muted">{result.ingredients.map((i) => i.name).join(' · ')}</p>
               <span className="link">Ver receta →</span>

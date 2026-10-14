@@ -515,7 +515,7 @@ a:focus-visible {
   top: 10px;
   float: right;
   margin: 10px 10px -46px 0;
-  z-index: 1;
+  z-index: 2;
   width: 36px;
   height: 36px;
   border: 0;
@@ -812,55 +812,92 @@ a:focus-visible {
 
 /* ---------- Buscador ---------- */
 
-.ingredient-search {
-  position: relative;
-  margin: 16px 0 12px;
-}
-
-.dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  z-index: 5;
-  list-style: none;
-  margin: 0;
-  padding: 4px;
-  max-height: 280px;
-  overflow-y: auto;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  box-shadow: var(--shadow);
-}
-
-.dropdown button {
+.pick-ingredients {
   width: 100%;
-  padding: 10px 12px;
+  max-width: 420px;
+  margin: 16px 0 12px;
+  padding: 14px 20px;
+}
+
+/* Hoja para elegir ingredientes: cabecera y pie fijos, lista con scroll */
+.sheet {
+  display: flex;
+  flex-direction: column;
+}
+
+.sheet-head,
+.sheet-foot {
+  position: sticky;
+  z-index: 1;
+  background: var(--surface);
+  padding: 16px 24px;
+}
+
+.sheet-head {
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sheet-head h2 {
+  margin: 0;
+  padding-right: 40px;
+}
+
+.sheet-foot {
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.sheet-foot .btn.primary {
+  flex: 1;
+  max-width: 280px;
+  padding: 12px 16px;
+}
+
+.sheet-body {
+  padding: 8px 24px 16px;
+}
+
+.check-group {
+  margin: 0;
+  padding: 0;
   border: 0;
-  border-radius: 8px;
-  background: none;
-  text-align: left;
+}
+
+.check-group legend {
+  padding: 16px 0 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  border-bottom: 1px solid var(--border);
   cursor: pointer;
 }
 
-.dropdown button:hover,
-.dropdown button:focus-visible {
-  background: var(--surface-2);
+.check-row input {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  accent-color: var(--accent);
 }
 
-.show-all {
+.add-typed {
+  margin-top: 12px;
   color: var(--accent);
-  padding-left: 0;
-}
-
-.chips.all-ingredients {
-  max-height: 220px;
-  overflow-y: auto;
-  margin-top: 8px;
-  padding: 10px;
-  background: var(--surface-2);
-  border-radius: 10px;
 }
 
 .chips {

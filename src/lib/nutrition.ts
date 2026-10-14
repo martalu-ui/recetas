@@ -80,3 +80,41 @@ export function recommendation(group: FoodGroup): string {
   if (max != null) return `máx. ${max}`;
   return '';
 }
+
+// ---------------------------------------------------------------------------
+// Categorías de ingredientes sueltos, para agruparlos al elegirlos en el buscador
+// ---------------------------------------------------------------------------
+
+export type IngredientCategory = 'verdura' | 'carne' | 'pescado' | 'legumbres' | 'huevos-lacteos' | 'cereales' | 'despensa';
+
+export const INGREDIENT_CATEGORIES: { id: IngredientCategory; label: string }[] = [
+  { id: 'verdura', label: 'Verduras, frutas y setas' },
+  { id: 'carne', label: 'Carne' },
+  { id: 'pescado', label: 'Pescado y marisco' },
+  { id: 'legumbres', label: 'Legumbres' },
+  { id: 'huevos-lacteos', label: 'Huevos y lácteos' },
+  { id: 'cereales', label: 'Pasta, arroz y pan' },
+  { id: 'despensa', label: 'Caldos, salsas y especias' },
+];
+
+const DAIRY = ['huevo', 'queso', 'quesito', 'leche', 'nata', 'yogur', 'mantequilla', 'mozzarela', 'mozzarella', 'burrata', 'parmesano', 'pecorino', 'requeson', 'ricotta', 'mascarpone', 'crema fresca'];
+const BREAD = ['pan', 'masa', 'harina', 'pan rallado', 'tortita', 'tortilla de trigo', 'wrap', 'galleta', 'cereal'];
+const PANTRY = [
+  'caldo', 'fumet', 'pastilla', 'avecrem', 'aceite', 'vinagre', 'sal', 'pimienta', 'pimenton', 'curry', 'comino', 'oregano',
+  'tomillo', 'romero', 'laurel', 'canela', 'nuez moscada', 'azafran', 'colorante', 'curcuma', 'jengibre molido', 'pesto',
+  'salsa', 'soja', 'mostaza', 'mayonesa', 'ketchup', 'tomate frito', 'azucar', 'miel', 'levadura', 'agua', 'vino', 'cerveza',
+  'especia', 'hierba', 'leche de coco', 'tahini', 'maicena',
+];
+
+/** Categoría de un ingrediente suelto; lo que no se reconoce va a verduras */
+export function ingredientCategory(name: string): IngredientCategory {
+  const k = [ingredientKey(name)];
+  // Antes que las proteínas, para que "caldo de pollo" o "leche de coco" vayan a la despensa
+  if (hits(k, PANTRY)) return 'despensa';
+  if (hits(k, KEYWORDS.legumbres)) return 'legumbres';
+  if (hits(k, KEYWORDS.pescado)) return 'pescado';
+  if (hits(k, [...KEYWORDS.carne, ...MINOR_MEAT])) return 'carne';
+  if (hits(k, DAIRY)) return 'huevos-lacteos';
+  if (hits(k, [...KEYWORDS.cereales, ...BREAD])) return 'cereales';
+  return 'verdura';
+}

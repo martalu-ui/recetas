@@ -93,3 +93,19 @@ describe('pickBalanced', () => {
     expect(counts.pescado).toBeGreaterThanOrEqual(3);
   });
 });
+
+describe('ingredientCategory', () => {
+  it('agrupa nuestros ingredientes', async () => {
+    const { ingredientCategory } = await import('./nutrition');
+    const cases: Record<string, string> = {
+      Calabaza: 'verdura', Champiñones: 'verdura', 'Tomate Pera': 'verdura', Ajo: 'verdura',
+      Pollo: 'carne', 'Tacos de jamón': 'carne', Beacon: 'carne', 'Carne de hamburguesa': 'carne',
+      Sepia: 'pescado', Atun: 'pescado', Emperador: 'pescado',
+      Lentejas: 'legumbres', Garbanzos: 'legumbres',
+      Huevos: 'huevos-lacteos', 'Queso mozzarela': 'huevos-lacteos', Quesitos: 'huevos-lacteos',
+      Pasta: 'cereales', Arroz: 'cereales', 'Pan de cristal': 'cereales', 'Masa de pizza': 'cereales', Gyozas: 'cereales',
+      'Caldo de pollo': 'despensa', Fumet: 'despensa', 'Leche de coco': 'despensa', Curry: 'despensa', Pesto: 'despensa', Pimentón: 'despensa',
+    };
+    for (const [name, cat] of Object.entries(cases)) expect([name, ingredientCategory(name)]).toEqual([name, cat]);
+  });
+});

@@ -96,7 +96,9 @@ function Shell({ author }: { author: string | null }) {
 
       {!supabase && (
         <p className="banner">
-          Modo local: las recetas se guardan solo en este navegador. Configura Supabase (mira el README) para compartirlas.
+          {import.meta.env.VITE_PREVIEW
+            ? 'Vista previa: puedes probarlo todo, pero lo que cambies aquí no se guarda en vuestras recetas.'
+            : 'Modo local: las recetas se guardan solo en este navegador. Configura Supabase (mira el README) para compartirlas.'}
         </p>
       )}
 

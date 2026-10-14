@@ -10,6 +10,7 @@ export default function SearchView() {
   const [selected, setSelected] = useState<string[]>([]);
   const [text, setText] = useState('');
   const [meal, setMeal] = useState<MealFilterValue>('todas');
+  const [showAll, setShowAll] = useState(false);
 
   const ingredients = useMemo(() => allIngredients(recipes), [recipes]);
   const results = useMemo(() => rankBySelectedIngredients(filterByMeal(recipes, meal), selected), [recipes, meal, selected]);
@@ -19,16 +20,21 @@ export default function SearchView() {
     setSelected((list) => (isSelected(name) ? list.filter((s) => ingredientKey(s) !== ingredientKey(name)) : [...list, name]));
 
   const q = normalize(text);
-  const visibleChips = q ? ingredients.filter((i) => normalize(i).includes(q)) : ingredients;
+  const unselected = ingredients.filter((i) => !isSelected(i));
+  // Desplegable con lo que coincide con lo escrito
+  const matches = q ? unselected.filter((i) => normalize(i).includes(q)).slice(0, 8) : [];
+
+  function pick(name: string) {
+    if (!isSelected(name)) setSelected((l) => [...l, name]);
+    setText('');
+  }
 
   function addTyped(e: FormEvent) {
     e.preventDefault();
     const name = text.trim();
     if (!name) return;
     // Si coincide con uno de nuestros ingredientes usamos ese nombre
-    const known = ingredients.find((i) => ingredientKey(i) === ingredientKey(name)) ?? name;
-    if (!isSelected(known)) setSelected((l) => [...l, known]);
-    setText('');
+    pick(matches[0] ?? ingredients.find((i) => ingredientKey(i) === ingredientKey(name)) ?? name);
   }
 
   if (loading) return <p className="muted">Cargando…</p>;
@@ -42,10 +48,30 @@ export default function SearchView() {
       <form className="ingredient-search" onSubmit={addTyped}>
         <input
           type="search"
-          placeholder="Filtra o escribe un ingrediente y pulsa Enter"
+          placeholder="Escribe un ingrediente…"
           value={text}
           onChange={(e) => setText(e.target.value)}
+          autoComplete="off"
+          aria-label="Buscar ingrediente"
         />
+        {q && (
+          <ul className="dropdown" role="listbox" aria-label="Ingredientes que coinciden">
+            {matches.map((i) => (
+              <li key={i}>
+                <button type="button" role="option" aria-selected={false} onClick={() => pick(i)}>
+                  {i}
+                </button>
+              </li>
+            ))}
+            {matches.length === 0 && (
+              <li>
+                <button type="submit" className="muted">
+                  Ninguna receta lleva «{text.trim()}». Añadirlo igualmente
+                </button>
+              </li>
+            )}
+          </ul>
+        )}
       </form>
 
       {selected.length > 0 && (
@@ -61,16 +87,19 @@ export default function SearchView() {
         </div>
       )}
 
-      <div className="chips">
-        {visibleChips
-          .filter((i) => !isSelected(i))
-          .map((i) => (
+      <button className="btn ghost small show-all" aria-expanded={showAll} onClick={() => setShowAll((v) => !v)}>
+        {showAll ? '▾ Ocultar ingredientes' : `▸ Ver todos los ingredientes (${unselected.length})`}
+      </button>
+      {showAll && (
+        <div className="chips all-ingredients">
+          {unselected.map((i) => (
             <button key={i} className="chip" onClick={() => toggle(i)}>
               {i}
             </button>
           ))}
-        {visibleChips.length === 0 && q && <span className="muted">Ninguna receta lleva «{text}». Pulsa Enter para añadirlo igualmente.</span>}
-      </div>
+          {unselected.length === 0 && <span className="muted small">Ya has elegido todos.</span>}
+        </div>
+      )}
 
       <div className="toolbar">
         <MealFilter value={meal} onChange={setMeal} />

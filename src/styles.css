@@ -808,7 +808,54 @@ a:focus-visible {
 /* ---------- Buscador ---------- */
 
 .ingredient-search {
+  position: relative;
   margin: 16px 0 12px;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 5;
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  max-height: 280px;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+
+.dropdown button {
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown button:hover,
+.dropdown button:focus-visible {
+  background: var(--surface-2);
+}
+
+.show-all {
+  color: var(--accent);
+  padding-left: 0;
+}
+
+.chips.all-ingredients {
+  max-height: 220px;
+  overflow-y: auto;
+  margin-top: 8px;
+  padding: 10px;
+  background: var(--surface-2);
+  border-radius: 10px;
 }
 
 .chips {

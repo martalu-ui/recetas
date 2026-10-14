@@ -68,7 +68,7 @@ function Shell({ author }: { author: string | null }) {
     <DataProvider author={author} onOpen={onOpen} onEdit={onEdit}>
       <header className="topbar">
         <a className="brand" href="#/recetas">
-          <span aria-hidden>🍳</span> Nuestras recetas
+          <img className="brand-icon" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" /> Nuestras recetas
         </a>
         <nav className="tabs" aria-label="Secciones">
           {VIEWS.map((v) => (

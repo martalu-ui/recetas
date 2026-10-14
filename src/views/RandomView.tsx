@@ -15,7 +15,10 @@ export default function RandomView() {
 
   useEffect(() => () => window.clearInterval(timer.current), []);
 
-  const pool = filterByMeal(recipes, meal);
+  // Platos principales; los acompañamientos solo si no hay ningún principal
+  const forMeal = filterByMeal(recipes, meal);
+  const mains = forMeal.filter((r) => r.course === 'principal');
+  const pool = mains.length ? mains : forMeal;
   const result = recipes.find((r) => r.id === resultId) ?? null;
 
   // Solo elige entre nuestras recetas: nunca se inventa ninguna

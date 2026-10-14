@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useData } from '../data';
 import { normalize } from '../lib/match';
+import { COURSES, type Course } from '../lib/types';
 import RecipeCard from '../components/RecipeCard';
 import Empty from './Empty';
 import MealFilter, { filterByMeal, type MealFilterValue } from './MealFilter';
@@ -12,14 +13,21 @@ export default function RecipesView() {
   const [meal, setMeal] = useState<MealFilterValue>('todas');
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<Sort>('recientes');
+  const [course, setCourse] = useState<Course | 'todos'>('todos');
+  const [onlyThermomix, setOnlyThermomix] = useState(false);
 
   const shown = useMemo(() => {
     const q = normalize(query);
-    const list = filterByMeal(recipes, meal).filter((r) => !q || normalize(r.title).includes(q));
+    const list = filterByMeal(recipes, meal).filter(
+      (r) =>
+        (!q || normalize(r.title).includes(q)) &&
+        (course === 'todos' || r.course === course) &&
+        (!onlyThermomix || r.thermomix),
+    );
     if (sort === 'nombre') return [...list].sort((a, b) => a.title.localeCompare(b.title, 'es'));
     if (sort === 'tiempo') return [...list].sort((a, b) => (a.timeMinutes ?? Infinity) - (b.timeMinutes ?? Infinity));
     return list;
-  }, [recipes, meal, query, sort]);
+  }, [recipes, meal, query, sort, course, onlyThermomix]);
 
   return (
     <section>
@@ -36,6 +44,17 @@ export default function RecipesView() {
       <div className="toolbar">
         <MealFilter value={meal} onChange={setMeal} />
         <input className="search" type="search" placeholder="Buscar por nombre…" value={query} onChange={(e) => setQuery(e.target.value)} />
+        <select value={course} onChange={(e) => setCourse(e.target.value as Course | 'todos')} aria-label="Tipo de plato">
+          <option value="todos">Todos los platos</option>
+          {COURSES.map((c) => (
+            <option key={c} value={c}>
+              {c === 'principal' ? 'Principales' : 'Acompañamientos'}
+            </option>
+          ))}
+        </select>
+        <button className={onlyThermomix ? 'chip on' : 'chip'} aria-pressed={onlyThermomix} onClick={() => setOnlyThermomix((t) => !t)}>
+          Thermomix
+        </button>
         <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Ordenar">
           <option value="recientes">Más recientes</option>
           <option value="nombre">Por nombre</option>

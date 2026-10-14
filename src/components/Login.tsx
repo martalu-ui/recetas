@@ -19,9 +19,7 @@ export default function Login() {
   return (
     <div className="center-screen">
       <form className="card login" onSubmit={submit}>
-        <div className="login-logo" aria-hidden>
-          🍳
-        </div>
+        <img className="login-logo" src={`${import.meta.env.BASE_URL}icon-192.png`} alt="" />
         <h1>Nuestras recetas</h1>
         <label className="field">
           <span>Email</span>

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useData } from '../data';
 import { compressImage } from '../lib/image';
 import { allIngredients } from '../lib/match';
-import { MEAL_LABEL, MEAL_TYPES, type Ingredient, type MealType, type Recipe } from '../lib/types';
+import { COURSE_LABEL, COURSES, MEAL_LABEL, MEAL_TYPES, type Course, type Ingredient, type MealType, type Recipe } from '../lib/types';
 
 const EMPTY_INGREDIENT: Ingredient = { name: '', quantity: '' };
 
@@ -10,6 +10,8 @@ export default function RecipeForm({ recipe, onDone }: { recipe: Recipe | null; 
   const { recipes, saveRecipe } = useData();
   const [title, setTitle] = useState(recipe?.title ?? '');
   const [mealTypes, setMealTypes] = useState<MealType[]>(recipe?.mealTypes ?? []);
+  const [course, setCourse] = useState<Course>(recipe?.course ?? 'principal');
+  const [thermomix, setThermomix] = useState(recipe?.thermomix ?? false);
   const [time, setTime] = useState(recipe?.timeMinutes?.toString() ?? '');
   const [ingredients, setIngredients] = useState<Ingredient[]>(
     recipe?.ingredients.length ? recipe.ingredients : [{ ...EMPTY_INGREDIENT }],
@@ -57,7 +59,7 @@ export default function RecipeForm({ recipe, onDone }: { recipe: Recipe | null; 
     setError(null);
     try {
       const saved = await saveRecipe(
-        { title, mealTypes, timeMinutes: minutes == null ? null : Math.round(minutes), ingredients, instructions, photo, removePhoto },
+        { title, mealTypes, course, thermomix, timeMinutes: minutes == null ? null : Math.round(minutes), ingredients, instructions, photo, removePhoto },
         recipe,
       );
       onDone(saved);
@@ -116,6 +118,38 @@ export default function RecipeForm({ recipe, onDone }: { recipe: Recipe | null; 
                 {MEAL_LABEL[t]}
               </button>
             ))}
+          </div>
+        </div>
+        <div className="field">
+          <span>Tipo de plato</span>
+          <div className="toggle-group">
+            {COURSES.map((c) => (
+              <button
+                type="button"
+                key={c}
+                className={course === c ? 'toggle on tag-course' : 'toggle'}
+                aria-pressed={course === c}
+                onClick={() => setCourse(c)}
+              >
+                {COURSE_LABEL[c]}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="row">
+        <div className="field">
+          <span>Thermomix</span>
+          <div className="toggle-group">
+            <button
+              type="button"
+              className={thermomix ? 'toggle on tag-thermomix' : 'toggle'}
+              aria-pressed={thermomix}
+              onClick={() => setThermomix((t) => !t)}
+            >
+              {thermomix ? '✓ Sí, la tenemos' : 'Sí, la tenemos'}
+            </button>
           </div>
         </div>
         <label className="field time-field">

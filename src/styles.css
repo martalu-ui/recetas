@@ -12,6 +12,10 @@
   --comida-soft: #fef3c7;
   --cena: #4338ca;
   --cena-soft: #e0e7ff;
+  --course: #0f766e;
+  --course-soft: #ccfbf1;
+  --thermomix: #15803d;
+  --thermomix-soft: #dcfce7;
   --ok: #15803d;
   --danger: #b91c1c;
   --radius: 14px;
@@ -34,6 +38,10 @@
     --comida-soft: #3d2f12;
     --cena: #a5b4fc;
     --cena-soft: #262850;
+    --course: #5eead4;
+    --course-soft: #13342f;
+    --thermomix: #86efac;
+    --thermomix-soft: #16301f;
     --ok: #4ade80;
     --danger: #f87171;
     --shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 4px 16px rgb(0 0 0 / 25%);
@@ -137,6 +145,9 @@ a:focus-visible {
 }
 
 .brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-weight: 700;
   font-size: 1.1rem;
   text-decoration: none;
@@ -370,6 +381,16 @@ a:focus-visible {
 .tag-cena {
   background: var(--cena-soft);
   color: var(--cena);
+}
+
+.tag-course {
+  background: var(--course-soft);
+  color: var(--course);
+}
+
+.tag-thermomix {
+  background: var(--thermomix-soft);
+  color: var(--thermomix);
 }
 
 .meta {
@@ -648,8 +669,16 @@ a:focus-visible {
   text-align: left;
 }
 
+.brand-icon {
+  width: 28px;
+  height: 28px;
+}
+
 .login-logo {
-  font-size: 3rem;
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 8px;
+  border-radius: 22px;
 }
 
 .card {
@@ -850,6 +879,31 @@ a:focus-visible {
 
 .slot-controls select {
   padding: 8px;
+}
+
+.dish {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.slot-controls select.leftovers {
+  font-style: italic;
+}
+
+.slot-add {
+  align-self: flex-start;
+  border: 0;
+  background: none;
+  padding: 2px 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.slot-add:hover {
+  color: var(--text);
 }
 
 .slot-open {

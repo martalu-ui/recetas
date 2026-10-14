@@ -1,6 +1,6 @@
 import { blobToDataUrl } from './image';
 import { PHOTO_BUCKET, supabase } from './supabase';
-import type { Ingredient, MealType, PlanEntry, Recipe, RecipeDraft } from './types';
+import { LEFTOVERS, type Course, type Ingredient, type MealType, type PlanEntry, type PlanPosition, type Recipe, type RecipeDraft } from './types';
 
 export interface DataStore {
   mode: 'local' | 'supabase';
@@ -9,7 +9,8 @@ export interface DataStore {
   deleteRecipe(recipe: Recipe): Promise<void>;
   /** Entradas del menú entre dos fechas (YYYY-MM-DD, ambas incluidas) */
   listPlan(from: string, to: string): Promise<PlanEntry[]>;
-  setPlan(day: string, slot: MealType, recipeId: string | null): Promise<void>;
+  /** `value` es el id de una receta, LEFTOVERS, o null para vaciar el hueco */
+  setPlan(day: string, slot: MealType, position: PlanPosition, value: string | null): Promise<void>;
 }
 
 function cleanIngredients(list: Ingredient[]): Ingredient[] {
@@ -43,10 +44,20 @@ function writeLS(key: string, value: unknown) {
   }
 }
 
+/** Menú local; acepta el formato antiguo ({ recipeId }, un plato por hueco) */
+function readLocalPlan(): PlanEntry[] {
+  return readLS<(PlanEntry & { recipeId?: string })[]>(LS_PLAN, []).map(({ recipeId, ...p }) => ({
+    ...p,
+    position: p.position ?? 1,
+    value: p.value ?? recipeId!,
+  }));
+}
+
 const localStore: DataStore = {
   mode: 'local',
   async listRecipes() {
-    return readLS<Recipe[]>(LS_RECIPES, []);
+    // Las recetas guardadas antes de existir estos campos se toman como principales
+    return readLS<Recipe[]>(LS_RECIPES, []).map((r) => ({ ...r, course: r.course ?? 'principal', thermomix: r.thermomix ?? false }));
   },
   async saveRecipe(draft, existing, author) {
     const recipes = readLS<Recipe[]>(LS_RECIPES, []);
@@ -60,6 +71,8 @@ const localStore: DataStore = {
       ingredients: cleanIngredients(draft.ingredients),
       timeMinutes: draft.timeMinutes,
       mealTypes: draft.mealTypes,
+      course: draft.course,
+      thermomix: draft.thermomix,
       instructions: draft.instructions.trim(),
       photoUrl,
     };
@@ -69,14 +82,14 @@ const localStore: DataStore = {
   },
   async deleteRecipe(recipe) {
     writeLS(LS_RECIPES, readLS<Recipe[]>(LS_RECIPES, []).filter((r) => r.id !== recipe.id));
-    writeLS(LS_PLAN, readLS<PlanEntry[]>(LS_PLAN, []).filter((p) => p.recipeId !== recipe.id));
+    writeLS(LS_PLAN, readLocalPlan().filter((p) => p.value !== recipe.id));
   },
   async listPlan(from, to) {
-    return readLS<PlanEntry[]>(LS_PLAN, []).filter((p) => p.day >= from && p.day <= to);
+    return readLocalPlan().filter((p) => p.day >= from && p.day <= to);
   },
-  async setPlan(day, slot, recipeId) {
-    const plan = readLS<PlanEntry[]>(LS_PLAN, []).filter((p) => !(p.day === day && p.slot === slot));
-    if (recipeId) plan.push({ day, slot, recipeId });
+  async setPlan(day, slot, position, value) {
+    const plan = readLocalPlan().filter((p) => !(p.day === day && p.slot === slot && p.position === position));
+    if (value) plan.push({ day, slot, position, value });
     writeLS(LS_PLAN, plan);
   },
 };
@@ -92,6 +105,8 @@ interface RecipeRow {
   ingredients: Ingredient[] | null;
   time_minutes: number | null;
   meal_types: MealType[] | null;
+  course: Course | null;
+  thermomix: boolean | null;
   instructions: string | null;
   created_by: string | null;
   created_at: string;
@@ -105,6 +120,8 @@ function fromRow(row: RecipeRow): Recipe {
     ingredients: row.ingredients ?? [],
     timeMinutes: row.time_minutes,
     mealTypes: row.meal_types ?? [],
+    course: row.course ?? 'principal',
+    thermomix: row.thermomix ?? false,
     instructions: row.instructions ?? '',
     createdBy: row.created_by,
     createdAt: row.created_at,
@@ -147,6 +164,8 @@ const supabaseStore: DataStore = {
       ingredients: cleanIngredients(draft.ingredients),
       time_minutes: draft.timeMinutes,
       meal_types: draft.mealTypes,
+      course: draft.course,
+      thermomix: draft.thermomix,
       instructions: draft.instructions.trim(),
       photo_url: photoUrl,
     };
@@ -162,17 +181,24 @@ const supabaseStore: DataStore = {
   },
   async listPlan(from, to) {
     const rows = check(await supabase!.from('meal_plan').select('*').gte('day', from).lte('day', to));
-    return (rows as { day: string; slot: MealType; recipe_id: string }[]).map((r) => ({
+    type Row = { day: string; slot: MealType; position: PlanPosition; recipe_id: string | null; leftovers: boolean };
+    return (rows as Row[]).map((r) => ({
       day: r.day,
       slot: r.slot,
-      recipeId: r.recipe_id,
+      position: r.position,
+      value: r.leftovers ? LEFTOVERS : r.recipe_id!,
     }));
   },
-  async setPlan(day, slot, recipeId) {
-    if (recipeId) {
-      check(await supabase!.from('meal_plan').upsert({ day, slot, recipe_id: recipeId }));
+  async setPlan(day, slot, position, value) {
+    if (value) {
+      const leftovers = value === LEFTOVERS;
+      check(
+        await supabase!
+          .from('meal_plan')
+          .upsert({ day, slot, position, leftovers, recipe_id: leftovers ? null : value }, { onConflict: 'day,slot,position' }),
+      );
     } else {
-      check(await supabase!.from('meal_plan').delete().eq('day', day).eq('slot', slot));
+      check(await supabase!.from('meal_plan').delete().eq('day', day).eq('slot', slot).eq('position', position));
     }
   },
 };

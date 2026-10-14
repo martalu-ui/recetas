@@ -10,6 +10,8 @@ function recipe(title: string, ingredients: string[]): Recipe {
     ingredients: ingredients.map((name) => ({ name, quantity: '' })),
     timeMinutes: null,
     mealTypes: ['comida'],
+    course: 'principal',
+    thermomix: false,
     instructions: '',
     createdBy: null,
     createdAt: '',

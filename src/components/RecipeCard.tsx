@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { formatMinutes } from '../lib/dates';
-import { MEAL_LABEL, type Recipe } from '../lib/types';
+import { COURSE_LABEL, MEAL_LABEL, type Recipe } from '../lib/types';
 
 export function MealTags({ recipe }: { recipe: Recipe }) {
   return (
@@ -10,6 +10,8 @@ export function MealTags({ recipe }: { recipe: Recipe }) {
           {MEAL_LABEL[t]}
         </span>
       ))}
+      {recipe.course === 'acompanamiento' && <span className="tag tag-course">{COURSE_LABEL.acompanamiento}</span>}
+      {recipe.thermomix && <span className="tag tag-thermomix">Thermomix</span>}
     </>
   );
 }

@@ -10,6 +10,8 @@ create table if not exists public.recipes (
   meal_types    text[] not null default '{}' check (meal_types <@ array['comida', 'cena']),
   course        text not null default 'principal' check (course in ('principal', 'acompanamiento')),
   thermomix     boolean not null default false,
+  -- Tipo de alimento para equilibrar el menú; null = se deduce de los ingredientes
+  food_group    text check (food_group in ('legumbres', 'pescado', 'carne', 'huevos', 'cereales', 'verdura')),
   instructions  text not null default '',
   created_by    text,
   created_at    timestamptz not null default now()

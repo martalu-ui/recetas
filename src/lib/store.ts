@@ -1,4 +1,5 @@
 import { blobToDataUrl } from './image';
+import type { FoodGroup } from './nutrition';
 import { PHOTO_BUCKET, supabase } from './supabase';
 import { EATING_OUT, LEFTOVERS, type Course, type Ingredient, type MealType, type PlanEntry, type PlanPosition, type Recipe, type RecipeDraft } from './types';
 
@@ -57,7 +58,12 @@ const localStore: DataStore = {
   mode: 'local',
   async listRecipes() {
     // Las recetas guardadas antes de existir estos campos se toman como principales
-    return readLS<Recipe[]>(LS_RECIPES, []).map((r) => ({ ...r, course: r.course ?? 'principal', thermomix: r.thermomix ?? false }));
+    return readLS<Recipe[]>(LS_RECIPES, []).map((r) => ({
+      ...r,
+      course: r.course ?? 'principal',
+      foodGroup: r.foodGroup ?? null,
+      thermomix: r.thermomix ?? false,
+    }));
   },
   async saveRecipe(draft, existing, author) {
     const recipes = readLS<Recipe[]>(LS_RECIPES, []);
@@ -72,6 +78,7 @@ const localStore: DataStore = {
       timeMinutes: draft.timeMinutes,
       mealTypes: draft.mealTypes,
       course: draft.course,
+      foodGroup: draft.foodGroup,
       thermomix: draft.thermomix,
       instructions: draft.instructions.trim(),
       photoUrl,
@@ -106,6 +113,7 @@ interface RecipeRow {
   time_minutes: number | null;
   meal_types: MealType[] | null;
   course: Course | null;
+  food_group: FoodGroup | null;
   thermomix: boolean | null;
   instructions: string | null;
   created_by: string | null;
@@ -121,6 +129,7 @@ function fromRow(row: RecipeRow): Recipe {
     timeMinutes: row.time_minutes,
     mealTypes: row.meal_types ?? [],
     course: row.course ?? 'principal',
+    foodGroup: row.food_group ?? null,
     thermomix: row.thermomix ?? false,
     instructions: row.instructions ?? '',
     createdBy: row.created_by,
@@ -165,6 +174,7 @@ const supabaseStore: DataStore = {
       time_minutes: draft.timeMinutes,
       meal_types: draft.mealTypes,
       course: draft.course,
+      food_group: draft.foodGroup,
       thermomix: draft.thermomix,
       instructions: draft.instructions.trim(),
       photo_url: photoUrl,

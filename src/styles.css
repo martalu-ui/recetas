@@ -898,6 +898,44 @@ a:focus-visible {
 
 /* ---------- Semana ---------- */
 
+.balance {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.balance-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.balance-rec {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.balance-item.low {
+  border-color: var(--comida);
+  background: var(--comida-soft);
+}
+
+.balance-item.high {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.balance-item.ok strong {
+  color: var(--ok);
+}
+
 .week-nav {
   display: flex;
   align-items: center;

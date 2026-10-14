@@ -2,14 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useData } from '../data';
 import { addDays, shortDate, startOfWeek, toISODate, weekDays, weekdayName } from '../lib/dates';
 import { pickRandom } from '../lib/match';
+import { balanceState, FOOD_GROUP_INFO, FOOD_GROUPS, foodGroupOf, recommendation, type FoodGroup } from '../lib/nutrition';
+import { emptyGroupCounts, pickBalanced, type PickContext } from '../lib/planner';
 import { store } from '../lib/store';
 import { EATING_OUT, LEFTOVERS, MEAL_LABEL, MEAL_TYPES, type Course, type MealType, type PlanPosition, type Recipe } from '../lib/types';
 import Empty from './Empty';
 
 const slotKey = (day: string, slot: MealType, position: PlanPosition) => `${day}|${slot}|${position}`;
-
-/** El primer plato suele ser el principal y el segundo un acompañamiento */
-const COURSE_FOR: Record<PlanPosition, Course> = { 1: 'principal', 2: 'acompanamiento' };
 
 /** Recetas para un hueco: primero las de ese tipo y franja, luego las de ese tipo, luego cualquiera */
 function candidates(recipes: Recipe[], slot: MealType, course: Course): Recipe[] {
@@ -59,22 +58,77 @@ export default function WeekView() {
     }
   }
 
+  const byId = useMemo(() => new Map(recipes.map((r) => [r.id, r])), [recipes]);
+
+  /** Lo que ya hay en la semana (sin contar el hueco `skip`) para elegir sin repetir y equilibrando */
+  function contextFor(current: Map<string, string>, day: string, slot: MealType, skip: string): PickContext {
+    const used = new Map<string, number>();
+    const groupCounts = emptyGroupCounts();
+    for (const [key, value] of current) {
+      const r = byId.get(value);
+      if (key === skip || !r) continue;
+      used.set(r.id, (used.get(r.id) ?? 0) + 1);
+      if (r.course === 'principal') groupCounts[foodGroupOf(r)]++;
+    }
+    const groupsAt = (d: string, s: MealType) =>
+      ([1, 2] as PlanPosition[])
+        .map((p) => byId.get(current.get(slotKey(d, s, p)) ?? ''))
+        .filter((r): r is Recipe => !!r && r.course === 'principal')
+        .map(foodGroupOf);
+    const date = new Date(`${day}T12:00:00`);
+    const other: MealType = slot === 'comida' ? 'cena' : 'comida';
+    return {
+      used,
+      groupCounts,
+      sameDay: groupsAt(day, other),
+      neighbours: [...groupsAt(toISODate(addDays(date, -1)), slot), ...groupsAt(toISODate(addDays(date, 1)), slot)],
+    };
+  }
+
   function randomFor(day: string, slot: MealType, position: PlanPosition) {
-    const current = recipes.find((r) => r.id === plan.get(slotKey(day, slot, position)));
-    const pick = pickRandom(candidates(recipes, slot, COURSE_FOR[position]), current);
+    const key = slotKey(day, slot, position);
+    const ctx = contextFor(plan, day, slot, key);
+    const current = byId.get(plan.get(key) ?? '');
+    let pick: Recipe | undefined;
+    if (position === 1) {
+      // Excluimos la actual para que el dado siempre cambie el plato
+      const options = candidates(recipes, slot, 'principal');
+      pick = pickBalanced(options.length > 1 ? options.filter((r) => r !== current) : options, ctx);
+    } else {
+      const options = candidates(recipes, slot, 'acompanamiento');
+      const unused = options.filter((r) => !ctx.used.has(r.id));
+      pick = pickRandom(unused.length ? unused : options, current);
+    }
     if (pick) assign(day, slot, position, pick.id);
   }
 
-  // Solo rellena el plato principal de cada comida y cena vacía
+  // Rellena el plato principal de cada comida y cena vacía, sin repetir recetas y equilibrando la semana
   async function fillEmpty() {
+    const working = new Map(plan);
     for (const d of days) {
       for (const slot of MEAL_TYPES) {
         const day = toISODate(d);
-        if (!plan.has(slotKey(day, slot, 1))) {
-          const pick = pickRandom(candidates(recipes, slot, 'principal'));
-          if (pick) await assign(day, slot, 1, pick.id);
-        }
+        const key = slotKey(day, slot, 1);
+        if (working.has(key)) continue;
+        const pick = pickBalanced(candidates(recipes, slot, 'principal'), contextFor(working, day, slot, key));
+        if (!pick) continue;
+        working.set(key, pick.id);
+        await assign(day, slot, 1, pick.id);
       }
+    }
+  }
+
+  // Cuántos platos principales de cada tipo hay esta semana
+  const weekCounts = emptyGroupCounts();
+  let repeated = 0;
+  {
+    const seen = new Set<string>();
+    for (const value of plan.values()) {
+      const r = byId.get(value);
+      if (!r) continue;
+      if (seen.has(r.id)) repeated++;
+      seen.add(r.id);
+      if (r.course === 'principal') weekCounts[foodGroupOf(r)]++;
     }
   }
 
@@ -137,6 +191,8 @@ export default function WeekView() {
       </div>
 
       {error && <p className="error">{error}</p>}
+
+      <WeekBalance counts={weekCounts} repeated={repeated} />
 
       <div className="week">
         {days.map((d) => {
@@ -267,6 +323,25 @@ function Dish(props: {
           Ver receta →
         </button>
       )}
+    </div>
+  );
+}
+
+function WeekBalance({ counts, repeated }: { counts: Record<FoodGroup, number>; repeated: number }) {
+  return (
+    <div className="balance" aria-label="Equilibrio de la semana">
+      {FOOD_GROUPS.map((g) => {
+        const info = FOOD_GROUP_INFO[g];
+        const state = balanceState(g, counts[g]);
+        const rec = recommendation(g);
+        return (
+          <span key={g} className={`balance-item ${state}`} title={rec ? `Recomendado: ${rec} por semana` : undefined}>
+            {info.icon} {info.label} <strong>{counts[g]}</strong>
+            {rec && <span className="balance-rec">{rec}</span>}
+          </span>
+        );
+      })}
+      {repeated > 0 && <span className="balance-item high">🔁 {repeated === 1 ? '1 receta repetida' : `${repeated} recetas repetidas`}</span>}
     </div>
   );
 }

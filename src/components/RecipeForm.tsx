@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useData } from '../data';
 import { compressImage } from '../lib/image';
 import { allIngredients, ingredientKey, normalize } from '../lib/match';
+import { FOOD_GROUP_INFO, FOOD_GROUPS, inferFoodGroup, type FoodGroup } from '../lib/nutrition';
 import { COURSE_LABEL, COURSES, MEAL_LABEL, MEAL_TYPES, type Course, type Ingredient, type MealType, type Recipe } from '../lib/types';
 
 const EMPTY_INGREDIENT: Ingredient = { name: '', quantity: '' };
@@ -11,6 +12,7 @@ export default function RecipeForm({ recipe, onDone }: { recipe: Recipe | null; 
   const [title, setTitle] = useState(recipe?.title ?? '');
   const [mealTypes, setMealTypes] = useState<MealType[]>(recipe?.mealTypes ?? []);
   const [course, setCourse] = useState<Course>(recipe?.course ?? 'principal');
+  const [foodGroup, setFoodGroup] = useState<FoodGroup | null>(recipe?.foodGroup ?? null);
   const [thermomix, setThermomix] = useState(recipe?.thermomix ?? false);
   const [time, setTime] = useState(recipe?.timeMinutes?.toString() ?? '');
   const [ingredients, setIngredients] = useState<Ingredient[]>(
@@ -59,6 +61,8 @@ export default function RecipeForm({ recipe, onDone }: { recipe: Recipe | null; 
     });
   }
 
+  const detectedGroup = inferFoodGroup(title, ingredients);
+
   const pickerItems = pickerQuery ? unused.filter((k) => normalize(k).includes(normalize(pickerQuery))) : unused;
 
   async function onPhoto(file: File | undefined) {
@@ -83,7 +87,7 @@ export default function RecipeForm({ recipe, onDone }: { recipe: Recipe | null; 
     setError(null);
     try {
       const saved = await saveRecipe(
-        { title, mealTypes, course, thermomix, timeMinutes: minutes == null ? null : Math.round(minutes), ingredients, instructions, photo, removePhoto },
+        { title, mealTypes, course, foodGroup, thermomix, timeMinutes: minutes == null ? null : Math.round(minutes), ingredients, instructions, photo, removePhoto },
         recipe,
       );
       onDone(saved);
@@ -161,6 +165,20 @@ export default function RecipeForm({ recipe, onDone }: { recipe: Recipe | null; 
           </div>
         </div>
       </div>
+
+      <label className="field">
+        <span>Tipo de alimento (para equilibrar el menú)</span>
+        <select value={foodGroup ?? ''} onChange={(e) => setFoodGroup((e.target.value || null) as FoodGroup | null)}>
+          <option value="">
+            Automático: {FOOD_GROUP_INFO[detectedGroup].icon} {FOOD_GROUP_INFO[detectedGroup].label}
+          </option>
+          {FOOD_GROUPS.map((g) => (
+            <option key={g} value={g}>
+              {FOOD_GROUP_INFO[g].icon} {FOOD_GROUP_INFO[g].label}
+            </option>
+          ))}
+        </select>
+      </label>
 
       <div className="row">
         <div className="field">

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useData } from '../data';
 import { formatMinutes } from '../lib/dates';
+import { FOOD_GROUP_INFO, foodGroupOf } from '../lib/nutrition';
 import type { Recipe } from '../lib/types';
 import { MealTags, Photo } from './RecipeCard';
 
@@ -28,6 +29,9 @@ export default function RecipeDetail({ recipe, onDeleted }: { recipe: Recipe; on
         <div className="meta">
           <MealTags recipe={recipe} />
           {recipe.timeMinutes != null && <span className="time">⏱ {formatMinutes(recipe.timeMinutes)}</span>}
+          <span className="muted">
+            {FOOD_GROUP_INFO[foodGroupOf(recipe)].icon} {FOOD_GROUP_INFO[foodGroupOf(recipe)].label}
+          </span>
           {recipe.createdBy && <span className="muted">Subida por {recipe.createdBy}</span>}
         </div>
 

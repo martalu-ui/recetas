@@ -1,3 +1,5 @@
+import type { FoodGroup } from './nutrition';
+
 export type MealType = 'comida' | 'cena';
 
 export const MEAL_TYPES: MealType[] = ['comida', 'cena'];
@@ -29,6 +31,8 @@ export interface Recipe {
   timeMinutes: number | null;
   mealTypes: MealType[];
   course: Course;
+  /** Tipo de alimento elegido a mano; null = se deduce de los ingredientes */
+  foodGroup: FoodGroup | null;
   thermomix: boolean;
   instructions: string;
   createdBy: string | null;
@@ -42,6 +46,7 @@ export interface RecipeDraft {
   timeMinutes: number | null;
   mealTypes: MealType[];
   course: Course;
+  foodGroup: FoodGroup | null;
   thermomix: boolean;
   instructions: string;
   photo: Blob | null;

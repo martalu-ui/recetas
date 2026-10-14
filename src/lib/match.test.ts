@@ -11,6 +11,7 @@ function recipe(title: string, ingredients: string[]): Recipe {
     timeMinutes: null,
     mealTypes: ['comida'],
     course: 'principal',
+    foodGroup: null,
     thermomix: false,
     instructions: '',
     createdBy: null,

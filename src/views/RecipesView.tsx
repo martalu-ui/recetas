@@ -36,7 +36,7 @@ export default function RecipesView() {
           <h1>Nuestras recetas</h1>
           <p className="muted">{recipes.length === 1 ? '1 receta' : `${recipes.length} recetas`}</p>
         </div>
-        <button className="btn primary" onClick={() => editRecipe(null)}>
+        <button className="btn primary new-recipe" onClick={() => editRecipe(null)}>
           + Nueva receta
         </button>
       </div>

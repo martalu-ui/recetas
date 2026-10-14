@@ -261,7 +261,17 @@ a:focus-visible {
     margin-left: auto;
   }
   .content {
-    padding: 16px 16px 96px;
+    padding: 16px 16px 150px;
+  }
+  /* En el móvil, «Nueva receta» flota abajo a la derecha, encima de la navegación */
+  .new-recipe {
+    position: fixed;
+    right: 16px;
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    z-index: 20;
+    padding: 14px 20px;
+    border-radius: 999px;
+    box-shadow: 0 6px 20px rgb(0 0 0 / 25%);
   }
   .banner {
     padding: 8px 16px;

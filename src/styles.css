@@ -713,6 +713,11 @@ a:focus-visible {
   text-align: left;
 }
 
+.login .forgot {
+  margin-top: 8px;
+  color: var(--muted);
+}
+
 .brand-icon {
   width: 28px;
   height: 28px;

@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { DataProvider, useData } from './data';
-import { supabase } from './lib/supabase';
+import { authLinkType, supabase } from './lib/supabase';
 import type { Recipe } from './lib/types';
 import Login from './components/Login';
+import SetPassword from './components/SetPassword';
 import Modal from './components/Modal';
 import RecipeDetail from './components/RecipeDetail';
 import RecipeForm from './components/RecipeForm';
@@ -29,6 +30,8 @@ function viewFromHash(): ViewId {
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [authReady, setAuthReady] = useState(!supabase);
+  // Quien entra desde una invitación o "he olvidado mi contraseña" aún tiene que elegir contraseña
+  const [needsPassword, setNeedsPassword] = useState(authLinkType === 'invite' || authLinkType === 'recovery');
 
   useEffect(() => {
     if (!supabase) return;
@@ -36,12 +39,16 @@ export default function App() {
       setSession(data.session);
       setAuthReady(true);
     });
-    const { data } = supabase.auth.onAuthStateChange((_event, s) => setSession(s));
+    const { data } = supabase.auth.onAuthStateChange((event, s) => {
+      setSession(s);
+      if (event === 'PASSWORD_RECOVERY') setNeedsPassword(true);
+    });
     return () => data.subscription.unsubscribe();
   }, []);
 
   if (!authReady) return <div className="center-screen">Cargando…</div>;
   if (supabase && !session) return <Login />;
+  if (session && needsPassword) return <SetPassword email={session.user.email ?? null} onDone={() => setNeedsPassword(false)} />;
 
   const email = session?.user.email ?? null;
   return <Shell author={email ? email.split('@')[0] : null} />;

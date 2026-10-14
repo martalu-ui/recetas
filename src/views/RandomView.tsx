@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useData } from '../data';
 import { formatMinutes } from '../lib/dates';
 import { pickRandom } from '../lib/match';
-import Icon from '../components/Icon';
+import { Icon } from '../components/Pixel';
 import { MealTags, Photo } from '../components/RecipeCard';
 import Empty from './Empty';
 import MealFilter, { filterByMeal, type MealFilterValue } from './MealFilter';
@@ -61,7 +61,7 @@ export default function RandomView() {
         </div>
       ) : (
         result && (
-          <button className="random-result ticket" onClick={() => openRecipe(result)}>
+          <button className="random-result panel" onClick={() => openRecipe(result)}>
             <Photo recipe={result} />
             <div className="random-result-body">
               <h2>{result.title}</h2>

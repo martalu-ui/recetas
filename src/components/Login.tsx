@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { appUrl, authLinkError, supabase } from '../lib/supabase';
+import { Fries } from './Pixel';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -31,8 +32,8 @@ export default function Login() {
 
   return (
     <div className="center-screen">
-      <form className="card login ticket" onSubmit={submit}>
-        <img className="login-logo" src={`${import.meta.env.BASE_URL}icon-192.png`} alt="" />
+      <form className="card login panel" onSubmit={submit}>
+        <Fries size={80} className="login-logo" />
         <h1>MajoChef</h1>
         <label className="field">
           <span>Email</span>

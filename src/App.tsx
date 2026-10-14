@@ -3,7 +3,7 @@ import type { Session } from '@supabase/supabase-js';
 import { DataProvider, useData } from './data';
 import { authLinkType, supabase } from './lib/supabase';
 import type { Recipe } from './lib/types';
-import Icon from './components/Icon';
+import { Fries, Icon } from './components/Pixel';
 import Login from './components/Login';
 import SetPassword from './components/SetPassword';
 import Modal from './components/Modal';
@@ -76,9 +76,9 @@ function Shell({ author }: { author: string | null }) {
     <DataProvider author={author} onOpen={onOpen} onEdit={onEdit}>
       <header className="topbar">
         <a className="brand" href="#/recetas">
-          <img className="brand-icon" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" /> MajoChef
+          <Fries size={30} className="brand-icon" /> MajoChef
         </a>
-        <span className="ticket-date" aria-hidden>
+        <span className="topbar-date" aria-hidden>
           {new Date().toLocaleDateString('es-ES', { weekday: 'short', day: '2-digit', month: '2-digit' }).replace(',', '')}
         </span>
         <nav className="tabs" aria-label="Secciones">

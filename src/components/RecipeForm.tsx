@@ -207,7 +207,7 @@ export default function RecipeForm({ recipe, onDone }: { recipe: Recipe | null; 
             <div className="ingredient-item" key={idx}>
               <div className="ingredient-row">
                 <input
-                  placeholder="Ingrediente (p. ej. tomate)"
+                  placeholder="Ingrediente"
                   value={ing.name}
                   onChange={(e) => {
                     setActiveRow(idx);

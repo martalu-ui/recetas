@@ -57,7 +57,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font: 16px/1.5 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font: 17px/1.5 'Inconsolata', ui-monospace, Menlo, Consolas, monospace;
   -webkit-font-smoothing: antialiased;
 }
 

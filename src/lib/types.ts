@@ -48,8 +48,9 @@ export interface RecipeDraft {
   removePhoto: boolean;
 }
 
-/** Valor especial del menú para "sobras" de otros días (en vez de una receta) */
+/** Valores especiales del menú en vez de una receta: sobras de otros días o comer fuera */
 export const LEFTOVERS = 'sobras';
+export const EATING_OUT = 'fuera';
 
 export type PlanPosition = 1 | 2;
 
@@ -59,6 +60,6 @@ export interface PlanEntry {
   slot: MealType;
   /** Cada comida o cena puede tener hasta dos platos */
   position: PlanPosition;
-  /** id de una receta o LEFTOVERS */
+  /** id de una receta, LEFTOVERS o EATING_OUT */
   value: string;
 }

@@ -16,15 +16,16 @@ create table if not exists public.recipes (
 );
 
 -- Menú semanal: hasta dos platos por día y franja (comida / cena) -----------
--- Cada plato es una receta nuestra o "sobras" (leftovers = true, sin receta).
+-- Cada plato es una receta nuestra, "sobras" (leftovers) o "comemos fuera" (eating_out).
 create table if not exists public.meal_plan (
   day        date not null,
   slot       text not null check (slot in ('comida', 'cena')),
   position   smallint not null default 1 check (position in (1, 2)),
   recipe_id  uuid references public.recipes(id) on delete cascade,
   leftovers  boolean not null default false,
+  eating_out boolean not null default false,
   primary key (day, slot, position),
-  constraint meal_plan_receta_o_sobras check (leftovers or recipe_id is not null)
+  constraint meal_plan_receta_o_sobras check (leftovers or eating_out or recipe_id is not null)
 );
 
 create index if not exists meal_plan_recipe_id_idx on public.meal_plan (recipe_id);

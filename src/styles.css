@@ -897,7 +897,7 @@ a:focus-visible {
   gap: 2px;
 }
 
-.slot-controls select.leftovers {
+.slot-controls select.special {
   font-style: italic;
 }
 

@@ -1,6 +1,6 @@
 import { blobToDataUrl } from './image';
 import { PHOTO_BUCKET, supabase } from './supabase';
-import { LEFTOVERS, type Course, type Ingredient, type MealType, type PlanEntry, type PlanPosition, type Recipe, type RecipeDraft } from './types';
+import { EATING_OUT, LEFTOVERS, type Course, type Ingredient, type MealType, type PlanEntry, type PlanPosition, type Recipe, type RecipeDraft } from './types';
 
 export interface DataStore {
   mode: 'local' | 'supabase';
@@ -9,7 +9,7 @@ export interface DataStore {
   deleteRecipe(recipe: Recipe): Promise<void>;
   /** Entradas del menú entre dos fechas (YYYY-MM-DD, ambas incluidas) */
   listPlan(from: string, to: string): Promise<PlanEntry[]>;
-  /** `value` es el id de una receta, LEFTOVERS, o null para vaciar el hueco */
+  /** `value` es el id de una receta, LEFTOVERS, EATING_OUT, o null para vaciar el hueco */
   setPlan(day: string, slot: MealType, position: PlanPosition, value: string | null): Promise<void>;
 }
 
@@ -181,21 +181,25 @@ const supabaseStore: DataStore = {
   },
   async listPlan(from, to) {
     const rows = check(await supabase!.from('meal_plan').select('*').gte('day', from).lte('day', to));
-    type Row = { day: string; slot: MealType; position: PlanPosition; recipe_id: string | null; leftovers: boolean };
+    type Row = { day: string; slot: MealType; position: PlanPosition; recipe_id: string | null; leftovers: boolean; eating_out: boolean };
     return (rows as Row[]).map((r) => ({
       day: r.day,
       slot: r.slot,
       position: r.position,
-      value: r.leftovers ? LEFTOVERS : r.recipe_id!,
+      value: r.leftovers ? LEFTOVERS : r.eating_out ? EATING_OUT : r.recipe_id!,
     }));
   },
   async setPlan(day, slot, position, value) {
     if (value) {
       const leftovers = value === LEFTOVERS;
+      const eatingOut = value === EATING_OUT;
       check(
         await supabase!
           .from('meal_plan')
-          .upsert({ day, slot, position, leftovers, recipe_id: leftovers ? null : value }, { onConflict: 'day,slot,position' }),
+          .upsert(
+            { day, slot, position, leftovers, eating_out: eatingOut, recipe_id: leftovers || eatingOut ? null : value },
+            { onConflict: 'day,slot,position' },
+          ),
       );
     } else {
       check(await supabase!.from('meal_plan').delete().eq('day', day).eq('slot', slot).eq('position', position));

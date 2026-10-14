@@ -3,7 +3,7 @@ import { useData } from '../data';
 import { addDays, shortDate, startOfWeek, toISODate, weekDays, weekdayName } from '../lib/dates';
 import { pickRandom } from '../lib/match';
 import { store } from '../lib/store';
-import { LEFTOVERS, MEAL_LABEL, MEAL_TYPES, type Course, type MealType, type PlanPosition, type Recipe } from '../lib/types';
+import { EATING_OUT, LEFTOVERS, MEAL_LABEL, MEAL_TYPES, type Course, type MealType, type PlanPosition, type Recipe } from '../lib/types';
 import Empty from './Empty';
 
 const slotKey = (day: string, slot: MealType, position: PlanPosition) => `${day}|${slot}|${position}`;
@@ -238,10 +238,11 @@ function Dish(props: {
           value={value}
           onChange={(e) => props.onChange(position, e.target.value || null)}
           aria-label={label}
-          className={value === LEFTOVERS ? 'leftovers' : undefined}
+          className={value === LEFTOVERS || value === EATING_OUT ? 'special' : undefined}
         >
           <option value="">{position === 1 ? '—' : '— Segundo plato —'}</option>
           <option value={LEFTOVERS}>🥡 Sobras</option>
+          <option value={EATING_OUT}>🍽️ Comemos fuera</option>
           {groups.map((g) => (
             <optgroup key={g.label} label={g.label}>
               {[...g.items].sort(byName).map((r) => (

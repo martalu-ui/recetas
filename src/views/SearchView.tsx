@@ -30,7 +30,7 @@ export default function SearchView() {
       <p className="muted">Elige ingredientes y te decimos cuál de nuestras recetas se parece más.</p>
 
       <button className="btn primary pick-ingredients" onClick={() => setSheetOpen(true)}>
-        {selected.length ? `Ingredientes elegidos (${selected.length})` : 'Elegir ingredientes'}
+        🧺 {selected.length ? `Ingredientes elegidos (${selected.length})` : 'Elegir ingredientes'}
       </button>
 
       {selected.length > 0 && (
@@ -58,7 +58,7 @@ export default function SearchView() {
         <div className="grid">
           {results.map((m, idx) => (
             <RecipeCard key={m.recipe.id} recipe={m.recipe} onClick={() => openRecipe(m.recipe)}>
-              {idx === 0 && <span className="best">La más parecida</span>}
+              {idx === 0 && <span className="best">⭐ La más parecida</span>}
               <p className="match-info">
                 Usa {m.matched.length} de {selected.length} ingredientes elegidos
               </p>

@@ -3,7 +3,6 @@ import type { Session } from '@supabase/supabase-js';
 import { DataProvider, useData } from './data';
 import { authLinkType, supabase } from './lib/supabase';
 import type { Recipe } from './lib/types';
-import Icon from './components/Icon';
 import Login from './components/Login';
 import SetPassword from './components/SetPassword';
 import Modal from './components/Modal';
@@ -15,10 +14,10 @@ import SearchView from './views/SearchView';
 import WeekView from './views/WeekView';
 
 const VIEWS = [
-  { id: 'azar', label: 'Al azar', icon: 'dice' },
-  { id: 'recetas', label: 'Recetas', icon: 'list' },
-  { id: 'buscador', label: 'Buscador', icon: 'search' },
-  { id: 'semana', label: 'Semana', icon: 'calendar' },
+  { id: 'azar', label: 'Al azar', icon: '🎲' },
+  { id: 'recetas', label: 'Recetas', icon: '📖' },
+  { id: 'buscador', label: 'Buscador', icon: '🔍' },
+  { id: 'semana', label: 'Semana', icon: '📅' },
 ] as const;
 
 type ViewId = (typeof VIEWS)[number]['id'];
@@ -78,13 +77,12 @@ function Shell({ author }: { author: string | null }) {
         <a className="brand" href="#/recetas">
           <img className="brand-icon" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" /> MajoChef
         </a>
-        <span className="ticket-date" aria-hidden>
-          {new Date().toLocaleDateString('es-ES', { weekday: 'short', day: '2-digit', month: '2-digit' }).replace(',', '')}
-        </span>
         <nav className="tabs" aria-label="Secciones">
           {VIEWS.map((v) => (
             <a key={v.id} href={`#/${v.id}`} className={v.id === view ? 'tab active' : 'tab'} aria-current={v.id === view ? 'page' : undefined}>
-              <Icon name={v.icon} />
+              <span className="tab-icon" aria-hidden>
+                {v.icon}
+              </span>
               <span className="tab-label">{v.label}</span>
             </a>
           ))}

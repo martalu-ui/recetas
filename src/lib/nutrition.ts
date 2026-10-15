@@ -10,13 +10,13 @@ export const FOOD_GROUPS: FoodGroup[] = ['legumbres', 'pescado', 'carne', 'huevo
  * legumbres al menos 4, pescado al menos 3, carne como mucho 3 y huevos hasta 4.
  * `target` reparte las 14 comidas y cenas de la semana.
  */
-export const FOOD_GROUP_INFO: Record<FoodGroup, { label: string; min?: number; max?: number; target: number }> = {
-  legumbres: { label: 'Legumbres', min: 4, target: 4 },
-  pescado: { label: 'Pescado', min: 3, target: 3 },
-  carne: { label: 'Carne', max: 3, target: 3 },
-  huevos: { label: 'Huevos', max: 4, target: 2 },
-  cereales: { label: 'Pasta y arroz', target: 1 },
-  verdura: { label: 'Verdura', target: 1 },
+export const FOOD_GROUP_INFO: Record<FoodGroup, { label: string; icon: string; min?: number; max?: number; target: number }> = {
+  legumbres: { label: 'Legumbres', icon: '🫘', min: 4, target: 4 },
+  pescado: { label: 'Pescado', icon: '🐟', min: 3, target: 3 },
+  carne: { label: 'Carne', icon: '🍗', max: 3, target: 3 },
+  huevos: { label: 'Huevos', icon: '🥚', max: 4, target: 2 },
+  cereales: { label: 'Pasta y arroz', icon: '🍝', target: 1 },
+  verdura: { label: 'Verdura', icon: '🥦', target: 1 },
 };
 
 const KEYWORDS: Record<Exclude<FoodGroup, 'verdura'>, string[]> = {

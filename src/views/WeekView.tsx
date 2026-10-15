@@ -6,7 +6,7 @@ import { balanceState, FOOD_GROUP_INFO, FOOD_GROUPS, foodGroupOf, recommendation
 import { emptyGroupCounts, pickBalanced, type PickContext } from '../lib/planner';
 import { store } from '../lib/store';
 import { EATING_OUT, LEFTOVERS, MEAL_LABEL, MEAL_TYPES, type Course, type MealType, type PlanPosition, type Recipe } from '../lib/types';
-import { Icon } from '../components/Pixel';
+import Icon from '../components/Icon';
 import Empty from './Empty';
 
 const slotKey = (day: string, slot: MealType, position: PlanPosition) => `${day}|${slot}|${position}`;
@@ -199,7 +199,7 @@ export default function WeekView() {
         {days.map((d) => {
           const day = toISODate(d);
           return (
-            <div key={day} className={day === today ? 'day panel today' : 'day panel'}>
+            <div key={day} className={day === today ? 'day ticket today' : 'day ticket'}>
               <div className="day-head">
                 <strong>{weekdayName(d)}</strong>
                 {day === today && <span className="stamp">Hoy</span>}
@@ -334,32 +334,21 @@ function WeekBalance({ counts, repeated }: { counts: Record<FoodGroup, number>; 
     <div className="balance" aria-label="Equilibrio de la semana">
       {FOOD_GROUPS.map((g) => {
         const info = FOOD_GROUP_INFO[g];
-        const count = counts[g];
-        const state = balanceState(g, count);
+        const state = balanceState(g, counts[g]);
         const rec = recommendation(g);
-        // Barra de "vida": una casilla por ración recomendada (o por plato si no hay recomendación)
-        const limit = info.min ?? info.max ?? 0;
-        const cells = Math.max(limit, count, 1);
         return (
-          <div key={g} className={`balance-item ${state}`} title={rec ? `Recomendado: ${rec} por semana` : undefined}>
+          <span key={g} className={`balance-item ${state}`} title={rec ? `Recomendado: ${rec} por semana` : undefined}>
             <span className="balance-label">{info.label}</span>
-            <span className="balance-bar" aria-hidden>
-              {Array.from({ length: cells }, (_, i) => (
-                <span key={i} className={i < count ? (info.max != null && i >= info.max ? 'cell over' : 'cell on') : 'cell'} />
-              ))}
-            </span>
-            <span className="balance-count">
-              {count}
-              {rec && <span className="balance-rec"> {rec}</span>}
-            </span>
-          </div>
+            <span className="balance-leader" aria-hidden />
+            <strong>{counts[g]}</strong>
+            {rec && <span className="balance-rec">{rec}</span>}
+          </span>
         );
       })}
       {repeated > 0 && (
-        <div className="balance-item high">
-          <span className="balance-label">Repetidas</span>
-          <span className="balance-count">{repeated}</span>
-        </div>
+        <span className="balance-item high">
+          <span className="balance-label">Repetidas</span> <strong>{repeated}</strong>
+        </span>
       )}
     </div>
   );

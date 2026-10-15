@@ -28,7 +28,7 @@ export function Photo({ recipe, className }: { recipe: Recipe; className?: strin
 
 export default function RecipeCard({ recipe, onClick, children }: { recipe: Recipe; onClick(): void; children?: ReactNode }) {
   return (
-    <button className="recipe-card panel" onClick={onClick}>
+    <button className="recipe-card ticket" onClick={onClick}>
       <Photo recipe={recipe} />
       <div className="recipe-card-body">
         <h3>{recipe.title}</h3>

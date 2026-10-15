@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react';
 import { supabase } from '../lib/supabase';
-import { Fries } from './Pixel';
 
 /** Tras entrar desde una invitación o un enlace de "he olvidado mi contraseña" */
 export default function SetPassword({ email, onDone }: { email: string | null; onDone(): void }) {
@@ -26,8 +25,8 @@ export default function SetPassword({ email, onDone }: { email: string | null; o
 
   return (
     <div className="center-screen">
-      <form className="card login panel" onSubmit={submit}>
-        <Fries size={80} className="login-logo" />
+      <form className="card login ticket" onSubmit={submit}>
+        <img className="login-logo" src={`${import.meta.env.BASE_URL}icon-192.png`} alt="" />
         <h1>Elige tu contraseña</h1>
         {email && <p className="muted">Para entrar en MajoChef con {email}</p>}
         <label className="field">

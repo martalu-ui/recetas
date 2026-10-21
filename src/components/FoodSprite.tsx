@@ -122,8 +122,16 @@ const SPRITE_FOR: Record<FoodGroup, keyof typeof SPRITES> = {
   carne: 'pot',
 };
 
+export type SpriteName = keyof typeof SPRITES;
+
+export const SPRITE_NAMES = Object.keys(SPRITES) as SpriteName[];
+
 export default function FoodSprite({ recipe, size = 64 }: { recipe: Recipe; size?: number }) {
-  const rows = SPRITES[SPRITE_FOR[foodGroupOf(recipe)]];
+  return <Sprite name={SPRITE_FOR[foodGroupOf(recipe)]} size={size} />;
+}
+
+export function Sprite({ name, size = 64 }: { name: SpriteName; size?: number }) {
+  const rows = SPRITES[name];
   const rects = [];
   for (let y = 0; y < rows.length; y++) {
     for (let x = 0; x < rows[y].length; x++) {

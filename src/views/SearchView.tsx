@@ -3,7 +3,7 @@ import { useData } from '../data';
 import { allIngredients, ingredientKey, normalize, rankBySelectedIngredients } from '../lib/match';
 import { INGREDIENT_CATEGORIES, ingredientCategory } from '../lib/nutrition';
 import Modal from '../components/Modal';
-import RecipeCard from '../components/RecipeCard';
+import FoodSprite from '../components/FoodSprite';
 import Empty from './Empty';
 import MealFilter, { filterByMeal, type MealFilterValue } from './MealFilter';
 
@@ -25,13 +25,16 @@ export default function SearchView() {
   if (recipes.length === 0) return <Empty text="Cuando subáis recetas podréis buscar por ingredientes." />;
 
   return (
-    <section className="discover-search">
-      <h2>¿Qué tenemos en la nevera?</h2>
-      <p className="muted">Elige ingredientes y te decimos cuál de nuestras recetas se parece más.</p>
-
-      <button className="btn primary pick-ingredients" onClick={() => setSheetOpen(true)}>
-        {selected.length ? `Ingredientes elegidos (${selected.length})` : 'Elegir ingredientes'}
-      </button>
+    <section className="discover-search fridge">
+      <div className="fridge-head">
+        <div>
+          <h2>¿Qué hay en la nevera?</h2>
+          <p className="muted">Marca lo que tenéis y te decimos qué receta se parece más.</p>
+        </div>
+        <button className="btn primary" onClick={() => setSheetOpen(true)}>
+          {selected.length ? 'Cambiar' : 'Elegir ingredientes'}
+        </button>
+      </div>
 
       {selected.length > 0 && (
         <div className="chips selected">
@@ -46,31 +49,40 @@ export default function SearchView() {
         </div>
       )}
 
-      <div className="toolbar">
-        <MealFilter value={meal} onChange={setMeal} />
-      </div>
-
-      {selected.length === 0 ? (
-        <p className="muted">Pulsa «Elegir ingredientes» y marca los que tenéis.</p>
-      ) : results.length === 0 ? (
-        <p className="muted">Ninguna de nuestras recetas lleva esos ingredientes.</p>
-      ) : (
-        <div className="grid">
-          {results.map((m, idx) => (
-            <RecipeCard key={m.recipe.id} recipe={m.recipe} onClick={() => openRecipe(m.recipe)}>
-              {idx === 0 && <span className="best">La más parecida</span>}
-              <p className="match-info">
-                Usa {m.matched.length} de {selected.length} ingredientes elegidos
-              </p>
-              {m.missing.length > 0 ? (
-                <p className="muted small">Te falta: {m.missing.join(', ')}</p>
-              ) : (
-                <p className="ok small">¡Tienes todo!</p>
-              )}
-            </RecipeCard>
-          ))}
+      {selected.length > 0 && (
+        <div className="fridge-filter">
+          <MealFilter value={meal} onChange={setMeal} />
         </div>
       )}
+
+      {selected.length > 0 &&
+        (results.length === 0 ? (
+          <p className="muted">Ninguna de nuestras recetas lleva esos ingredientes.</p>
+        ) : (
+          <ul className="match-list">
+            {results.map((m, idx) => (
+              <li key={m.recipe.id}>
+                <button className="match-row" onClick={() => openRecipe(m.recipe)}>
+                  <span className="match-thumb">
+                    {m.recipe.photoUrl ? <img src={m.recipe.photoUrl} alt="" /> : <FoodSprite recipe={m.recipe} size={40} />}
+                  </span>
+                  <span className="match-body">
+                    <span className="match-title">
+                      <strong>{m.recipe.title}</strong>
+                      {idx === 0 && <span className="best">La más parecida</span>}
+                    </span>
+                    <span className="muted small">
+                      {m.missing.length === 0 ? '¡Tienes todo!' : `Te falta: ${m.missing.join(', ')}`}
+                    </span>
+                  </span>
+                  <span className="match-score" aria-label={`Usa ${m.matched.length} de ${selected.length} ingredientes elegidos`}>
+                    {m.matched.length}/{selected.length}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        ))}
 
       {sheetOpen && (
         <Modal label="Elegir ingredientes" onClose={closeSheet}>

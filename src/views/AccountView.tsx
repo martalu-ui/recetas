@@ -1,12 +1,24 @@
 import { useState } from 'react';
 import { useData } from '../data';
 import { appUrl, supabase } from '../lib/supabase';
+import Avatar, { AVATARS } from '../components/Avatar';
 
-export default function AccountView({ email }: { email: string | null }) {
+export default function AccountView(props: { email: string | null; avatar: string | null; onChooseAvatar(value: string): Promise<void> }) {
+  const { email, avatar } = props;
   const { recipes } = useData();
   const [info, setInfo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+
+  async function choose(value: string) {
+    setAvatarError(null);
+    try {
+      await props.onChooseAvatar(value);
+    } catch (e) {
+      setAvatarError(`No se ha podido guardar el avatar: ${(e as Error).message}`);
+    }
+  }
 
   async function changePassword() {
     if (!email) return;
@@ -27,7 +39,7 @@ export default function AccountView({ email }: { email: string | null }) {
           <>
             <div className="account-who">
               <span className="avatar" aria-hidden>
-                {email.charAt(0).toUpperCase()}
+                {avatar ? <Avatar value={avatar} size={40} /> : email.charAt(0).toUpperCase()}
               </span>
               <div>
                 <p className="muted small">Has entrado como</p>
@@ -55,6 +67,26 @@ export default function AccountView({ email }: { email: string | null }) {
               : 'Modo local: no hay cuenta porque las recetas se guardan solo en este navegador.'}
           </p>
         )}
+      </div>
+
+      <div className="account-card">
+        <h2>Tu avatar</h2>
+        <p className="muted small">Elige tu comida. Sale aquí y en la pestaña de Cuenta.</p>
+        <div className="avatar-picker" role="radiogroup" aria-label="Avatar de comida">
+          {AVATARS.map((a) => (
+            <button
+              key={a.id}
+              role="radio"
+              aria-checked={avatar === a.id}
+              className={avatar === a.id ? 'avatar-option on' : 'avatar-option'}
+              onClick={() => choose(a.id)}
+            >
+              <Avatar value={a.id} size={48} />
+              <span>{a.label}</span>
+            </button>
+          ))}
+        </div>
+        {avatarError && <p className="error">{avatarError}</p>}
       </div>
     </section>
   );

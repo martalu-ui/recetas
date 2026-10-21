@@ -973,6 +973,20 @@ a:focus-visible {
   color: var(--ok);
 }
 
+/* En el móvil el resumen va en una sola fila deslizable, para que hoy se vea sin bajar */
+@media (max-width: 720px) {
+  .balance {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 -16px 16px;
+    padding: 0 16px 4px;
+    scrollbar-width: none;
+  }
+  .balance-item {
+    flex: none;
+  }
+}
+
 .week-nav {
   display: flex;
   align-items: center;
@@ -1008,8 +1022,26 @@ a:focus-visible {
 
 .day-head {
   display: flex;
-  justify-content: space-between;
   align-items: baseline;
+  gap: 8px;
+}
+
+.day-date {
+  margin-left: auto;
+}
+
+.today-badge {
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Días de esta semana que ya han pasado: al final y más apagados */
+.day.past {
+  opacity: 0.6;
 }
 
 .slot {

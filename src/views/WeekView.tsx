@@ -145,6 +145,9 @@ export default function WeekView() {
   if (recipes.length === 0) return <Empty text="Subid recetas para poder organizar el menú de la semana." />;
 
   const isCurrentWeek = toISODate(startOfWeek(new Date())) === from;
+  // En la semana actual, hoy va el primero (sin tener que bajar) y los días que ya pasaron, al final
+  const todayIndex = isCurrentWeek ? days.findIndex((d) => toISODate(d) === today) : 0;
+  const orderedDays = [...days.slice(todayIndex), ...days.slice(0, todayIndex)];
 
   return (
     <section>
@@ -195,13 +198,16 @@ export default function WeekView() {
       <WeekBalance counts={weekCounts} repeated={repeated} />
 
       <div className="week">
-        {days.map((d) => {
+        {orderedDays.map((d) => {
           const day = toISODate(d);
+          const past = isCurrentWeek && day < today;
           return (
-            <div key={day} className={day === today ? 'day today' : 'day'}>
+            <div key={day} className={day === today ? 'day today' : past ? 'day past' : 'day'}>
               <div className="day-head">
                 <strong>{weekdayName(d)}</strong>
-                <span className="muted">{shortDate(d)}</span>
+                {day === today && <span className="today-badge">Hoy</span>}
+                {past && <span className="muted small">Ya pasó</span>}
+                <span className="muted day-date">{shortDate(d)}</span>
               </div>
               {MEAL_TYPES.map((slot) => (
                 <Slot

@@ -2,35 +2,51 @@ import { useEffect, useRef, useState } from 'react';
 import { useData } from '../data';
 import { formatMinutes } from '../lib/dates';
 import { pickRandom } from '../lib/match';
+import type { Recipe } from '../lib/types';
+import FoodSprite from '../components/FoodSprite';
 import Icon from '../components/Icon';
-import { MealTags, Photo } from '../components/RecipeCard';
-import Empty from './Empty';
-import MealFilter, { filterByMeal, type MealFilterValue } from './MealFilter';
+import { MealTags } from '../components/RecipeCard';
+
+type Mood = 'todo' | 'comida' | 'cena' | 'rapida' | 'thermomix';
+
+/** Atajos para sacar una receta al azar con un criterio (como las tarjetas de colores de la referencia) */
+const MOODS: { id: Exclude<Mood, 'todo'>; title: string; hint: string; test(r: Recipe): boolean }[] = [
+  { id: 'comida', title: 'Para comer', hint: 'Algo para mediodía', test: (r) => r.mealTypes.includes('comida') },
+  { id: 'cena', title: 'Para cenar', hint: 'Algo para la noche', test: (r) => r.mealTypes.includes('cena') },
+  { id: 'rapida', title: 'Algo rápido', hint: 'En 30 min o menos', test: (r) => r.timeMinutes != null && r.timeMinutes <= 30 },
+  { id: 'thermomix', title: 'Con Thermomix', hint: 'Que lo haga ella', test: (r) => r.thermomix },
+];
+
+/** Platos principales que cumplen el criterio; si no hay ninguno principal, cualquiera que lo cumpla */
+function poolFor(recipes: Recipe[], mood: Mood): Recipe[] {
+  const test = MOODS.find((m) => m.id === mood)?.test ?? (() => true);
+  const matching = recipes.filter(test);
+  const mains = matching.filter((r) => r.course === 'principal');
+  return mains.length ? mains : matching;
+}
 
 export default function RandomView() {
-  const { recipes, loading, openRecipe } = useData();
-  const [meal, setMeal] = useState<MealFilterValue>('todas');
+  const { recipes, openRecipe } = useData();
+  const [mood, setMood] = useState<Mood>('todo');
   const [resultId, setResultId] = useState<string | null>(null);
   const [rolling, setRolling] = useState<string | null>(null);
   const timer = useRef<number>();
 
   useEffect(() => () => window.clearInterval(timer.current), []);
 
-  // Platos principales; los acompañamientos solo si no hay ningún principal
-  const forMeal = filterByMeal(recipes, meal);
-  const mains = forMeal.filter((r) => r.course === 'principal');
-  const pool = mains.length ? mains : forMeal;
   const result = recipes.find((r) => r.id === resultId) ?? null;
 
   // Solo elige entre nuestras recetas: nunca se inventa ninguna
-  function roll() {
+  function roll(nextMood: Mood = mood) {
+    const pool = poolFor(recipes, nextMood);
     if (pool.length === 0) return;
+    setMood(nextMood);
     const final = pickRandom(pool, result ?? undefined)!;
     let ticks = 0;
     window.clearInterval(timer.current);
     timer.current = window.setInterval(() => {
       ticks++;
-      if (ticks >= 12) {
+      if (ticks >= 10) {
         window.clearInterval(timer.current);
         setRolling(null);
         setResultId(final.id);
@@ -40,41 +56,76 @@ export default function RandomView() {
     }, 70);
   }
 
-  if (loading) return <p className="muted">Cargando…</p>;
-  if (recipes.length === 0) return <Empty text="Para sacar una receta al azar primero tenéis que subir alguna." />;
+  const moodTitle = MOODS.find((m) => m.id === mood)?.title;
 
   return (
-    <section className="random">
-      <h1>¿Qué cocinamos hoy?</h1>
-      <p className="muted">Una receta al azar de las {recipes.length} que tenemos.</p>
-
-      <MealFilter value={meal} onChange={setMeal} allLabel="Cualquiera" />
-
-      <button className="btn primary big dice" onClick={roll} disabled={pool.length === 0 || rolling !== null}>
-        <Icon name="dice" size={22} /> {result ? 'Otra' : '¡Dame una receta!'}
-      </button>
-      {pool.length === 0 && <p className="muted">No hay recetas marcadas para {meal}.</p>}
-
-      {rolling !== null ? (
-        <div className="random-result rolling">
-          <h2>{rolling}</h2>
+    <section className="discover-random">
+      <div className="hero">
+        <div className="hero-head">
+          <h2>¿Qué cocinamos hoy?</h2>
+          <p>
+            {moodTitle ? `${moodTitle}, al azar entre nuestras recetas` : `Una de nuestras ${recipes.length} recetas, al azar`}
+            {mood !== 'todo' && (
+              <button className="hero-clear" onClick={() => setMood('todo')}>
+                Quitar filtro ×
+              </button>
+            )}
+          </p>
         </div>
-      ) : (
-        result && (
-          <button className="random-result" onClick={() => openRecipe(result)}>
-            <Photo recipe={result} />
-            <div className="random-result-body">
-              <h2>{result.title}</h2>
-              <div className="meta">
+
+        {rolling !== null ? (
+          <div className="hero-result rolling" aria-live="polite">
+            <span className="hero-sprite">
+              <Icon name="dice" size={40} />
+            </span>
+            <strong>{rolling}</strong>
+          </div>
+        ) : result ? (
+          <button className="hero-result" onClick={() => openRecipe(result)}>
+            <span className="hero-sprite">
+              {result.photoUrl ? <img src={result.photoUrl} alt="" /> : <FoodSprite recipe={result} size={56} />}
+            </span>
+            <span className="hero-result-body">
+              <strong>{result.title}</strong>
+              <span className="meta">
                 <MealTags recipe={result} />
                 {result.timeMinutes != null && <span className="time">{formatMinutes(result.timeMinutes)}</span>}
-              </div>
-              <p className="muted">{result.ingredients.map((i) => i.name).join(' · ')}</p>
-              <span className="link">Ver receta →</span>
-            </div>
+              </span>
+              <span className="hero-link">Ver receta →</span>
+            </span>
           </button>
-        )
-      )}
+        ) : (
+          <div className="hero-result empty">
+            <span className="hero-sprite">
+              <Icon name="dice" size={40} />
+            </span>
+            <span>Tira el dado y te decimos qué cocinar.</span>
+          </div>
+        )}
+
+        <button className="btn hero-roll" onClick={() => roll()} disabled={rolling !== null || poolFor(recipes, mood).length === 0}>
+          <Icon name="dice" size={20} /> {result ? 'Otra' : '¡Dame una!'}
+        </button>
+      </div>
+
+      <div className="moods" aria-label="Al azar con un criterio">
+        {MOODS.map((m) => {
+          const count = poolFor(recipes, m.id).length;
+          return (
+            <button
+              key={m.id}
+              className={`mood mood-${m.id}${mood === m.id ? ' on' : ''}`}
+              onClick={() => roll(m.id)}
+              disabled={count === 0 || rolling !== null}
+              aria-pressed={mood === m.id}
+            >
+              <strong>{m.title}</strong>
+              <span>{m.hint}</span>
+              <span className="mood-count">{count === 1 ? '1 receta' : `${count} recetas`}</span>
+            </button>
+          );
+        })}
+      </div>
     </section>
   );
 }

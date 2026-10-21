@@ -18,8 +18,8 @@
   --thermomix-soft: #dcfce7;
   --ok: #15803d;
   --danger: #b91c1c;
-  --radius: 14px;
-  --shadow: 0 1px 2px rgb(60 40 20 / 6%), 0 4px 16px rgb(60 40 20 / 6%);
+  --radius: 8px;
+  --shadow: 0 1px 2px rgb(60 40 20 / 6%);
   color-scheme: light;
 }
 
@@ -44,7 +44,7 @@
     --thermomix-soft: #16301f;
     --ok: #4ade80;
     --danger: #f87171;
-    --shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 4px 16px rgb(0 0 0 / 25%);
+    --shadow: 0 1px 2px rgb(0 0 0 / 30%);
     color-scheme: dark;
   }
 }
@@ -100,7 +100,7 @@ textarea {
   padding: 10px 12px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 6px;
   min-width: 0;
 }
 
@@ -165,20 +165,20 @@ a:focus-visible {
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  border-radius: 999px;
+  border-radius: 6px;
   text-decoration: none;
   color: var(--muted);
   font-weight: 500;
 }
 
 .tab:hover {
-  background: var(--surface-2);
   color: var(--text);
 }
 
 .tab.active {
-  background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--text);
+  box-shadow: inset 0 -2px 0 var(--accent);
+  border-radius: 0;
 }
 
 .content {
@@ -252,10 +252,14 @@ a:focus-visible {
     gap: 0;
     padding: 4px 10px;
     font-size: 0.75rem;
-    border-radius: 10px;
+    border-radius: 6px;
   }
   .tab-icon {
-    font-size: 1.3rem;
+    display: flex;
+  }
+  .tab.active {
+    color: var(--accent);
+    box-shadow: none;
   }
   .logout {
     margin-left: auto;
@@ -270,8 +274,8 @@ a:focus-visible {
     bottom: calc(76px + env(safe-area-inset-bottom));
     z-index: 20;
     padding: 14px 20px;
-    border-radius: 999px;
-    box-shadow: 0 6px 20px rgb(0 0 0 / 25%);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 18%);
   }
   .banner {
     padding: 8px 16px;
@@ -287,7 +291,7 @@ a:focus-visible {
   gap: 6px;
   padding: 9px 16px;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 6px;
   background: var(--surface);
   cursor: pointer;
   font-weight: 500;
@@ -330,7 +334,7 @@ a:focus-visible {
 .btn.big {
   padding: 16px 32px;
   font-size: 1.2rem;
-  border-radius: 999px;
+  border-radius: 6px;
 }
 
 .icon-btn {
@@ -340,7 +344,7 @@ a:focus-visible {
   display: grid;
   place-items: center;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 6px;
   background: var(--surface);
   cursor: pointer;
   font-size: 1.1rem;
@@ -354,14 +358,14 @@ a:focus-visible {
   display: inline-flex;
   padding: 3px;
   background: var(--surface-2);
-  border-radius: 999px;
+  border-radius: 6px;
 }
 
 .segmented button {
   border: 0;
   background: transparent;
   padding: 6px 16px;
-  border-radius: 999px;
+  border-radius: 6px;
   cursor: pointer;
   color: var(--muted);
   font-weight: 500;
@@ -370,7 +374,7 @@ a:focus-visible {
 .segmented button.on {
   background: var(--surface);
   color: var(--text);
-  box-shadow: var(--shadow);
+  box-shadow: 0 0 0 1px var(--border);
 }
 
 /* ---------- Etiquetas ---------- */
@@ -378,7 +382,7 @@ a:focus-visible {
 .tag {
   display: inline-block;
   padding: 1px 10px;
-  border-radius: 999px;
+  border-radius: 6px;
   font-size: 0.8rem;
   font-weight: 600;
 }
@@ -433,12 +437,11 @@ a:focus-visible {
   border-radius: var(--radius);
   overflow: hidden;
   cursor: pointer;
-  box-shadow: var(--shadow);
-  transition: transform 0.15s ease;
+  transition: border-color 0.15s ease;
 }
 
 .recipe-card:hover {
-  transform: translateY(-2px);
+  border-color: var(--muted);
 }
 
 .recipe-card .photo {
@@ -466,8 +469,17 @@ a:focus-visible {
 .photo-empty {
   display: grid;
   place-items: center;
-  font-size: 2.5rem;
   aspect-ratio: 4 / 3;
+  color: var(--muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Sin foto no hace falta tanto hueco */
+.recipe-card .photo-empty,
+.random-result .photo-empty {
+  aspect-ratio: 3 / 1;
 }
 
 .best {
@@ -505,7 +517,7 @@ a:focus-visible {
   max-height: calc(100vh - 32px);
   overflow-y: auto;
   background: var(--surface);
-  border-radius: 18px;
+  border-radius: 10px;
   box-shadow: 0 20px 60px rgb(0 0 0 / 30%);
   outline: none;
 }
@@ -533,7 +545,7 @@ a:focus-visible {
   }
   .modal {
     max-height: 94vh;
-    border-radius: 18px 18px 0 0;
+    border-radius: 10px 10px 0 0;
   }
 }
 
@@ -615,7 +627,7 @@ a:focus-visible {
 .toggle {
   padding: 9px 18px;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: 6px;
   background: var(--surface);
   cursor: pointer;
   font-weight: 500;
@@ -636,9 +648,8 @@ a:focus-visible {
 .photo-input .photo {
   width: 120px;
   height: 90px;
-  border-radius: 10px;
+  border-radius: 6px;
   object-fit: cover;
-  font-size: 1.8rem;
 }
 
 .photo-input-actions {
@@ -694,7 +705,7 @@ a:focus-visible {
   gap: 10px;
   padding: 12px;
   background: var(--surface-2);
-  border-radius: 10px;
+  border-radius: 6px;
 }
 
 .ingredient-picker .chips {
@@ -734,7 +745,6 @@ a:focus-visible {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow);
 }
 
 /* ---------- Al azar ---------- */
@@ -765,10 +775,9 @@ a:focus-visible {
   text-align: left;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 18px;
+  border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
-  box-shadow: var(--shadow);
   animation: pop 0.3s ease;
 }
 
@@ -916,7 +925,7 @@ a:focus-visible {
 .chip {
   padding: 6px 14px;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: 6px;
   background: var(--surface);
   cursor: pointer;
   font-size: 0.9rem;
@@ -948,7 +957,7 @@ a:focus-visible {
   gap: 4px;
   padding: 4px 10px;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: 6px;
   background: var(--surface);
   font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
@@ -1009,15 +1018,14 @@ a:focus-visible {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 12px;
+  padding: 12px 14px 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 2px;
 }
 
 .day.today {
   border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent);
 }
 
 .day-head {
@@ -1032,7 +1040,7 @@ a:focus-visible {
 
 .today-badge {
   padding: 0 8px;
-  border-radius: 999px;
+  border-radius: 6px;
   background: var(--accent);
   color: #fff;
   font-size: 0.75rem;
@@ -1048,16 +1056,11 @@ a:focus-visible {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 8px;
-  border-radius: 10px;
+  padding: 10px 0 4px;
 }
 
-.slot-comida {
-  background: var(--comida-soft);
-}
-
-.slot-cena {
-  background: var(--cena-soft);
+.slot + .slot {
+  border-top: 1px solid var(--border);
 }
 
 .slot-label {

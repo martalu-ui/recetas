@@ -21,7 +21,7 @@ export function Photo({ recipe, className }: { recipe: Recipe; className?: strin
     <img className={`photo ${className ?? ''}`} src={recipe.photoUrl} alt={recipe.title} loading="lazy" />
   ) : (
     <div className={`photo photo-empty ${className ?? ''}`} aria-hidden>
-      🍽️
+      <span>Sin foto</span>
     </div>
   );
 }
@@ -34,7 +34,7 @@ export default function RecipeCard({ recipe, onClick, children }: { recipe: Reci
         <h3>{recipe.title}</h3>
         <div className="meta">
           <MealTags recipe={recipe} />
-          {recipe.timeMinutes != null && <span className="time">⏱ {formatMinutes(recipe.timeMinutes)}</span>}
+          {recipe.timeMinutes != null && <span className="time">{formatMinutes(recipe.timeMinutes)}</span>}
         </div>
         {children}
       </div>

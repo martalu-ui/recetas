@@ -6,6 +6,7 @@ import { balanceState, FOOD_GROUP_INFO, FOOD_GROUPS, foodGroupOf, recommendation
 import { emptyGroupCounts, pickBalanced, type PickContext } from '../lib/planner';
 import { store } from '../lib/store';
 import { EATING_OUT, LEFTOVERS, MEAL_LABEL, MEAL_TYPES, type Course, type MealType, type PlanPosition, type Recipe } from '../lib/types';
+import Icon from '../components/Icon';
 import Empty from './Empty';
 
 const slotKey = (day: string, slot: MealType, position: PlanPosition) => `${day}|${slot}|${position}`;
@@ -173,7 +174,7 @@ export default function WeekView() {
 
       <div className="toolbar">
         <button className="btn small" onClick={fillEmpty}>
-          🎲 Rellenar huecos al azar
+          <Icon name="dice" size={18} /> Rellenar huecos al azar
         </button>
         {plan.size > 0 &&
           (confirmClear ? (
@@ -303,8 +304,8 @@ function Dish(props: {
           className={value === LEFTOVERS || value === EATING_OUT ? 'special' : undefined}
         >
           <option value="">{position === 1 ? '—' : '— Segundo plato —'}</option>
-          <option value={LEFTOVERS}>🥡 Sobras</option>
-          <option value={EATING_OUT}>🍽️ Comemos fuera</option>
+          <option value={LEFTOVERS}>Sobras</option>
+          <option value={EATING_OUT}>Comemos fuera</option>
           {groups.map((g) => (
             <optgroup key={g.label} label={g.label}>
               {[...g.items].sort(byName).map((r) => (
@@ -316,7 +317,7 @@ function Dish(props: {
           ))}
         </select>
         <button className="icon-btn" onClick={() => props.onRandom(position)} title="Elegir al azar" aria-label={`${label} al azar`}>
-          🎲
+          <Icon name="dice" />
         </button>
         {props.onRemove && (
           <button className="icon-btn" onClick={props.onRemove} title="Quitar segundo plato" aria-label={`Quitar ${label}`}>
@@ -342,12 +343,12 @@ function WeekBalance({ counts, repeated }: { counts: Record<FoodGroup, number>; 
         const rec = recommendation(g);
         return (
           <span key={g} className={`balance-item ${state}`} title={rec ? `Recomendado: ${rec} por semana` : undefined}>
-            {info.icon} {info.label} <strong>{counts[g]}</strong>
+            {info.label} <strong>{counts[g]}</strong>
             {rec && <span className="balance-rec">{rec}</span>}
           </span>
         );
       })}
-      {repeated > 0 && <span className="balance-item high">🔁 {repeated === 1 ? '1 receta repetida' : `${repeated} recetas repetidas`}</span>}
+      {repeated > 0 && <span className="balance-item high">{repeated === 1 ? '1 receta repetida' : `${repeated} recetas repetidas`}</span>}
     </div>
   );
 }

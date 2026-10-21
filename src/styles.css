@@ -2,7 +2,7 @@
  * MajoChef: estilo cálido y amable.
  * Fondo gris piedra, tarjetas blancas muy redondeadas, amarillo mostaza como color principal,
  * tonos tierra (marrón, oliva, topo) y pasteles (rosa, lila, arena) para etiquetas,
- * letra Outfit e iconos en pixel art.
+ * letra Inconsolata e iconos en pixel art.
  */
 :root {
   --bg: #f2efeb;
@@ -32,7 +32,7 @@
   --ok: #56691d;
   --radius: 16px;
   --radius-lg: 24px;
-  --font: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font: 'Inconsolata', ui-monospace, Menlo, Consolas, monospace;
   color-scheme: light;
 }
 
@@ -68,7 +68,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font: 16px/1.5 var(--font);
+  font: 17px/1.5 var(--font);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -79,8 +79,8 @@ body.no-scroll {
 h1,
 h2,
 h3 {
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  letter-spacing: 0;
   text-wrap: balance;
 }
 

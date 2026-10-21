@@ -1,53 +1,221 @@
-/** Iconos de línea sencillos (sustituyen a los emojis de la interfaz) */
-const PATHS = {
-  dice: (
-    <>
-      <rect x="3.5" y="3.5" width="17" height="17" rx="2.5" />
-      <circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" stroke="none" />
-      <circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" stroke="none" />
-      <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none" />
-      <circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" stroke="none" />
-      <circle cx="8.5" cy="15.5" r="1.2" fill="currentColor" stroke="none" />
-    </>
-  ),
-  list: (
-    <>
-      <path d="M6 3.5h12v17l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5-2 1.5z" />
-      <path d="M9 8.5h6M9 12h6M9 15.5h3" />
-    </>
-  ),
-  search: (
-    <>
-      <circle cx="10.5" cy="10.5" r="6" />
-      <path d="M15 15l5.5 5.5" />
-    </>
-  ),
-  calendar: (
-    <>
-      <rect x="3.5" y="5" width="17" height="15.5" rx="1.5" />
-      <path d="M3.5 10h17M8 3v4M16 3v4" />
-    </>
-  ),
-  plus: <path d="M12 5v14M5 12h14" />,
+/**
+ * Iconos en pixel art (16x16), dibujados a mano en el estilo de los iconos pixel de línea:
+ * cada carácter es un píxel ('x' = color del texto, '.' = transparente).
+ */
+const ICONS = {
+  dice: [
+    '................',
+    '..xxxxxxxxxxxx..',
+    '.x............x.',
+    '.x.xx......xx.x.',
+    '.x.xx......xx.x.',
+    '.x............x.',
+    '.x............x.',
+    '.x.....xx.....x.',
+    '.x.....xx.....x.',
+    '.x............x.',
+    '.x............x.',
+    '.x.xx......xx.x.',
+    '.x.xx......xx.x.',
+    '.x............x.',
+    '..xxxxxxxxxxxx..',
+    '................',
+  ],
+  book: [
+    '................',
+    '.xxxxx....xxxxx.',
+    'x.....x..x.....x',
+    'x.....xxxx.....x',
+    'x.xxx..xx..xxx.x',
+    'x......xx......x',
+    'x.xxx..xx..xxx.x',
+    'x......xx......x',
+    'x.xx...xx...xx.x',
+    'x......xx......x',
+    'x......xx......x',
+    'x......xx......x',
+    'xxxxxx.xx.xxxxxx',
+    '......xxxx......',
+    '................',
+    '................',
+  ],
+  search: [
+    '................',
+    '....xxxxx.......',
+    '...x.....x......',
+    '..x.......x.....',
+    '.x.........x....',
+    '.x..xx.....x....',
+    '.x..x......x....',
+    '.x.........x....',
+    '.x.........x....',
+    '..x.......x.....',
+    '...x.....xx.....',
+    '....xxxxx.xx....',
+    '...........xx...',
+    '............xx..',
+    '.............xx.',
+    '................',
+  ],
+  calendar: [
+    '................',
+    '...x.......x....',
+    '..xxxxxxxxxxxx..',
+    '.x.x.......x..x.',
+    '.x............x.',
+    '.xxxxxxxxxxxxxx.',
+    '.x............x.',
+    '.x.xx.xx.xx...x.',
+    '.x.xx.xx.xx...x.',
+    '.x............x.',
+    '.x.xx.xx.xx...x.',
+    '.x.xx.xx.xx...x.',
+    '.x............x.',
+    '..xxxxxxxxxxxx..',
+    '................',
+    '................',
+  ],
+  plus: [
+    '................',
+    '................',
+    '.......xx.......',
+    '.......xx.......',
+    '.......xx.......',
+    '.......xx.......',
+    '.......xx.......',
+    '..xxxxxxxxxxxx..',
+    '..xxxxxxxxxxxx..',
+    '.......xx.......',
+    '.......xx.......',
+    '.......xx.......',
+    '.......xx.......',
+    '.......xx.......',
+    '................',
+    '................',
+  ],
+  egg: [
+    '................',
+    '......xxxx......',
+    '.....x....x.....',
+    '....x......x....',
+    '...x........x...',
+    '...x........x...',
+    '..x...xxxx...x..',
+    '..x..xxxxxx..x..',
+    '..x..xxxxxx..x..',
+    '..x...xxxx...x..',
+    '..x..........x..',
+    '...x........x...',
+    '....x......x....',
+    '.....xxxxxx.....',
+    '................',
+    '................',
+  ],
+  fish: [
+    '................',
+    '................',
+    '................',
+    '......xxxxx.....',
+    '....xx.....x..xx',
+    '...x........xx.x',
+    '..x..xx........x',
+    '.x...xx........x',
+    '..x...........xx',
+    '...x........xx.x',
+    '....xx.....x..xx',
+    '......xxxxx.....',
+    '................',
+    '................',
+    '................',
+    '................',
+  ],
+  meat: [
+    '................',
+    '........xxxxx...',
+    '.......x.....x..',
+    '......x.......x.',
+    '......x..xx...x.',
+    '......x...x...x.',
+    '......x......x..',
+    '.......x....x...',
+    '........xxxx....',
+    '.......x.x......',
+    '......x.x.......',
+    '..xx.x.x........',
+    '.x..x.x.........',
+    '.x....x.........',
+    '..x..x..........',
+    '...xx...........',
+  ],
+  bean: [
+    '................',
+    '................',
+    '.....xxxxx......',
+    '....x.....xx....',
+    '...x........x...',
+    '..x..........x..',
+    '..x..........x..',
+    '..x...xxx....x..',
+    '...xxx...x...x..',
+    '..........x..x..',
+    '..........x..x..',
+    '...........xx...',
+    '................',
+    '................',
+    '................',
+    '................',
+  ],
+  pasta: [
+    '................',
+    '....x..x..x.....',
+    '...x..x..x......',
+    '....x..x..x.....',
+    '...x..x..x......',
+    '................',
+    'xxxxxxxxxxxxxxxx',
+    'x..............x',
+    'x..............x',
+    '.x............x.',
+    '..x..........x..',
+    '...xx......xx...',
+    '.....xxxxxx.....',
+    '................',
+    '................',
+    '................',
+  ],
+  leaf: [
+    '................',
+    '..........xxxxx.',
+    '.......xxx....x.',
+    '.....xx.......x.',
+    '....x.........x.',
+    '...x.....x....x.',
+    '...x....x.....x.',
+    '..x....x.....x..',
+    '..x...x.....x...',
+    '..x..x.....x....',
+    '..x.x....xx.....',
+    '...xxxxxx.......',
+    '..x.............',
+    '.x..............',
+    '................',
+    '................',
+  ],
 } as const;
 
-export type IconName = keyof typeof PATHS;
+export type IconName = keyof typeof ICONS;
 
 export default function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
+  const rows = ICONS[name];
+  const rects = [];
+  for (let y = 0; y < rows.length; y++) {
+    for (let x = 0; x < rows[y].length; x++) {
+      if (rows[y][x] === 'x') rects.push(<rect key={`${x}-${y}`} x={x} y={y} width="1.02" height="1.02" />);
+    }
+  }
   return (
-    <svg
-      className="icon"
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      {PATHS[name]}
+    <svg className="icon" width={size} height={size} viewBox="0 0 16 16" fill="currentColor" shapeRendering="crispEdges" aria-hidden="true">
+      {rects}
     </svg>
   );
 }

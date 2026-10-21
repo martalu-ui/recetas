@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { DataProvider, useData } from './data';
 import { authLinkType, supabase } from './lib/supabase';
@@ -16,7 +16,7 @@ import WeekView from './views/WeekView';
 
 const VIEWS = [
   { id: 'azar', label: 'Al azar', icon: 'dice' },
-  { id: 'recetas', label: 'Recetas', icon: 'list' },
+  { id: 'recetas', label: 'Recetas', icon: 'book' },
   { id: 'buscador', label: 'Buscador', icon: 'search' },
   { id: 'semana', label: 'Semana', icon: 'calendar' },
 ] as const;
@@ -79,13 +79,21 @@ function Shell({ author }: { author: string | null }) {
           <img className="brand-icon" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" /> MajoChef
         </a>
         <nav className="tabs" aria-label="Secciones">
-          {VIEWS.map((v) => (
-            <a key={v.id} href={`#/${v.id}`} className={v.id === view ? 'tab active' : 'tab'} aria-current={v.id === view ? 'page' : undefined}>
-              <span className="tab-icon">
-                <Icon name={v.icon} />
-              </span>
-              <span className="tab-label">{v.label}</span>
-            </a>
+          {VIEWS.map((v, i) => (
+            <Fragment key={v.id}>
+              {/* En el móvil, el botón redondo de «Nueva receta» va en el centro de la barra */}
+              {i === 2 && (
+                <button className="tab-add" onClick={() => onEdit(null)} aria-label="Nueva receta" title="Nueva receta">
+                  <Icon name="plus" size={22} />
+                </button>
+              )}
+              <a href={`#/${v.id}`} className={v.id === view ? 'tab active' : 'tab'} aria-current={v.id === view ? 'page' : undefined}>
+                <span className="tab-icon">
+                  <Icon name={v.icon} />
+                </span>
+                <span className="tab-label">{v.label}</span>
+              </a>
+            </Fragment>
           ))}
         </nav>
         {supabase && (

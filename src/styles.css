@@ -562,6 +562,12 @@ a:focus-visible {
   font-size: 0.85rem;
 }
 
+/* Sin foto: una comida cuqui en pixel art */
+.photo-empty .food-sprite {
+  width: min(32%, 84px);
+  height: auto;
+}
+
 /* Sin foto no hace falta tanto hueco */
 .random-result .photo-empty {
   aspect-ratio: 3 / 1;

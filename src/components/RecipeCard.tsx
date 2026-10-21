@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { formatMinutes } from '../lib/dates';
+import FoodSprite from './FoodSprite';
 import { COURSE_LABEL, MEAL_LABEL, type Recipe } from '../lib/types';
 
 export function MealTags({ recipe }: { recipe: Recipe }) {
@@ -21,7 +22,7 @@ export function Photo({ recipe, className }: { recipe: Recipe; className?: strin
     <img className={`photo ${className ?? ''}`} src={recipe.photoUrl} alt={recipe.title} loading="lazy" />
   ) : (
     <div className={`photo photo-empty ${className ?? ''}`} aria-hidden>
-      <span>Sin foto</span>
+      <FoodSprite recipe={recipe} />
     </div>
   );
 }

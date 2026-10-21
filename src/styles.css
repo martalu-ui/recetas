@@ -508,8 +508,9 @@ a:focus-visible {
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  /* Todas las tarjetas igual de altas, en la misma fila y entre filas */
+  grid-auto-rows: 1fr;
   gap: 16px;
-  align-items: start;
 }
 
 .recipe-card {
@@ -529,11 +530,12 @@ a:focus-visible {
 }
 
 .recipe-card .photo {
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 10;
   border-radius: 18px;
 }
 
 .recipe-card-body {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -561,7 +563,6 @@ a:focus-visible {
 }
 
 /* Sin foto no hace falta tanto hueco */
-.recipe-card .photo-empty,
 .random-result .photo-empty {
   aspect-ratio: 3 / 1;
 }

@@ -2,8 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { useData } from '../data';
 import { formatMinutes } from '../lib/dates';
 import { pickRandom } from '../lib/match';
-import type { Recipe } from '../lib/types';
+import { store } from '../lib/store';
+import { toISODate } from '../lib/dates';
+import { MEAL_LABEL, type MealType, type Recipe } from '../lib/types';
 import FoodSprite from '../components/FoodSprite';
+import DancingPizza from '../components/DancingPizza';
 import Icon from '../components/Icon';
 import { MealTags } from '../components/RecipeCard';
 
@@ -30,6 +33,8 @@ export default function RandomView() {
   const [mood, setMood] = useState<Mood>('todo');
   const [resultId, setResultId] = useState<string | null>(null);
   const [rolling, setRolling] = useState<string | null>(null);
+  /** Mensaje tras ponerla en el menú de hoy */
+  const [added, setAdded] = useState<string | null>(null);
   const timer = useRef<number>();
 
   useEffect(() => () => window.clearInterval(timer.current), []);
@@ -41,19 +46,31 @@ export default function RandomView() {
     const pool = poolFor(recipes, nextMood);
     if (pool.length === 0) return;
     setMood(nextMood);
+    setAdded(null);
     const final = pickRandom(pool, result ?? undefined)!;
     let ticks = 0;
+    setRolling(pickRandom(pool)!.title);
     window.clearInterval(timer.current);
+    // Dura un poco más de un baile completo de la pizza
     timer.current = window.setInterval(() => {
       ticks++;
-      if (ticks >= 10) {
+      if (ticks >= 14) {
         window.clearInterval(timer.current);
         setRolling(null);
         setResultId(final.id);
       } else {
         setRolling(pickRandom(pool)!.title);
       }
-    }, 70);
+    }, 110);
+  }
+
+  async function addToday(recipe: Recipe, slot: MealType) {
+    try {
+      await store.setPlan(toISODate(new Date()), slot, 1, recipe.id);
+      setAdded(`Puesta en la ${MEAL_LABEL[slot].toLowerCase()} de hoy`);
+    } catch (e) {
+      setAdded(`No se ha podido guardar: ${(e as Error).message}`);
+    }
   }
 
   const moodTitle = MOODS.find((m) => m.id === mood)?.title;
@@ -74,32 +91,45 @@ export default function RandomView() {
         </div>
 
         {rolling !== null ? (
-          <div className="hero-result rolling" aria-live="polite">
-            <span className="hero-sprite">
-              <Icon name="dice" size={40} />
+          <div className="hero-stage rolling" aria-live="polite">
+            <DancingPizza size={112} />
+            <span className="hero-stage-text">
+              <span className="muted small">Pensando…</span>
+              <strong>{rolling}</strong>
             </span>
-            <strong>{rolling}</strong>
           </div>
         ) : result ? (
-          <button className="hero-result" onClick={() => openRecipe(result)}>
-            <span className="hero-sprite">
-              {result.photoUrl ? <img src={result.photoUrl} alt="" /> : <FoodSprite recipe={result} size={56} />}
-            </span>
-            <span className="hero-result-body">
-              <strong>{result.title}</strong>
-              <span className="meta">
-                <MealTags recipe={result} />
-                {result.timeMinutes != null && <span className="time">{formatMinutes(result.timeMinutes)}</span>}
+          <div className="hero-stage result">
+            <button className="hero-pick" onClick={() => openRecipe(result)}>
+              <span className="hero-sprite">
+                {result.photoUrl ? <img src={result.photoUrl} alt="" /> : <FoodSprite recipe={result} size={64} />}
               </span>
-              <span className="hero-link">Ver receta →</span>
-            </span>
-          </button>
+              <span className="hero-result-body">
+                <strong>{result.title}</strong>
+                <span className="meta">
+                  <MealTags recipe={result} />
+                  {result.timeMinutes != null && <span className="time">{formatMinutes(result.timeMinutes)}</span>}
+                </span>
+                <span className="hero-link">Ver receta →</span>
+              </span>
+            </button>
+            <div className="hero-today">
+              <span className="muted small">Para hoy:</span>
+              {(['comida', 'cena'] as MealType[]).map((slot) => (
+                <button key={slot} className={`chip slot-chip-${slot}`} onClick={() => addToday(result, slot)}>
+                  {MEAL_LABEL[slot]}
+                </button>
+              ))}
+              {added && <span className="small hero-added">{added}</span>}
+            </div>
+          </div>
         ) : (
-          <div className="hero-result empty">
-            <span className="hero-sprite">
-              <Icon name="dice" size={40} />
+          <div className="hero-stage empty">
+            <DancingPizza size={96} dancing={false} />
+            <span className="hero-stage-text">
+              <strong>¿No sabéis qué hacer?</strong>
+              <span className="muted">Tira el dado y la pizza elige entre vuestras recetas.</span>
             </span>
-            <span>Tira el dado y te decimos qué cocinar.</span>
           </div>
         )}
 

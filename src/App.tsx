@@ -3,6 +3,7 @@ import type { Session } from '@supabase/supabase-js';
 import { DataProvider, useData } from './data';
 import { authLinkType, supabase } from './lib/supabase';
 import type { Recipe } from './lib/types';
+import Avatar, { isAvatar } from './components/Avatar';
 import Icon from './components/Icon';
 import Login from './components/Login';
 import SetPassword from './components/SetPassword';
@@ -37,6 +38,14 @@ export default function App() {
   const [authReady, setAuthReady] = useState(!supabase);
   // Quien entra desde una invitación o "he olvidado mi contraseña" aún tiene que elegir contraseña
   const [needsPassword, setNeedsPassword] = useState(authLinkType === 'invite' || authLinkType === 'recovery');
+  // Avatar de comida: en el perfil de Supabase (sigue a la persona en todos sus dispositivos) o, sin Supabase, en este navegador
+  const [localAvatar, setLocalAvatar] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem(LS_AVATAR);
+    } catch {
+      return null;
+    }
+  });
 
   useEffect(() => {
     if (!supabase) return;
@@ -56,10 +65,30 @@ export default function App() {
   if (session && needsPassword) return <SetPassword email={session.user.email ?? null} onDone={() => setNeedsPassword(false)} />;
 
   const email = session?.user.email ?? null;
-  return <Shell email={email} author={email ? email.split('@')[0] : null} />;
+  const savedAvatar = session ? session.user.user_metadata?.avatar : localAvatar;
+  const avatar = isAvatar(savedAvatar) ? savedAvatar : null;
+
+  async function chooseAvatar(value: string) {
+    if (supabase && session) {
+      const { error } = await supabase.auth.updateUser({ data: { avatar: value } });
+      if (error) throw new Error(error.message);
+    } else {
+      try {
+        localStorage.setItem(LS_AVATAR, value);
+      } catch {
+        // sin almacenamiento solo dura hasta recargar
+      }
+      setLocalAvatar(value);
+    }
+  }
+
+  return <Shell email={email} author={email ? email.split('@')[0] : null} avatar={avatar} onChooseAvatar={chooseAvatar} />;
 }
 
-function Shell({ email, author }: { email: string | null; author: string | null }) {
+const LS_AVATAR = 'recetas.avatar';
+
+function Shell(props: { email: string | null; author: string | null; avatar: string | null; onChooseAvatar(value: string): Promise<void> }) {
+  const { email, author, avatar } = props;
   const [view, setView] = useState<ViewId>(viewFromHash);
   const [openId, setOpenId] = useState<string | null>(null);
   const [editing, setEditing] = useState<Recipe | null | undefined>(undefined); // undefined = cerrado
@@ -93,7 +122,7 @@ function Shell({ email, author }: { email: string | null; author: string | null 
               )}
               <a href={`#/${v.id}`} className={v.id === view ? 'tab active' : 'tab'} aria-current={v.id === view ? 'page' : undefined}>
                 <span className="tab-icon">
-                  <Icon name={v.icon} />
+                  {v.id === 'cuenta' && avatar ? <Avatar value={avatar} size={22} /> : <Icon name={v.icon} />}
                 </span>
                 <span className="tab-label">{v.label}</span>
               </a>
@@ -114,7 +143,7 @@ function Shell({ email, author }: { email: string | null; author: string | null 
         {view === 'recetas' && <RecipesView />}
         {view === 'descubrir' && <DiscoverView />}
         {view === 'semana' && <WeekView />}
-        {view === 'cuenta' && <AccountView email={email} />}
+        {view === 'cuenta' && <AccountView email={email} avatar={avatar} onChooseAvatar={props.onChooseAvatar} />}
       </main>
 
       <RecipeModals openId={openId} onCloseDetail={() => setOpenId(null)} editing={editing} onCloseForm={() => setEditing(undefined)} />

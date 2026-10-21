@@ -1477,39 +1477,54 @@ a:focus-visible {
   font-size: 0.85rem;
 }
 
-.hero-result {
+/* Caja blanca dentro de la tarjeta amarilla: espera, "pensando" con la pizza bailando, o el resultado */
+.hero-stage {
   display: flex;
   align-items: center;
-  gap: 16px;
-  width: 100%;
-  min-height: 104px;
-  padding: 14px;
-  border: 0;
+  text-align: left;
+  gap: 18px;
+  min-height: 132px;
+  padding: 14px 18px;
   border-radius: 22px;
   background: var(--surface);
-  text-align: left;
-  cursor: pointer;
+}
+
+.hero-stage-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.hero-stage-text strong {
+  font-size: 1.15rem;
+  line-height: 1.25;
+}
+
+.hero-stage.result {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
   animation: pop 0.25s ease;
 }
 
-.hero-result.empty,
-.hero-result.rolling {
-  cursor: default;
-  color: var(--muted);
-  animation: none;
-}
-
-.hero-result.rolling strong {
-  color: var(--text);
-  font-size: 1.15rem;
+.hero-pick {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
 }
 
 .hero-sprite {
   display: grid;
   place-items: center;
   flex: none;
-  width: 76px;
-  height: 76px;
+  width: 88px;
+  height: 88px;
   overflow: hidden;
   border-radius: 18px;
   background: var(--surface-2);
@@ -1529,13 +1544,43 @@ a:focus-visible {
 }
 
 .hero-result-body strong {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   line-height: 1.2;
 }
 
 .hero-link {
   font-weight: 600;
   font-size: 0.9rem;
+}
+
+/* "Para hoy: Comida / Cena" */
+.hero-today {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.hero-today .chip {
+  padding: 5px 14px;
+  font-weight: 500;
+}
+
+.hero-today .slot-chip-comida {
+  background: var(--pink);
+  color: var(--pink-ink);
+}
+
+.hero-today .slot-chip-cena {
+  background: var(--lilac);
+  color: var(--lilac-ink);
+}
+
+.hero-added {
+  color: var(--ok);
+  font-weight: 600;
 }
 
 .btn.hero-roll {
@@ -1751,8 +1796,12 @@ a:focus-visible {
     width: 150px;
   }
   .hero-sprite {
-    width: 64px;
-    height: 64px;
+    width: 72px;
+    height: 72px;
+  }
+  .hero-stage {
+    gap: 12px;
+    padding: 14px;
   }
   .fridge-head .btn {
     width: 100%;
@@ -1811,4 +1860,142 @@ a:focus-visible {
 
 .account-actions .btn {
   background: var(--surface-2);
+}
+
+/* ---------- Pizza que baila ---------- */
+
+.pizza {
+  display: block;
+  flex: none;
+}
+
+/* Quieta: solo el primer fotograma */
+.pizza .pz-b,
+.pizza .pz-c,
+.pizza .pz-spark {
+  opacity: 0;
+}
+
+.pizza.dancing .pz-a,
+.pizza.dancing .pz-b,
+.pizza.dancing .pz-c,
+.pizza.dancing .pz-spark {
+  animation-timing-function: step-end;
+  animation-iteration-count: infinite;
+}
+
+.pizza.dancing .pz-a {
+  animation-name: pz-a;
+  animation-duration: 1.2s;
+}
+
+.pizza.dancing .pz-b {
+  animation-name: pz-b;
+  animation-duration: 1.2s;
+}
+
+.pizza.dancing .pz-c {
+  animation-name: pz-c;
+  animation-duration: 1.2s;
+}
+
+.pizza.dancing .pz-spark {
+  opacity: 1;
+  animation-name: pz-twinkle;
+  animation-duration: 0.6s;
+}
+
+.pizza.dancing .pz-spark-2 {
+  animation-delay: 0.3s;
+}
+
+@keyframes pz-a {
+  0% { opacity: 1; }
+  25% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes pz-b {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  75% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes pz-c {
+  0% { opacity: 0; }
+  25% { opacity: 1; }
+  50% { opacity: 0; }
+  75% { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+@keyframes pz-twinkle {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pizza.dancing .pz-a,
+  .pizza.dancing .pz-b,
+  .pizza.dancing .pz-c,
+  .pizza.dancing .pz-spark {
+    animation: none;
+  }
+  .pizza.dancing .pz-b,
+  .pizza.dancing .pz-c {
+    opacity: 0;
+  }
+  .pizza.dancing .pz-a,
+  .pizza.dancing .pz-spark {
+    opacity: 1;
+  }
+}
+
+/* ---------- Avatar de comida ---------- */
+
+.account-card + .account-card h2 {
+  margin: 0 0 4px;
+  font-size: 1.25rem;
+}
+
+.avatar-picker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.avatar-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 8px 10px;
+  border: 2px solid transparent;
+  border-radius: 20px;
+  background: var(--surface-2);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.avatar-option:hover {
+  background: var(--beige);
+}
+
+.avatar-option.on {
+  border-color: var(--accent);
+  background: var(--today);
+  font-weight: 600;
+}
+
+.avatar .pizza,
+.avatar svg {
+  display: block;
+}
+
+.tab-icon .pizza {
+  width: 22px;
+  height: auto;
 }

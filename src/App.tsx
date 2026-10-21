@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { DataProvider, useData } from './data';
 import { authLinkType, supabase } from './lib/supabase';
 import type { Recipe } from './lib/types';
+import Icon from './components/Icon';
 import Login from './components/Login';
 import SetPassword from './components/SetPassword';
 import Modal from './components/Modal';
@@ -14,10 +15,10 @@ import SearchView from './views/SearchView';
 import WeekView from './views/WeekView';
 
 const VIEWS = [
-  { id: 'azar', label: 'Al azar', icon: '🎲' },
-  { id: 'recetas', label: 'Recetas', icon: '📖' },
-  { id: 'buscador', label: 'Buscador', icon: '🔍' },
-  { id: 'semana', label: 'Semana', icon: '📅' },
+  { id: 'azar', label: 'Al azar', icon: 'dice' },
+  { id: 'recetas', label: 'Recetas', icon: 'book' },
+  { id: 'buscador', label: 'Buscador', icon: 'search' },
+  { id: 'semana', label: 'Semana', icon: 'calendar' },
 ] as const;
 
 type ViewId = (typeof VIEWS)[number]['id'];
@@ -78,13 +79,21 @@ function Shell({ author }: { author: string | null }) {
           <img className="brand-icon" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" /> MajoChef
         </a>
         <nav className="tabs" aria-label="Secciones">
-          {VIEWS.map((v) => (
-            <a key={v.id} href={`#/${v.id}`} className={v.id === view ? 'tab active' : 'tab'} aria-current={v.id === view ? 'page' : undefined}>
-              <span className="tab-icon" aria-hidden>
-                {v.icon}
-              </span>
-              <span className="tab-label">{v.label}</span>
-            </a>
+          {VIEWS.map((v, i) => (
+            <Fragment key={v.id}>
+              {/* En el móvil, el botón redondo de «Nueva receta» va en el centro de la barra */}
+              {i === 2 && (
+                <button className="tab-add" onClick={() => onEdit(null)} aria-label="Nueva receta" title="Nueva receta">
+                  <Icon name="plus" size={22} />
+                </button>
+              )}
+              <a href={`#/${v.id}`} className={v.id === view ? 'tab active' : 'tab'} aria-current={v.id === view ? 'page' : undefined}>
+                <span className="tab-icon">
+                  <Icon name={v.icon} />
+                </span>
+                <span className="tab-label">{v.label}</span>
+              </a>
+            </Fragment>
           ))}
         </nav>
         {supabase && (
@@ -96,7 +105,9 @@ function Shell({ author }: { author: string | null }) {
 
       {!supabase && (
         <p className="banner">
-          Modo local: las recetas se guardan solo en este navegador. Configura Supabase (mira el README) para compartirlas.
+          {import.meta.env.VITE_PREVIEW
+            ? 'Vista previa: puedes probarlo todo, pero lo que cambies aquí no se guarda en vuestras recetas.'
+            : 'Modo local: las recetas se guardan solo en este navegador. Configura Supabase (mira el README) para compartirlas.'}
         </p>
       )}
 

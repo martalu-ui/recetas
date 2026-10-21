@@ -6,6 +6,7 @@ import { balanceState, FOOD_GROUP_INFO, FOOD_GROUPS, foodGroupOf, recommendation
 import { emptyGroupCounts, pickBalanced, type PickContext } from '../lib/planner';
 import { store } from '../lib/store';
 import { EATING_OUT, LEFTOVERS, MEAL_LABEL, MEAL_TYPES, type Course, type MealType, type PlanPosition, type Recipe } from '../lib/types';
+import Icon, { type IconName } from '../components/Icon';
 import Empty from './Empty';
 
 const slotKey = (day: string, slot: MealType, position: PlanPosition) => `${day}|${slot}|${position}`;
@@ -145,6 +146,9 @@ export default function WeekView() {
   if (recipes.length === 0) return <Empty text="Subid recetas para poder organizar el menú de la semana." />;
 
   const isCurrentWeek = toISODate(startOfWeek(new Date())) === from;
+  // En la semana actual, hoy va el primero (sin tener que bajar) y los días que ya pasaron, al final
+  const todayIndex = isCurrentWeek ? days.findIndex((d) => toISODate(d) === today) : 0;
+  const orderedDays = [...days.slice(todayIndex), ...days.slice(0, todayIndex)];
 
   return (
     <section>
@@ -168,9 +172,11 @@ export default function WeekView() {
         </div>
       </div>
 
+      <DayStrip days={days} today={today} hasPlan={(day) => MEAL_TYPES.some((s) => plan.has(slotKey(day, s, 1)))} />
+
       <div className="toolbar">
         <button className="btn small" onClick={fillEmpty}>
-          🎲 Rellenar huecos al azar
+          <Icon name="dice" size={18} /> Rellenar huecos al azar
         </button>
         {plan.size > 0 &&
           (confirmClear ? (
@@ -192,16 +198,17 @@ export default function WeekView() {
 
       {error && <p className="error">{error}</p>}
 
-      <WeekBalance counts={weekCounts} repeated={repeated} />
-
       <div className="week">
-        {days.map((d) => {
+        {orderedDays.map((d) => {
           const day = toISODate(d);
+          const past = isCurrentWeek && day < today;
           return (
-            <div key={day} className={day === today ? 'day today' : 'day'}>
+            <div key={day} id={`dia-${day}`} className={day === today ? 'day today' : past ? 'day past' : 'day'}>
               <div className="day-head">
                 <strong>{weekdayName(d)}</strong>
-                <span className="muted">{shortDate(d)}</span>
+                {day === today && <span className="today-badge">Hoy</span>}
+                {past && <span className="muted small">Ya pasó</span>}
+                <span className="muted day-date">{shortDate(d)}</span>
               </div>
               {MEAL_TYPES.map((slot) => (
                 <Slot
@@ -218,6 +225,8 @@ export default function WeekView() {
           );
         })}
       </div>
+
+      <WeekBalance counts={weekCounts} repeated={repeated} />
     </section>
   );
 }
@@ -297,8 +306,8 @@ function Dish(props: {
           className={value === LEFTOVERS || value === EATING_OUT ? 'special' : undefined}
         >
           <option value="">{position === 1 ? '—' : '— Segundo plato —'}</option>
-          <option value={LEFTOVERS}>🥡 Sobras</option>
-          <option value={EATING_OUT}>🍽️ Comemos fuera</option>
+          <option value={LEFTOVERS}>Sobras</option>
+          <option value={EATING_OUT}>Comemos fuera</option>
           {groups.map((g) => (
             <optgroup key={g.label} label={g.label}>
               {[...g.items].sort(byName).map((r) => (
@@ -310,7 +319,7 @@ function Dish(props: {
           ))}
         </select>
         <button className="icon-btn" onClick={() => props.onRandom(position)} title="Elegir al azar" aria-label={`${label} al azar`}>
-          🎲
+          <Icon name="dice" />
         </button>
         {props.onRemove && (
           <button className="icon-btn" onClick={props.onRemove} title="Quitar segundo plato" aria-label={`Quitar ${label}`}>
@@ -327,21 +336,75 @@ function Dish(props: {
   );
 }
 
-function WeekBalance({ counts, repeated }: { counts: Record<FoodGroup, number>; repeated: number }) {
+const GROUP_ICON: Record<FoodGroup, IconName> = {
+  legumbres: 'bean',
+  pescado: 'fish',
+  carne: 'meat',
+  huevos: 'egg',
+  cereales: 'pasta',
+  verdura: 'leaf',
+};
+
+/** Fila de días como círculos (hoy en amarillo); al tocar uno baja hasta ese día */
+function DayStrip({ days, today, hasPlan }: { days: Date[]; today: string; hasPlan(day: string): boolean }) {
   return (
-    <div className="balance" aria-label="Equilibrio de la semana">
-      {FOOD_GROUPS.map((g) => {
-        const info = FOOD_GROUP_INFO[g];
-        const state = balanceState(g, counts[g]);
-        const rec = recommendation(g);
+    <div className="day-strip" role="list" aria-label="Días de la semana">
+      {days.map((d) => {
+        const day = toISODate(d);
+        const name = d.toLocaleDateString('es-ES', { weekday: 'short' }).replace('.', '');
         return (
-          <span key={g} className={`balance-item ${state}`} title={rec ? `Recomendado: ${rec} por semana` : undefined}>
-            {info.icon} {info.label} <strong>{counts[g]}</strong>
-            {rec && <span className="balance-rec">{rec}</span>}
-          </span>
+          <button
+            key={day}
+            role="listitem"
+            className={day === today ? 'strip-day today' : 'strip-day'}
+            onClick={() => document.getElementById(`dia-${day}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+            aria-label={`Ir al ${weekdayName(d)} ${d.getDate()}`}
+          >
+            <span className="strip-name">{name.charAt(0).toUpperCase() + name.slice(1)}</span>
+            <span className="strip-num">{d.getDate()}</span>
+            <span className={hasPlan(day) ? 'strip-dot on' : 'strip-dot'} aria-hidden />
+          </button>
         );
       })}
-      {repeated > 0 && <span className="balance-item high">🔁 {repeated === 1 ? '1 receta repetida' : `${repeated} recetas repetidas`}</span>}
     </div>
+  );
+}
+
+/** Equilibrio de la semana como barras verticales, una por tipo de alimento */
+function WeekBalance({ counts, repeated }: { counts: Record<FoodGroup, number>; repeated: number }) {
+  // La barra llena equivale al mayor de: lo recomendado o lo que ya hay
+  const scale = Math.max(4, ...FOOD_GROUPS.map((g) => counts[g]));
+  return (
+    <section className="balance-card" aria-label="Equilibrio de la semana">
+      <div className="balance-head">
+        <h2>Equilibrio de la semana</h2>
+        <p className="muted small">Platos principales según las recomendaciones de la AESAN</p>
+      </div>
+      <div className="balance-bars">
+        {FOOD_GROUPS.map((g) => {
+          const info = FOOD_GROUP_INFO[g];
+          const count = counts[g];
+          const state = balanceState(g, count);
+          const rec = recommendation(g);
+          return (
+            <div key={g} className={`bar bar-${g} ${state}`} title={rec ? `Recomendado: ${rec} por semana` : undefined}>
+              <div className="bar-track">
+                {count > 0 ? (
+                  <div className="bar-fill" style={{ height: `${Math.max(count / scale, 0.28) * 100}%` }}>
+                    <span className="bar-count">{count}</span>
+                  </div>
+                ) : (
+                  <span className="bar-count empty">0</span>
+                )}
+              </div>
+              <Icon name={GROUP_ICON[g]} size={22} />
+              <span className="bar-label">{info.label}</span>
+              {rec && <span className="bar-rec">{rec}</span>}
+            </div>
+          );
+        })}
+      </div>
+      {repeated > 0 && <p className="balance-note">{repeated === 1 ? '1 receta repetida esta semana' : `${repeated} recetas repetidas esta semana`}</p>}
+    </section>
   );
 }

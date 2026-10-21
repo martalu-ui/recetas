@@ -109,7 +109,7 @@ export default function RecipeForm({ recipe, onDone }: { recipe: Recipe | null; 
       <div className="field">
         <span>Foto</span>
         <div className="photo-input">
-          {shownPhoto ? <img src={shownPhoto} alt="" /> : <div className="photo photo-empty">📷</div>}
+          {shownPhoto ? <img src={shownPhoto} alt="" /> : <div className="photo photo-empty"><span>Sin foto</span></div>}
           <div className="photo-input-actions">
             <label className="btn small">
               {shownPhoto ? 'Cambiar foto' : 'Subir foto'}
@@ -170,11 +170,11 @@ export default function RecipeForm({ recipe, onDone }: { recipe: Recipe | null; 
         <span>Tipo de alimento (para equilibrar el menú)</span>
         <select value={foodGroup ?? ''} onChange={(e) => setFoodGroup((e.target.value || null) as FoodGroup | null)}>
           <option value="">
-            Automático: {FOOD_GROUP_INFO[detectedGroup].icon} {FOOD_GROUP_INFO[detectedGroup].label}
+            Automático: {FOOD_GROUP_INFO[detectedGroup].label}
           </option>
           {FOOD_GROUPS.map((g) => (
             <option key={g} value={g}>
-              {FOOD_GROUP_INFO[g].icon} {FOOD_GROUP_INFO[g].label}
+              {FOOD_GROUP_INFO[g].label}
             </option>
           ))}
         </select>

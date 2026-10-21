@@ -9,22 +9,26 @@ import SetPassword from './components/SetPassword';
 import Modal from './components/Modal';
 import RecipeDetail from './components/RecipeDetail';
 import RecipeForm from './components/RecipeForm';
-import RandomView from './views/RandomView';
+import AccountView from './views/AccountView';
+import DiscoverView from './views/DiscoverView';
 import RecipesView from './views/RecipesView';
-import SearchView from './views/SearchView';
 import WeekView from './views/WeekView';
 
 const VIEWS = [
-  { id: 'azar', label: 'Al azar', icon: 'dice' },
   { id: 'recetas', label: 'Recetas', icon: 'book' },
-  { id: 'buscador', label: 'Buscador', icon: 'search' },
+  { id: 'descubrir', label: 'Descubrir', icon: 'dice' },
   { id: 'semana', label: 'Semana', icon: 'calendar' },
+  { id: 'cuenta', label: 'Cuenta', icon: 'user' },
 ] as const;
 
 type ViewId = (typeof VIEWS)[number]['id'];
 
+/** Enlaces antiguos de cuando «Al azar» y «Buscador» eran pestañas separadas */
+const OLD_VIEWS: Record<string, ViewId> = { azar: 'descubrir', buscador: 'descubrir' };
+
 function viewFromHash(): ViewId {
   const id = window.location.hash.replace(/^#\/?/, '');
+  if (OLD_VIEWS[id]) return OLD_VIEWS[id];
   return VIEWS.some((v) => v.id === id) ? (id as ViewId) : 'recetas';
 }
 
@@ -52,10 +56,10 @@ export default function App() {
   if (session && needsPassword) return <SetPassword email={session.user.email ?? null} onDone={() => setNeedsPassword(false)} />;
 
   const email = session?.user.email ?? null;
-  return <Shell author={email ? email.split('@')[0] : null} />;
+  return <Shell email={email} author={email ? email.split('@')[0] : null} />;
 }
 
-function Shell({ author }: { author: string | null }) {
+function Shell({ email, author }: { email: string | null; author: string | null }) {
   const [view, setView] = useState<ViewId>(viewFromHash);
   const [openId, setOpenId] = useState<string | null>(null);
   const [editing, setEditing] = useState<Recipe | null | undefined>(undefined); // undefined = cerrado
@@ -96,11 +100,6 @@ function Shell({ author }: { author: string | null }) {
             </Fragment>
           ))}
         </nav>
-        {supabase && (
-          <button className="btn ghost small logout" onClick={() => supabase!.auth.signOut()} title="Cerrar sesión">
-            Salir
-          </button>
-        )}
       </header>
 
       {!supabase && (
@@ -112,10 +111,10 @@ function Shell({ author }: { author: string | null }) {
       )}
 
       <main className="content">
-        {view === 'azar' && <RandomView />}
         {view === 'recetas' && <RecipesView />}
-        {view === 'buscador' && <SearchView />}
+        {view === 'descubrir' && <DiscoverView />}
         {view === 'semana' && <WeekView />}
+        {view === 'cuenta' && <AccountView email={email} />}
       </main>
 
       <RecipeModals openId={openId} onCloseDetail={() => setOpenId(null)} editing={editing} onCloseForm={() => setEditing(undefined)} />

@@ -25,8 +25,8 @@ export default function SearchView() {
   if (recipes.length === 0) return <Empty text="Cuando subáis recetas podréis buscar por ingredientes." />;
 
   return (
-    <section>
-      <h1>¿Qué tenemos en la nevera?</h1>
+    <section className="discover-search">
+      <h2>¿Qué tenemos en la nevera?</h2>
       <p className="muted">Elige ingredientes y te decimos cuál de nuestras recetas se parece más.</p>
 
       <button className="btn primary pick-ingredients" onClick={() => setSheetOpen(true)}>

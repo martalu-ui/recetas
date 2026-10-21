@@ -14,20 +14,17 @@ export default function RecipesView() {
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<Sort>('recientes');
   const [course, setCourse] = useState<Course | 'todos'>('todos');
-  const [onlyThermomix, setOnlyThermomix] = useState(false);
 
   const shown = useMemo(() => {
     const q = normalize(query);
     const list = filterByMeal(recipes, meal).filter(
       (r) =>
-        (!q || normalize(r.title).includes(q)) &&
-        (course === 'todos' || r.course === course) &&
-        (!onlyThermomix || r.thermomix),
+        (!q || normalize(r.title).includes(q)) && (course === 'todos' || r.course === course),
     );
     if (sort === 'nombre') return [...list].sort((a, b) => a.title.localeCompare(b.title, 'es'));
     if (sort === 'tiempo') return [...list].sort((a, b) => (a.timeMinutes ?? Infinity) - (b.timeMinutes ?? Infinity));
     return list;
-  }, [recipes, meal, query, sort, course, onlyThermomix]);
+  }, [recipes, meal, query, sort, course]);
 
   return (
     <section>
@@ -52,9 +49,6 @@ export default function RecipesView() {
             </option>
           ))}
         </select>
-        <button className={onlyThermomix ? 'chip on' : 'chip'} aria-pressed={onlyThermomix} onClick={() => setOnlyThermomix((t) => !t)}>
-          Thermomix
-        </button>
         <select value={sort} onChange={(e) => setSort(e.target.value as Sort)} aria-label="Ordenar">
           <option value="recientes">Más recientes</option>
           <option value="nombre">Por nombre</option>

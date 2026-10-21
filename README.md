@@ -6,10 +6,10 @@ MajoChef: nuestra plataforma para guardar y compartir recetas entre los dos.
 
 | Sección | Qué hace |
 | --- | --- |
-| 🎲 **Al azar** | Te saca un plato principal aleatorio **de los nuestros** (nunca se inventa ninguno). Se puede limitar a comida o cena. |
+| 🎲 **Descubrir** | Arriba, un plato principal aleatorio **de los nuestros** (nunca se inventa ninguno), que se puede limitar a comida o cena. Debajo, el buscador por ingredientes: eliges los que hay en casa y ordena nuestras recetas de más a menos parecida, diciendo qué falta. Entiende plurales, tildes y mayúsculas («Tomates» = «tomate», «pollo» encuentra «pechuga de pollo»). |
 | 📖 **Recetas** | Todas nuestras recetas con foto, ingredientes (con cantidad), tiempo y preparación, si es plato principal o acompañamiento y si la tenemos en la Thermomix. Filtros por comida / cena, tipo de plato y Thermomix, búsqueda por nombre y orden por más recientes, nombre o más rápidas. Desde aquí se suben, editan y borran. |
-| 🔍 **Buscador** | Eliges ingredientes (los que hay en casa) y ordena nuestras recetas de más a menos parecida: primero la que usa más ingredientes elegidos y, a igualdad, la que necesita menos cosas extra. Te dice qué te falta. Entiende plurales, tildes y mayúsculas («Tomates» = «tomate», «pollo» encuentra «pechuga de pollo»). |
 | 📅 **Semana** | Menú semanal de lunes a domingo con comida y cena. Cada comida y cena puede tener **dos platos** (p. ej. principal + acompañamiento) y cualquiera puede ser **🥡 Sobras** de otros días o **🍽️ Comemos fuera**. Se elige de nuestras recetas (salen primero las de ese tipo y franja), con un 🎲 por plato y un botón para rellenar los platos principales vacíos **sin repetir recetas y equilibrando la semana** (legumbres, pescado, carne, huevos… según las recomendaciones de la AESAN). Arriba se ve el resumen de la semana. Se puede ir a semanas anteriores y siguientes. |
+| 👤 **Cuenta** | Con qué email has entrado, cambiar la contraseña (te llega un email) y salir. |
 
 Funciona en el móvil (la navegación pasa abajo, como una app) y tiene modo oscuro.
 

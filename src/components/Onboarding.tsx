@@ -86,7 +86,6 @@ export default function Onboarding() {
       <div className="onboarding">
         {s.art}
         <div className="onb-text">
-          <span className="onb-kicker">Novedad · {step + 1}/{STEPS.length}</span>
           <h2>{s.title}</h2>
           <p className="muted">{s.text}</p>
         </div>
@@ -109,7 +108,7 @@ export default function Onboarding() {
               location.hash = '#/cuenta';
             }}
           >
-            {last ? '¡A cocinar!' : 'Siguiente'}
+            {last ? 'Empezar' : 'Siguiente'}
           </button>
         </div>
       </div>

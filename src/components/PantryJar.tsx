@@ -249,7 +249,7 @@ export default function PantryJar({ items }: { items: PantryItem[] }) {
   return (
     <div className="jar-wrap">
       <div ref={jarRef} className="jar" style={{ height }} role="list" aria-label="Comidas de la despensa">
-        {items.length === 0 && <p className="jar-empty muted small">Todavía no hay nada. ¡Cocina una receta y gana tu primera comida!</p>}
+        {items.length === 0 && <p className="jar-empty muted small">Todavía está vacío.</p>}
         {items.map((item) => {
           const name = isSpriteName(item.sprite) ? item.sprite : 'pot';
           return (

@@ -13,11 +13,11 @@ import { MealTags } from '../components/RecipeCard';
 type Mood = 'todo' | 'comida' | 'cena' | 'rapida' | 'thermomix';
 
 /** Atajos para sacar una receta al azar con un criterio (como las tarjetas de colores de la referencia) */
-const MOODS: { id: Exclude<Mood, 'todo'>; title: string; hint: string; test(r: Recipe): boolean }[] = [
-  { id: 'comida', title: 'Para comer', hint: 'Algo para mediodía', test: (r) => r.mealTypes.includes('comida') },
-  { id: 'cena', title: 'Para cenar', hint: 'Algo para la noche', test: (r) => r.mealTypes.includes('cena') },
-  { id: 'rapida', title: 'Algo rápido', hint: 'En 30 min o menos', test: (r) => r.timeMinutes != null && r.timeMinutes <= 30 },
-  { id: 'thermomix', title: 'Con Thermomix', hint: 'Que lo haga ella', test: (r) => r.thermomix },
+const MOODS: { id: Exclude<Mood, 'todo'>; title: string; test(r: Recipe): boolean }[] = [
+  { id: 'comida', title: 'Para comer', test: (r) => r.mealTypes.includes('comida') },
+  { id: 'cena', title: 'Para cenar', test: (r) => r.mealTypes.includes('cena') },
+  { id: 'rapida', title: 'Algo rápido', test: (r) => r.timeMinutes != null && r.timeMinutes <= 30 },
+  { id: 'thermomix', title: 'Con Thermomix', test: (r) => r.thermomix },
 ];
 
 /** Platos principales que cumplen el criterio; si no hay ninguno principal, cualquiera que lo cumpla */
@@ -81,21 +81,21 @@ export default function RandomView({ demo = false }: { demo?: boolean }) {
       <div className="hero">
         <div className="hero-head">
           <h2>Una receta al azar</h2>
-          <p>
-            {moodTitle ? `${moodTitle}, al azar entre nuestras recetas` : `Una de nuestras ${recipes.length} recetas, al azar`}
-            {mood !== 'todo' && (
+          {/* Solo se dice algo más cuando hay un filtro puesto */}
+          {moodTitle && (
+            <p>
+              {moodTitle}
               <button className="hero-clear" onClick={() => setMood('todo')}>
-                Quitar filtro ×
+                Quitar ×
               </button>
-            )}
-          </p>
+            </p>
+          )}
         </div>
 
         {rolling !== null ? (
           <div className="hero-stage rolling" aria-live="polite">
             <Chef size={112} />
             <span className="hero-stage-text">
-              <span className="muted small">Pensando…</span>
               <strong>{rolling}</strong>
             </span>
           </div>
@@ -111,7 +111,7 @@ export default function RandomView({ demo = false }: { demo?: boolean }) {
                   <MealTags recipe={result} />
                   {result.timeMinutes != null && <span className="time">{formatMinutes(result.timeMinutes)}</span>}
                 </span>
-                <span className="hero-link">Ver receta →</span>
+                <span className="hero-link">Ver receta</span>
               </span>
             </button>
             <div className="hero-today">
@@ -127,15 +127,11 @@ export default function RandomView({ demo = false }: { demo?: boolean }) {
         ) : (
           <div className="hero-stage empty">
             <Chef size={96} cooking={false} />
-            <span className="hero-stage-text">
-              <strong>¿No sabéis qué hacer?</strong>
-              <span className="muted">Tira el dado y el chef elige entre vuestras recetas.</span>
-            </span>
           </div>
         )}
 
         <button className="btn hero-roll" onClick={() => roll()} disabled={rolling !== null || poolFor(recipes, mood).length === 0}>
-          <Icon name="dice" size={20} /> {result ? 'Otra' : '¡Dame una!'}
+          <Icon name="dice" size={20} /> {result ? 'Otra' : 'Elegir una'}
         </button>
       </div>
 
@@ -151,7 +147,6 @@ export default function RandomView({ demo = false }: { demo?: boolean }) {
               aria-pressed={mood === m.id}
             >
               <strong>{m.title}</strong>
-              <span>{m.hint}</span>
               <span className="mood-count">{count === 1 ? '1 receta' : `${count} recetas`}</span>
             </button>
           );

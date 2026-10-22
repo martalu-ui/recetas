@@ -27,10 +27,7 @@ export default function SearchView() {
   return (
     <section className="discover-search fridge">
       <div className="fridge-head">
-        <div>
-          <h2>¿Qué hay en la nevera?</h2>
-          <p className="muted">Marca lo que tenéis y te decimos qué receta se parece más.</p>
-        </div>
+        <h2>¿Qué hay en la nevera?</h2>
         <button className="btn primary" onClick={() => setSheetOpen(true)}>
           {selected.length ? 'Cambiar' : 'Elegir ingredientes'}
         </button>
@@ -72,7 +69,7 @@ export default function SearchView() {
                       {idx === 0 && <span className="best">La más parecida</span>}
                     </span>
                     <span className="muted small">
-                      {m.missing.length === 0 ? '¡Tienes todo!' : `Te falta: ${m.missing.join(', ')}`}
+                      {m.missing.length === 0 ? 'Lo tienes todo' : `Te falta: ${m.missing.join(', ')}`}
                     </span>
                   </span>
                   <span className="match-score" aria-label={`Usa ${m.matched.length} de ${selected.length} ingredientes elegidos`}>

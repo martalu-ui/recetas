@@ -360,7 +360,7 @@ function Dish(props: {
       {recipe && (
         <div className="slot-links">
           <button className="slot-open" onClick={() => props.onOpen(recipe)}>
-            Ver receta →
+            Receta
           </button>
           {props.onCook &&
             (props.cooked?.(position) ? (
@@ -420,7 +420,7 @@ export function WeekBalance({ counts, repeated }: { counts: Record<FoodGroup, nu
     <section className="balance-card" aria-label="Equilibrio de la semana">
       <div className="balance-head">
         <h2>Equilibrio de la semana</h2>
-        <p className="muted small">Platos principales según las recomendaciones de la AESAN</p>
+        <p className="muted small">Según la AESAN</p>
       </div>
       <div className="balance-bars">
         {FOOD_GROUPS.map((g) => {

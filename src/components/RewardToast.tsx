@@ -25,10 +25,10 @@ export default function RewardToast() {
           <Sprite name={name} size={52} />
         </span>
         <div className="reward-text">
-          <strong>¡Has ganado: {SPRITE_LABEL[name]}!</strong>
+          <strong>Has ganado: {SPRITE_LABEL[name]}</strong>
           <span className="muted small">Por cocinar {reward.recipeTitle}</span>
           <a href="#/cuenta" onClick={pantry.dismissReward}>
-            Ver mi despensa →
+            Ver mi despensa
           </a>
         </div>
         <button className="icon-btn" onClick={pantry.dismissReward} aria-label="Cerrar aviso">

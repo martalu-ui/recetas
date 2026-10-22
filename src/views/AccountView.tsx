@@ -41,14 +41,11 @@ export default function AccountView(props: { email: string | null; avatar: strin
 
       {pantry && (
         <div className="account-card">
-          <h2>Mi despensa</h2>
-          <p className="muted small">
-            {pantry.items.length === 0
-              ? 'Cada vez que cocines un plato del menú, márcalo en la semana con «¿La has hecho?» y ganarás una comida para tu bote.'
-              : `${pantry.available.length === 1 ? '1 comida' : `${pantry.available.length} comidas`} en el bote${
-                  pantry.items.length > pantry.available.length ? ` (${pantry.items.length - pantry.available.length} ya canjeadas en vales)` : ''
-                }. Coge una y lánzala, o sacude el bote.`}
-          </p>
+          <div className="card-head">
+            <h2>Mi despensa</h2>
+            <span className="muted">{pantry.available.length === 1 ? '1 comida' : `${pantry.available.length} comidas`}</span>
+          </div>
+          {pantry.items.length === 0 && <p className="muted small">Se ganan marcando los platos de la semana con «¿La has hecho?».</p>}
           <PantryJar items={pantry.available} />
         </div>
       )}
@@ -60,7 +57,6 @@ export default function AccountView(props: { email: string | null; avatar: strin
         <div className="account-card">
           <h2>¿Quién cocina más?</h2>
           <Scoreboard scores={pantry.scores} />
-          {pantry.scores.length === 1 && <p className="muted small">Cuando tu pareja cocine algo, aparecerá aquí.</p>}
         </div>
       )}
 
@@ -101,7 +97,6 @@ export default function AccountView(props: { email: string | null; avatar: strin
 
       <div className="account-card">
         <h2>Tu avatar</h2>
-        <p className="muted small">Elige tu comida. Sale aquí y en la pestaña de Cuenta.</p>
         <div className="avatar-picker" role="radiogroup" aria-label="Avatar de comida">
           {AVATARS.map((a) => (
             <button
@@ -125,13 +120,12 @@ export default function AccountView(props: { email: string | null; avatar: strin
 /** Marcador: una barra por persona, la que más ha cocinado con corona */
 function Scoreboard({ scores }: { scores: Score[] }) {
   const max = Math.max(1, ...scores.map((s) => s.count));
-  const tie = scores.length > 1 && scores[0].count === scores[1].count;
   return (
     <ol className="scoreboard">
       {scores.map((s, i) => (
         <li key={`${s.author}-${i}`} className={s.me ? 'score me' : 'score'}>
           <span className="score-name">
-            {i === 0 && !tie && s.count > 0 && <span aria-label="Va ganando">👑 </span>}
+            
             {s.me && s.author !== 'Tú' ? `${s.author} (tú)` : s.author}
           </span>
           <span className="score-bar" aria-hidden>

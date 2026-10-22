@@ -42,21 +42,19 @@ export function VouchersCard() {
       {editing ? (
         <KindsEditor />
       ) : (
-        <ul className="voucher-list">
+        <div className="tickets">
           {pantry.kinds.map((v) => {
             const missing = v.cost - balance;
             return (
-              <li key={v.id}>
-                <span className="voucher-what">{voucherTitle(v.what)}</span>
-                <span className="voucher-cost">{v.cost}</span>
-                <button className="btn small" disabled={missing > 0 || busy !== null} onClick={() => redeem(v)}>
+              <VoucherTicket key={v.id} title={voucherTitle(v.what)} detail={comidas(v.cost)}>
+                <button className="btn small primary" disabled={missing > 0 || busy !== null} onClick={() => redeem(v)}>
                   {busy === v.id ? 'Canjeando…' : missing > 0 ? `Faltan ${missing}` : 'Canjear'}
                 </button>
-              </li>
+              </VoucherTicket>
             );
           })}
-          {pantry.kinds.length === 0 && <li className="muted small">No hay vales. Pulsa «Editar» para crear el primero.</li>}
-        </ul>
+          {pantry.kinds.length === 0 && <p className="muted small">No hay vales. Pulsa «Editar» para crear el primero.</p>}
+        </div>
       )}
       {!editing && <NotifyButton />}
     </div>
@@ -155,23 +153,22 @@ export function OwedCard() {
   if (owedToMe.length === 0 && iOwe.length === 0) return null;
 
   const list = (vouchers: Voucher[], owe: boolean) => (
-    <ul className="voucher-list">
+    <div className="tickets">
       {vouchers.map((v) => (
-        <li key={v.id} className={v.status === 'cumplido' ? 'done' : undefined}>
-          <span className="voucher-what">
-            {v.title}
-            {owe && v.status === 'pendiente' && <span className="muted small">a {v.author ?? 'tu pareja'}</span>}
-          </span>
-          {owe && v.status === 'pendiente' ? (
+        <VoucherTicket
+          key={v.id}
+          title={v.title}
+          done={v.status === 'cumplido'}
+          detail={v.status === 'cumplido' ? 'Cumplido' : owe ? oweText(v.title, v.author) : 'Pendiente'}
+        >
+          {owe && v.status === 'pendiente' && (
             <button className="btn small" onClick={() => pantry.complete(v)}>
               Cumplido
             </button>
-          ) : (
-            <span className="muted small">{v.status === 'cumplido' ? 'Cumplido' : 'Pendiente'}</span>
           )}
-        </li>
+        </VoucherTicket>
       ))}
-    </ul>
+    </div>
   );
 
   return (

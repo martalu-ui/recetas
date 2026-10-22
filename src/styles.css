@@ -2954,6 +2954,14 @@ textarea {
   padding: 12px 14px;
 }
 
+.ticket-kicker {
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-strong);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
 .ticket-title {
   font-weight: var(--font-weight-heading);
   line-height: 1.25;

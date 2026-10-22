@@ -655,3 +655,68 @@ html {
   color: #cbbdff;
   font-style: normal;
 }
+
+@media (min-width: 861px) {
+  .ds-nav.scroll-fade-x {
+    mask-image: none;
+    animation: none;
+  }
+}
+
+/* ---------- Motion ---------- */
+
+.ds-motion {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ds-motion-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(0, 14rem) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  text-align: left;
+  background: var(--color-surface);
+  border: 0;
+  border-radius: var(--radius-inner);
+  cursor: pointer;
+}
+
+.ds-motion-row:hover {
+  background: var(--color-surface-hover);
+}
+
+.ds-motion-track {
+  --travel: calc(100% - 0px);
+  position: relative;
+  display: block;
+  height: 18px;
+  background: var(--color-surface-subtle);
+  border-radius: var(--radius-tag);
+  container-type: inline-size;
+}
+
+.ds-motion-dot {
+  --travel: calc(100cqw - 18px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 18px;
+  background: var(--color-primary);
+  border-radius: var(--radius-tag);
+}
+
+.ds-motion-name {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 860px) {
+  .ds-motion-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}

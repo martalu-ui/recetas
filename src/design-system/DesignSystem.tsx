@@ -14,42 +14,80 @@ import { Greeting } from '../views/DiscoverView';
 import RandomView from '../views/RandomView';
 import { DayStrip, Slot, WeekBalance } from '../views/WeekView';
 import { SAMPLE_RECIPES } from './sample';
-import { applyTheme, isColor, readTokens, type Token } from './tokens';
+import { applyTheme, isColor, readTokens, type Tier, type Token } from './tokens';
 
 type Theme = 'sistema' | 'claro' | 'oscuro';
 
-/** Color groups by token name; anything not listed here goes under «Other» */
+/** Semantic color groups by token name; anything not listed here goes under «Other» */
 const COLOR_GROUPS: { title: string; hint: string; names: string[] }[] = [
-  { title: 'Surfaces', hint: 'App background, cards and borders', names: ['--bg', '--surface', '--surface-2', '--border'] },
-  { title: 'Text', hint: 'Primary and secondary text', names: ['--text', '--muted'] },
-  { title: 'Brand', hint: 'Mustard yellow: primary buttons, today, selection', names: ['--accent', '--accent-hover', '--on-accent', '--today'] },
-  { title: 'Earth', hint: 'Bars in the weekly balance', names: ['--brown', '--olive', '--taupe', '--terracotta', '--sand'] },
   {
-    title: 'Pastel',
-    hint: 'Tags and shortcuts: lunch (pink), dinner (lilac), side dish (sand), Thermomix (green)',
-    names: ['--pink', '--pink-ink', '--lilac', '--lilac-ink', '--beige', '--beige-ink', '--green-soft', '--green-ink'],
+    title: 'Surfaces',
+    hint: 'App background, cards, fills inside cards and borders',
+    names: ['--color-bg', '--color-surface', '--color-surface-subtle', '--color-surface-hover', '--color-border'],
   },
-  { title: 'Status', hint: 'Errors and confirmations', names: ['--danger', '--ok'] },
+  { title: 'Text', hint: 'Primary and secondary text', names: ['--color-text', '--color-text-muted'] },
+  {
+    title: 'Brand',
+    hint: 'Mustard yellow: primary actions, selection and today',
+    names: ['--color-primary', '--color-primary-hover', '--color-on-primary', '--color-highlight'],
+  },
+  {
+    title: 'Meals',
+    hint: 'Tags and shortcuts: lunch, dinner, side dish / neutral and Thermomix',
+    names: [
+      '--color-lunch',
+      '--color-on-lunch',
+      '--color-dinner',
+      '--color-on-dinner',
+      '--color-neutral-soft',
+      '--color-on-neutral-soft',
+      '--color-thermomix',
+      '--color-on-thermomix',
+      '--color-thermomix-strong',
+    ],
+  },
+  { title: 'Status', hint: 'Errors and confirmations', names: ['--color-success', '--color-success-soft', '--color-danger'] },
+  {
+    title: 'Food groups',
+    hint: 'Bars in the weekly balance',
+    names: ['--color-group-legumbres', '--color-group-pescado', '--color-group-carne', '--color-group-cereales', '--color-group-verdura'],
+  },
 ];
 
-const SECTIONS = [
-  ['colors', 'Colors'],
-  ['typography', 'Typography'],
-  ['shape', 'Shape'],
-  ['icons', 'Icons'],
-  ['illustrations', 'Illustrations'],
-  ['buttons', 'Buttons'],
-  ['controls', 'Controls'],
-  ['tags', 'Tags'],
-  ['recipe-card', 'Recipe card'],
-  ['week', 'Week'],
-  ['discover', 'Discover'],
-  ['pantry', 'Pantry'],
-] as const;
+type Tab = 'tokens' | 'components';
+
+const SECTIONS: Record<Tab, [string, string][]> = {
+  tokens: [
+    ['semantic-colors', 'Semantic colors'],
+    ['primitive-colors', 'Primitive colors'],
+    ['radius', 'Radius'],
+    ['type-tokens', 'Typography'],
+    ['all-tokens', 'All tokens'],
+  ],
+  components: [
+    ['typography', 'Typography'],
+    ['icons', 'Icons'],
+    ['illustrations', 'Illustrations'],
+    ['buttons', 'Buttons'],
+    ['controls', 'Controls'],
+    ['tags', 'Tags'],
+    ['recipe-card', 'Recipe card'],
+    ['week', 'Week'],
+    ['discover', 'Discover'],
+    ['pantry', 'Pantry'],
+  ],
+};
 
 export default function DesignSystem() {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [theme, setTheme] = useState<Theme>('sistema');
+  const [tab, setTab] = useState<Tab>(() => (location.hash === '#components' ? 'components' : 'tokens'));
+
+  function chooseTab(t: Tab) {
+    setTab(t);
+    history.replaceState(null, '', `#${t}`);
+    window.scrollTo(0, 0);
+  }
 
   useEffect(() => setTokens(readTokens()), []);
   useEffect(() => {
@@ -64,6 +102,13 @@ export default function DesignSystem() {
             <img className="brand-icon" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" /> MajoChef
           </a>
           <span className="ds-top-label">Design system</span>
+          <div className="ds-tabs segmented" role="tablist" aria-label="Design system">
+            {(['tokens', 'components'] as Tab[]).map((t) => (
+              <button key={t} role="tab" aria-selected={t === tab} className={t === tab ? 'on' : ''} onClick={() => chooseTab(t)}>
+                {t === 'tokens' ? 'Tokens' : 'Components'}
+              </button>
+            ))}
+          </div>
           <div className="ds-theme segmented" role="group" aria-label="Theme">
             {(['sistema', 'claro', 'oscuro'] as Theme[]).map((t) => (
               <button key={t} className={t === theme ? 'on' : ''} aria-pressed={t === theme} onClick={() => setTheme(t)}>
@@ -75,7 +120,7 @@ export default function DesignSystem() {
 
         <div className="ds-layout">
           <nav className="ds-nav" aria-label="Sections">
-            {SECTIONS.map(([id, label]) => (
+            {SECTIONS[tab].map(([id, label]) => (
               <a key={id} href={`#${id}`}>
                 {label}
               </a>
@@ -83,26 +128,43 @@ export default function DesignSystem() {
           </nav>
 
           <main className="ds-main">
-            <section className="ds-intro">
-              <h1>Design system</h1>
-              <p className="muted">
-                Everything here comes from the app's code: colors are read from <code>src/styles.css</code> and every example is the
-                real component, filled with sample recipes. Change something in the code and this page changes with it.
-              </p>
-            </section>
-
-            <Colors tokens={tokens} />
-            <Typography />
-            <Shape tokens={tokens} />
-            <Icons />
-            <Illustrations />
-            <Buttons />
-            <Controls />
-            <Tags />
-            <Recipes />
-            <Week />
-            <Discover />
-            <Pantry />
+            {tab === 'tokens' ? (
+              <>
+                <section className="ds-intro">
+                  <h1>Tokens</h1>
+                  <p className="muted">
+                    Read live from <code>src/styles.css</code>, in two layers. <strong>Primitives</strong> are the raw palette (
+                    <code>--mustard-400</code>). <strong>Semantic</strong> tokens say what a value is for (<code>--color-primary</code>)
+                    and point to a primitive. Components only use semantic tokens, and only semantic tokens change in dark mode.
+                  </p>
+                </section>
+                <SemanticColors tokens={tokens} />
+                <PrimitiveColors tokens={tokens} />
+                <Radius tokens={tokens} />
+                <TypeTokens tokens={tokens} />
+                <AllTokens tokens={tokens} />
+              </>
+            ) : (
+              <>
+                <section className="ds-intro">
+                  <h1>Components</h1>
+                  <p className="muted">
+                    Every example is the real component from <code>src/</code>, filled with sample recipes and styled with the semantic
+                    tokens. Change something in the code and this page changes with it.
+                  </p>
+                </section>
+                <Typography />
+                <Icons />
+                <Illustrations />
+                <Buttons />
+                <Controls />
+                <Tags />
+                <Recipes />
+                <Week />
+                <Discover />
+                <Pantry />
+              </>
+            )}
           </main>
         </div>
       </div>
@@ -152,14 +214,38 @@ function CopyName({ name }: { name: string }) {
   );
 }
 
-function Colors({ tokens }: { tokens: Token[] }) {
-  const colors = tokens.filter((t) => isColor(t.light));
+/** Muestra de un token: color en claro | oscuro, nombre, a qué primitivo apunta y cuántas veces se usa */
+function Swatch({ t }: { t: Token }) {
+  const refs = t.lightRef && (t.darkRef && t.darkRef !== t.lightRef ? `${t.lightRef} · ${t.darkRef}` : t.lightRef);
+  return (
+    <div className="ds-swatch">
+      <div className="ds-chip-pair" aria-hidden>
+        <span style={{ background: t.lightValue }} title={`Light: ${t.lightValue}`} />
+        <span style={{ background: t.darkValue }} title={`Dark: ${t.darkValue}`} />
+      </div>
+      <CopyName name={t.name} />
+      {refs && <span className="ds-ref">→ {refs}</span>}
+      <span className="ds-values">
+        {t.lightValue}
+        {t.darkValue !== t.lightValue && <> · {t.darkValue}</>}
+      </span>
+      <span className="muted ds-uses">{t.uses === 1 ? '1 use' : `${t.uses} uses`}</span>
+    </div>
+  );
+}
+
+function SemanticColors({ tokens }: { tokens: Token[] }) {
+  const colors = tokens.filter((t) => t.tier === 'semantic' && isColor(t.lightValue));
   const grouped = new Set(COLOR_GROUPS.flatMap((g) => g.names));
   const others = colors.filter((t) => !grouped.has(t.name));
   const groups = [...COLOR_GROUPS, ...(others.length ? [{ title: 'Other', hint: 'New tokens without a group', names: others.map((t) => t.name) }] : [])];
 
   return (
-    <Section id="colors" title="Colors" intro="Click a name to copy var(--token). Each color shows its light and dark theme value.">
+    <Section
+      id="semantic-colors"
+      title="Semantic colors"
+      intro="What components use. Each swatch shows light | dark, the primitive it points to and how many times styles.css uses it. Click a name to copy var(--token)."
+    >
       {groups.map((g) => {
         const items = g.names.map((n) => colors.find((t) => t.name === n)).filter((t): t is Token => !!t);
         if (!items.length) return null;
@@ -169,24 +255,152 @@ function Colors({ tokens }: { tokens: Token[] }) {
             <p className="muted small">{g.hint}</p>
             <div className="ds-swatches">
               {items.map((t) => (
-                <div key={t.name} className="ds-swatch">
-                  <div className="ds-chip-pair" aria-hidden>
-                    <span style={{ background: t.light }} title={`Light: ${t.light}`} />
-                    <span style={{ background: t.dark ?? t.light }} title={`Dark: ${t.dark ?? t.light}`} />
-                  </div>
-                  <CopyName name={t.name} />
-                  <span className="ds-values">
-                    {t.light}
-                    {t.dark && <> · {t.dark}</>}
-                  </span>
-                  <span className="muted ds-uses">{t.uses === 1 ? '1 use' : `${t.uses} uses`}</span>
-                </div>
+                <Swatch key={t.name} t={t} />
               ))}
             </div>
           </div>
         );
       })}
     </Section>
+  );
+}
+
+function PrimitiveColors({ tokens }: { tokens: Token[] }) {
+  const colors = tokens.filter((t) => t.tier === 'primitive' && isColor(t.lightValue));
+  // Rampas por prefijo: --stone-100 → stone
+  const ramps = new Map<string, Token[]>();
+  for (const t of colors) {
+    const ramp = t.name.replace(/^--/, '').replace(/-\d+$/, '');
+    ramps.set(ramp, [...(ramps.get(ramp) ?? []), t]);
+  }
+  return (
+    <Section id="primitive-colors" title="Primitive colors" intro="The raw palette. Components never use these directly: they go through a semantic token.">
+      {[...ramps].map(([ramp, list]) => (
+        <div key={ramp} className="ds-group">
+          <h3>{ramp}</h3>
+          <div className="ds-ramp">
+            {list.map((t) => (
+              <div key={t.name} className="ds-ramp-step">
+                <span className="ds-ramp-chip" style={{ background: t.lightValue }} />
+                <CopyName name={t.name} />
+                <span className="ds-values">{t.lightValue}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </Section>
+  );
+}
+
+function Radius({ tokens }: { tokens: Token[] }) {
+  const radii = tokens.filter((t) => t.name.startsWith('--radius'));
+  return (
+    <Section id="radius" title="Radius" intro="Primitives from xs to lg; semantic radii say where each one goes.">
+      {(['semantic', 'primitive'] as const).map((tier) => (
+        <div key={tier} className="ds-group">
+          <h3>{tier === 'semantic' ? 'Semantic' : 'Primitive'}</h3>
+          <div className="ds-radii">
+            {radii
+              .filter((t) => t.tier === tier)
+              .map((t) => (
+                <div key={t.name} className="ds-radius">
+                  <span style={{ borderRadius: `var(${t.name})` }} />
+                  <CopyName name={t.name} />
+                  <span className="ds-values">
+                    {t.lightRef ? `→ ${t.lightRef} · ` : ''}
+                    {t.lightValue}
+                  </span>
+                </div>
+              ))}
+          </div>
+        </div>
+      ))}
+    </Section>
+  );
+}
+
+function TypeTokens({ tokens }: { tokens: Token[] }) {
+  const fonts = tokens.filter((t) => t.name.startsWith('--font'));
+  return (
+    <Section id="type-tokens" title="Typography" intro="One family for everything. Hierarchy comes from size and weight (see Components → Typography).">
+      <div className="ds-type">
+        {fonts.map((t) => (
+          <div key={t.name} className="ds-type-row">
+            <span className="ds-type-sample" style={{ fontFamily: `var(${t.name})`, fontSize: '1.4rem' }}>
+              Aa Bb Cc 123 · ¿Qué cocinamos hoy?
+            </span>
+            <span className="muted small">
+              <CopyName name={t.name} /> {t.lightRef ? `→ ${t.lightRef}` : t.lightValue}
+            </span>
+          </div>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+function AllTokens({ tokens }: { tokens: Token[] }) {
+  const [query, setQuery] = useState('');
+  const [tier, setTier] = useState<'all' | Tier>('all');
+  const q = query.trim().toLowerCase();
+  const rows = tokens.filter(
+    (t) => (tier === 'all' || t.tier === tier) && (!q || t.name.includes(q) || t.light.toLowerCase().includes(q) || (t.dark ?? '').toLowerCase().includes(q)),
+  );
+  const show = (value: string) => (value.startsWith('url(') ? 'url(…)' : value);
+  return (
+    <Section id="all-tokens" title="All tokens" intro={`Every custom property in :root (${tokens.length}). Search by name or value.`}>
+      <div className="ds-filter">
+        <input type="search" placeholder="Search tokens…" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search tokens" />
+        <div className="segmented" role="group" aria-label="Tier">
+          {(['all', 'semantic', 'primitive'] as const).map((t) => (
+            <button key={t} className={t === tier ? 'on' : ''} aria-pressed={t === tier} onClick={() => setTier(t)}>
+              {t === 'all' ? 'All' : t === 'semantic' ? 'Semantic' : 'Primitive'}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="ds-table-wrap">
+        <table className="ds-table">
+          <thead>
+            <tr>
+              <th>Token</th>
+              <th>Tier</th>
+              <th>Light</th>
+              <th>Dark</th>
+              <th>Uses</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((t) => (
+              <tr key={t.name}>
+                <td>
+                  <CopyName name={t.name} />
+                </td>
+                <td>
+                  <span className={`ds-tier ${t.tier}`}>{t.tier}</span>
+                </td>
+                <td>
+                  <TokenValue raw={show(t.light)} value={t.lightValue} />
+                </td>
+                <td>{t.dark ? <TokenValue raw={show(t.dark)} value={t.darkValue} /> : <span className="muted">—</span>}</td>
+                <td className="muted">{t.uses}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {rows.length === 0 && <p className="muted small">No tokens match.</p>}
+      </div>
+    </Section>
+  );
+}
+
+function TokenValue({ raw, value }: { raw: string; value: string }) {
+  return (
+    <span className="ds-token-value">
+      {isColor(value) && <span className="ds-dot" style={{ background: value }} />}
+      <code>{raw}</code>
+    </span>
   );
 }
 
@@ -199,7 +413,7 @@ function Typography() {
     { el: <p className="muted small" style={{ margin: 0 }}>Platos principales según las recomendaciones de la AESAN</p>, label: '.muted .small · notes' },
   ];
   return (
-    <Section id="typography" title="Typography" intro={<>A single family, Inconsolata, in <code>--font</code>. Hierarchy comes from size and weight.</>}>
+    <Section id="typography" title="Typography" intro={<>A single family, Inconsolata, in <code>--font-body</code>. Hierarchy comes from size and weight.</>}>
       <div className="ds-type">
         {samples.map((s) => (
           <TypeRow key={s.label} label={s.label}>
@@ -230,28 +444,6 @@ function TypeRow({ label, children }: { label: string; children: ReactNode }) {
         {info && <> · {info}</>}
       </span>
     </div>
-  );
-}
-
-function Shape({ tokens }: { tokens: Token[] }) {
-  const radii = tokens.filter((t) => t.name.startsWith('--radius'));
-  return (
-    <Section id="shape" title="Shape" intro="Very round corners and no shadows: cards stand out from the background by color.">
-      <div className="ds-radii">
-        {radii.map((t) => (
-          <div key={t.name} className="ds-radius">
-            <span style={{ borderRadius: `var(${t.name})` }} />
-            <CopyName name={t.name} />
-            <span className="ds-values">{t.light}</span>
-          </div>
-        ))}
-        <div className="ds-radius">
-          <span style={{ borderRadius: 999 }} />
-          <code>999px</code>
-          <span className="ds-values">Bars in the weekly balance</span>
-        </div>
-      </div>
-    </Section>
   );
 }
 
@@ -307,7 +499,7 @@ function Illustrations() {
 
 function Buttons() {
   return (
-    <Section id="buttons" title="Buttons" intro={<>Slightly rounded corners with <code>--radius-btn</code>. Yellow for the main action on the screen; white for everything else.</>}>
+    <Section id="buttons" title="Buttons" intro={<>Slightly rounded corners with <code>--radius-button</code>. Yellow for the main action on the screen; white for everything else.</>}>
       <div className="ds-grid-2">
         <Specimen name="Button" source="src/styles.css · .btn" code={'<button className="btn primary">\n<button className="btn">\n<button className="btn ghost">\n<button className="btn danger">'}>
           <div className="ds-row">

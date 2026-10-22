@@ -4,62 +4,137 @@
  * tonos tierra (marrón, oliva, topo) y pasteles (rosa, lila, arena) para etiquetas,
  * letra Inconsolata e iconos en pixel art.
  */
+/*
+ * Tokens en dos capas:
+ * - Primitivos: la paleta en bruto (--mustard-400, --pink-100…). No se usan directamente en los componentes.
+ * - Semánticos: para qué sirve cada color (--color-primary, --color-lunch…). Son los que usan los componentes
+ *   y los únicos que cambian en modo oscuro.
+ */
 :root {
-  --bg: #f2efeb;
-  --surface: #ffffff;
-  --surface-2: #f6f3ef; /* rellenos dentro de las tarjetas */
-  --text: #1d1b19;
-  --muted: #7c766f;
-  --border: #e9e4de;
-  --accent: #fbb829; /* amarillo mostaza */
-  --accent-hover: #f0a90f;
-  --on-accent: #1d1b19;
-  --today: #fcc548; /* tarjeta del día de hoy */
-  --brown: #74433a;
-  --olive: #8ba236;
-  --taupe: #7b7566;
-  --terracotta: #d9776a;
-  --sand: #d8cbb4;
-  --pink: #f6d6cc;
-  --pink-ink: #a8323f;
-  --lilac: #e4dcfb;
-  --lilac-ink: #5e44b8;
-  --beige: #e8e1d6;
-  --beige-ink: #5c544a;
-  --green-soft: #e5ecd0;
-  --green-ink: #56691d;
-  --danger: #c2412d;
-  --ok: #56691d;
-  --radius: 16px;
+  /* ---------- Primitivos ---------- */
+  /* Piedra: grises cálidos para fondos, bordes y texto */
+  --stone-0: #ffffff;
+  --stone-50: #f6f3ef;
+  --stone-75: #f4f0eb;
+  --stone-100: #f2efeb;
+  --stone-150: #e9e4de;
+  --stone-200: #e8e1d6;
+  --stone-250: #d8cfc2;
+  --stone-400: #a49d95;
+  --stone-500: #7c766f;
+  --stone-550: #7b7566;
+  --stone-600: #5c544a;
+  --stone-800: #39342e;
+  --stone-820: #34302c;
+  --stone-850: #2a2724;
+  --stone-900: #1f1d1b;
+  --stone-925: #1d1b19;
+  --stone-950: #141312;
+  /* Mostaza: el color de la marca */
+  --mustard-300: #fcc548;
+  --mustard-400: #fbb829;
+  --mustard-500: #f0a90f;
+  --mustard-900: #4a3b14;
+  /* Pasteles y sus tintas */
+  --pink-100: #f6d6cc;
+  --pink-300: #f3b4a9;
+  --pink-700: #a8323f;
+  --pink-900: #4a2b2a;
+  --lilac-100: #e4dcfb;
+  --lilac-300: #cbbdff;
+  --lilac-700: #5e44b8;
+  --lilac-900: #322a50;
+  --olive-100: #e5ecd0;
+  --olive-300: #c3d68a;
+  --olive-500: #8ba236;
+  --olive-700: #56691d;
+  --olive-900: #2f3820;
+  /* Tierra */
+  --brown-700: #74433a;
+  --terracotta-400: #d9776a;
+  --sand-300: #d8cbb4;
+  --sand-600: #8f8471;
+  --red-300: #f08a78;
+  --red-600: #c2412d;
+  /* Radios */
+  --radius-xs: 6px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
   --radius-lg: 24px;
-  --radius-btn: 12px; /* botones, controles segmentados y pestañas */
-  --radius-tag: 6px; /* etiquetas, avisos y chips */
-  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%237c766f' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  --font: 'Inconsolata', ui-monospace, Menlo, Consolas, monospace;
+  /* Tipografía */
+  --font-inconsolata: 'Inconsolata', ui-monospace, Menlo, Consolas, monospace;
+
+  /* ---------- Semánticos ---------- */
+  /* Superficies */
+  --color-bg: var(--stone-100); /* fondo de la app */
+  --color-surface: var(--stone-0); /* tarjetas */
+  --color-surface-subtle: var(--stone-50); /* rellenos dentro de las tarjetas */
+  --color-surface-hover: var(--stone-200);
+  --color-border: var(--stone-150);
+  /* Texto */
+  --color-text: var(--stone-925);
+  --color-text-muted: var(--stone-500);
+  /* Marca */
+  --color-primary: var(--mustard-400); /* botón principal, selección */
+  --color-primary-hover: var(--mustard-500);
+  --color-on-primary: var(--stone-925);
+  --color-highlight: var(--mustard-300); /* hoy, tarjeta de «Una receta al azar» */
+  /* Comida, cena, acompañamiento y Thermomix */
+  --color-lunch: var(--pink-100);
+  --color-on-lunch: var(--pink-700);
+  --color-dinner: var(--lilac-100);
+  --color-on-dinner: var(--lilac-700);
+  --color-neutral-soft: var(--stone-200); /* acompañamiento, «Algo rápido» */
+  --color-on-neutral-soft: var(--stone-600);
+  --color-thermomix: var(--olive-100);
+  --color-on-thermomix: var(--olive-700);
+  --color-thermomix-strong: var(--olive-500);
+  /* Estado */
+  --color-success: var(--olive-700);
+  --color-success-soft: var(--olive-100);
+  --color-danger: var(--red-600);
+  /* Grupos de alimentos (barras del equilibrio de la semana) */
+  --color-group-legumbres: var(--brown-700);
+  --color-group-pescado: var(--stone-550);
+  --color-group-carne: var(--terracotta-400);
+  --color-group-cereales: var(--sand-300);
+  --color-group-verdura: var(--olive-500);
+  /* Forma */
+  --radius-tag: var(--radius-xs); /* etiquetas, avisos y chips */
+  --radius-button: var(--radius-sm); /* botones, controles segmentados y pestañas */
+  --radius-field: var(--radius-sm); /* inputs y desplegables */
+  --radius-inner: var(--radius-md); /* cajas dentro de tarjetas */
+  --radius-card: var(--radius-lg); /* tarjetas */
+  /* Tipografía e iconos */
+  --font-body: var(--font-inconsolata);
+  --icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%237c766f' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   color-scheme: light;
 }
 
+/* Modo oscuro: solo cambian los semánticos */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #141312;
-    --surface: #1f1d1b;
-    --surface-2: #2a2724;
-    --text: #f4f0eb;
-    --muted: #a49d95;
-    --border: #34302c;
-    --today: #4a3b14;
-    --sand: #8f8471;
-    --pink: #4a2b2a;
-    --pink-ink: #f3b4a9;
-    --lilac: #322a50;
-    --lilac-ink: #cbbdff;
-    --beige: #39342e;
-    --beige-ink: #d8cfc2;
-    --green-soft: #2f3820;
-    --green-ink: #c3d68a;
-    --danger: #f08a78;
-    --ok: #c3d68a;
-    --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23a49d95' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --color-bg: var(--stone-950);
+    --color-surface: var(--stone-900);
+    --color-surface-subtle: var(--stone-850);
+    --color-surface-hover: var(--stone-800);
+    --color-border: var(--stone-820);
+    --color-text: var(--stone-75);
+    --color-text-muted: var(--stone-400);
+    --color-highlight: var(--mustard-900);
+    --color-lunch: var(--pink-900);
+    --color-on-lunch: var(--pink-300);
+    --color-dinner: var(--lilac-900);
+    --color-on-dinner: var(--lilac-300);
+    --color-neutral-soft: var(--stone-800);
+    --color-on-neutral-soft: var(--stone-250);
+    --color-thermomix: var(--olive-900);
+    --color-on-thermomix: var(--olive-300);
+    --color-success: var(--olive-300);
+    --color-success-soft: var(--olive-900);
+    --color-danger: var(--red-300);
+    --color-group-cereales: var(--sand-600);
+    --icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23a49d95' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     color-scheme: dark;
   }
 }
@@ -70,9 +145,9 @@
 
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font: 17px/1.5 var(--font);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: 17px/1.5 var(--font-body);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -123,9 +198,9 @@ select,
 textarea {
   width: 100%;
   padding: 8px 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-btn);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-field);
   min-width: 0;
   font-size: 1rem; /* 16px: menos y el iPhone hace zoom al escribir */
 }
@@ -135,7 +210,7 @@ select {
   appearance: none;
   -webkit-appearance: none;
   padding-right: 36px;
-  background-image: var(--chevron);
+  background-image: var(--icon-chevron);
   background-repeat: no-repeat;
   background-position: right 14px center;
   background-size: 12px 8px;
@@ -147,13 +222,13 @@ select {
 .modal select,
 .modal textarea,
 .day select {
-  background-color: var(--surface-2);
+  background-color: var(--color-surface-subtle);
   border-color: transparent;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: var(--muted);
+  color: var(--color-text-muted);
 }
 
 input:focus,
@@ -161,12 +236,12 @@ select:focus,
 textarea:focus,
 button:focus-visible,
 a:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
 .muted {
-  color: var(--muted);
+  color: var(--color-text-muted);
 }
 
 .small {
@@ -174,11 +249,11 @@ a:focus-visible {
 }
 
 .error {
-  color: var(--danger);
+  color: var(--color-danger);
 }
 
 .ok {
-  color: var(--ok);
+  color: var(--color-success);
 }
 
 .icon {
@@ -195,7 +270,7 @@ a:focus-visible {
   align-items: center;
   gap: 16px;
   padding: 14px 24px;
-  background: var(--bg);
+  background: var(--color-bg);
 }
 
 .brand {
@@ -221,8 +296,8 @@ a:focus-visible {
   gap: 4px;
   margin-left: auto;
   padding: 5px;
-  background: var(--surface);
-  border-radius: var(--radius-btn);
+  background: var(--color-surface);
+  border-radius: var(--radius-button);
 }
 
 .tab {
@@ -230,19 +305,19 @@ a:focus-visible {
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  border-radius: calc(var(--radius-btn) - 3px);
+  border-radius: calc(var(--radius-button) - 3px);
   text-decoration: none;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-weight: 500;
 }
 
 .tab:hover {
-  color: var(--text);
+  color: var(--color-text);
 }
 
 .tab.active {
-  background: var(--text);
-  color: var(--surface);
+  background: var(--color-text);
+  color: var(--color-surface);
 }
 
 .tab-icon {
@@ -264,7 +339,7 @@ a:focus-visible {
   max-width: 1100px;
   margin: 0 auto;
   padding: 8px 24px;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 0.85rem;
 }
 
@@ -330,7 +405,7 @@ a:focus-visible {
   }
   .tab.active {
     background: none;
-    color: var(--text);
+    color: var(--color-text);
     font-weight: 600;
   }
   .tab-add {
@@ -342,8 +417,8 @@ a:focus-visible {
     margin: -26px 6px 0;
     border: 0;
     border-radius: 50%;
-    background: var(--accent);
-    color: var(--on-accent);
+    background: var(--color-primary);
+    color: var(--color-on-primary);
     box-shadow: 0 6px 16px rgb(251 184 41 / 45%);
     cursor: pointer;
   }
@@ -371,15 +446,15 @@ a:focus-visible {
   gap: 8px;
   padding: 10px 18px;
   border: 0;
-  border-radius: var(--radius-btn);
-  background: var(--surface);
+  border-radius: var(--radius-button);
+  background: var(--color-surface);
   cursor: pointer;
   font-weight: 500;
   white-space: nowrap;
 }
 
 .btn:hover:not(:disabled) {
-  background: var(--surface-2);
+  background: var(--color-surface-subtle);
 }
 
 .btn:disabled {
@@ -388,13 +463,13 @@ a:focus-visible {
 }
 
 .btn.primary {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
   font-weight: 600;
 }
 
 .btn.primary:hover:not(:disabled) {
-  background: var(--accent-hover);
+  background: var(--color-primary-hover);
 }
 
 .btn.ghost {
@@ -402,15 +477,15 @@ a:focus-visible {
 }
 
 .btn.ghost:hover:not(:disabled) {
-  background: var(--surface);
+  background: var(--color-surface);
 }
 
 .modal .btn:not(.primary):not(.ghost) {
-  background: var(--surface-2);
+  background: var(--color-surface-subtle);
 }
 
 .btn.danger {
-  color: var(--danger);
+  color: var(--color-danger);
 }
 
 .btn.small {
@@ -430,23 +505,23 @@ a:focus-visible {
   display: grid;
   place-items: center;
   border: 0;
-  border-radius: var(--radius-btn);
-  background: var(--surface-2);
+  border-radius: var(--radius-button);
+  background: var(--color-surface-subtle);
   cursor: pointer;
   font-size: 1.1rem;
 }
 
 .icon-btn:hover {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }
 
 .segmented {
   display: inline-flex;
   gap: 2px;
   padding: 4px;
-  background: var(--surface);
-  border-radius: var(--radius-btn);
+  background: var(--color-surface);
+  border-radius: var(--radius-button);
 }
 
 .segmented button {
@@ -454,15 +529,15 @@ a:focus-visible {
   background: transparent;
   padding: 5px 14px;
   font-size: 0.95rem;
-  border-radius: calc(var(--radius-btn) - 3px);
+  border-radius: calc(var(--radius-button) - 3px);
   cursor: pointer;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-weight: 500;
 }
 
 .segmented button.on {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }
 
 /* ---------- Etiquetas ---------- */
@@ -476,23 +551,23 @@ a:focus-visible {
 }
 
 .tag-comida {
-  background: var(--pink);
-  color: var(--pink-ink);
+  background: var(--color-lunch);
+  color: var(--color-on-lunch);
 }
 
 .tag-cena {
-  background: var(--lilac);
-  color: var(--lilac-ink);
+  background: var(--color-dinner);
+  color: var(--color-on-dinner);
 }
 
 .tag-course {
-  background: var(--beige);
-  color: var(--beige-ink);
+  background: var(--color-neutral-soft);
+  color: var(--color-on-neutral-soft);
 }
 
 .tag-thermomix {
-  background: var(--green-soft);
-  color: var(--green-ink);
+  background: var(--color-thermomix);
+  color: var(--color-on-thermomix);
 }
 
 .meta {
@@ -505,7 +580,7 @@ a:focus-visible {
 
 .time {
   margin-left: 4px;
-  color: var(--muted);
+  color: var(--color-text-muted);
 }
 
 /* ---------- Tarjetas de receta ---------- */
@@ -523,9 +598,9 @@ a:focus-visible {
   flex-direction: column;
   padding: 10px;
   text-align: left;
-  background: var(--surface);
+  background: var(--color-surface);
   border: 0;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-card);
   cursor: pointer;
   transition: transform 0.15s ease;
 }
@@ -556,14 +631,14 @@ a:focus-visible {
   width: 100%;
   max-width: 100%;
   object-fit: cover;
-  background: var(--surface-2);
+  background: var(--color-surface-subtle);
 }
 
 .photo-empty {
   display: grid;
   place-items: center;
   aspect-ratio: 4 / 3;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 0.85rem;
 }
 
@@ -582,8 +657,8 @@ a:focus-visible {
   align-self: flex-start;
   padding: 2px 10px;
   border-radius: var(--radius-tag);
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
   font-size: 0.8rem;
   font-weight: 600;
 }
@@ -595,7 +670,7 @@ a:focus-visible {
 .empty {
   text-align: center;
   padding: 48px 16px;
-  color: var(--muted);
+  color: var(--color-text-muted);
 }
 
 /* ---------- Ventanas ---------- */
@@ -615,7 +690,7 @@ a:focus-visible {
   width: min(640px, 100%);
   max-height: calc(100vh - 32px);
   overflow-y: auto;
-  background: var(--surface);
+  background: var(--color-surface);
   border-radius: 28px;
   box-shadow: 0 20px 60px rgb(0 0 0 / 25%);
   outline: none;
@@ -630,8 +705,8 @@ a:focus-visible {
   width: 42px;
   height: 42px;
   border: 0;
-  border-radius: var(--radius-btn);
-  background: var(--surface);
+  border-radius: var(--radius-button);
+  background: var(--color-surface);
   box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
   font-size: 1.5rem;
   line-height: 1;
@@ -684,7 +759,7 @@ a:focus-visible {
   justify-content: space-between;
   gap: 12px;
   padding: 10px 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .instructions {
@@ -712,7 +787,7 @@ a:focus-visible {
 .field > span {
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--muted);
+  color: var(--color-text-muted);
 }
 
 .row {
@@ -735,19 +810,19 @@ a:focus-visible {
   padding: 7px 14px;
   font-size: 0.95rem;
   border: 0;
-  border-radius: var(--radius-btn);
-  background: var(--surface-2);
+  border-radius: var(--radius-button);
+  background: var(--color-surface-subtle);
   cursor: pointer;
   font-weight: 500;
 }
 
 .toggle.on {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }
 
 .toggle.on.tag-thermomix {
-  background: var(--olive);
+  background: var(--color-thermomix-strong);
   color: #fff;
 }
 
@@ -788,7 +863,7 @@ a:focus-visible {
 
 .add-ingredient {
   align-self: flex-start;
-  color: var(--text);
+  color: var(--color-text);
   font-weight: 600;
 }
 
@@ -818,8 +893,8 @@ a:focus-visible {
   flex-direction: column;
   gap: 10px;
   padding: 14px;
-  background: var(--surface-2);
-  border-radius: var(--radius);
+  background: var(--color-surface-subtle);
+  border-radius: var(--radius-inner);
 }
 
 .ingredient-picker .chips {
@@ -839,13 +914,13 @@ a:focus-visible {
 }
 
 .login input {
-  background: var(--surface-2);
+  background: var(--color-surface-subtle);
   border-color: transparent;
 }
 
 .login .forgot {
   margin-top: 8px;
-  color: var(--muted);
+  color: var(--color-text-muted);
 }
 
 .login-logo {
@@ -857,7 +932,7 @@ a:focus-visible {
 }
 
 .card {
-  background: var(--surface);
+  background: var(--color-surface);
   border-radius: 28px;
 }
 
@@ -887,7 +962,7 @@ a:focus-visible {
   width: min(480px, 100%);
   padding: 10px;
   text-align: left;
-  background: var(--surface);
+  background: var(--color-surface);
   border: 0;
   border-radius: 28px;
   cursor: pointer;
@@ -913,7 +988,7 @@ a:focus-visible {
 /* Mientras gira, una tarjeta amarilla */
 .random-result.rolling {
   padding: 48px 20px;
-  background: var(--today);
+  background: var(--color-highlight);
   text-align: center;
   cursor: default;
   animation: none;
@@ -957,7 +1032,7 @@ a:focus-visible {
 .sheet-foot {
   position: sticky;
   z-index: 1;
-  background: var(--surface);
+  background: var(--color-surface);
   padding: 18px 24px;
 }
 
@@ -978,7 +1053,7 @@ a:focus-visible {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--color-border);
 }
 
 .sheet-foot .btn.primary {
@@ -1001,7 +1076,7 @@ a:focus-visible {
   padding: 16px 0 4px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--muted);
+  color: var(--color-text-muted);
 }
 
 .check-row {
@@ -1009,7 +1084,7 @@ a:focus-visible {
   align-items: center;
   gap: 12px;
   min-height: 46px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--color-border);
   cursor: pointer;
 }
 
@@ -1017,7 +1092,7 @@ a:focus-visible {
   width: 22px;
   height: 22px;
   flex: none;
-  accent-color: var(--accent);
+  accent-color: var(--color-primary);
 }
 
 .add-typed {
@@ -1039,22 +1114,22 @@ a:focus-visible {
   padding: 7px 14px;
   border: 0;
   border-radius: var(--radius-tag);
-  background: var(--surface);
+  background: var(--color-surface);
   cursor: pointer;
   font-size: 0.9rem;
 }
 
 .modal .chip {
-  background: var(--surface-2);
+  background: var(--color-surface-subtle);
 }
 
 .chip:hover {
-  background: var(--beige);
+  background: var(--color-surface-hover);
 }
 
 .chip.on {
-  background: var(--text);
-  color: var(--surface);
+  background: var(--color-text);
+  color: var(--color-surface);
 }
 
 /* ---------- Semana ---------- */
@@ -1069,7 +1144,7 @@ a:focus-visible {
   width: 40px;
   height: 40px;
   padding: 0;
-  border-radius: var(--radius-btn);
+  border-radius: var(--radius-button);
   font-size: 1.2rem;
 }
 
@@ -1100,7 +1175,7 @@ a:focus-visible {
 }
 
 .strip-name {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 0.85rem;
 }
 
@@ -1109,20 +1184,20 @@ a:focus-visible {
   place-items: center;
   width: 44px;
   height: 44px;
-  border-radius: var(--radius-btn);
-  background: var(--surface);
+  border-radius: var(--radius-button);
+  background: var(--color-surface);
   font-size: 1.05rem;
   font-weight: 500;
 }
 
 .strip-day.today .strip-name {
-  color: var(--text);
+  color: var(--color-text);
   font-weight: 600;
 }
 
 .strip-day.today .strip-num {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
   font-weight: 600;
 }
 
@@ -1134,7 +1209,7 @@ a:focus-visible {
 }
 
 .strip-dot.on {
-  background: var(--taupe);
+  background: var(--color-text-muted);
 }
 
 .week {
@@ -1147,8 +1222,8 @@ a:focus-visible {
 
 .day {
   scroll-margin-top: 80px;
-  background: var(--surface);
-  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
   padding: 18px 18px 12px;
   display: flex;
   flex-direction: column;
@@ -1173,23 +1248,23 @@ a:focus-visible {
 
 /* Hoy: tarjeta amarilla, como la de "empieza el día" */
 .day.today {
-  background: var(--today);
+  background: var(--color-highlight);
 }
 
 .day.today .day-date {
-  color: var(--text);
+  color: var(--color-text);
 }
 
 .day.today select,
 .day.today .icon-btn {
-  background-color: var(--surface);
+  background-color: var(--color-surface);
 }
 
 .today-badge {
   padding: 1px 10px;
   border-radius: var(--radius-tag);
-  background: var(--surface);
-  color: var(--text);
+  background: var(--color-surface);
+  color: var(--color-text);
   font-size: 0.75rem;
   font-weight: 600;
 }
@@ -1219,13 +1294,13 @@ a:focus-visible {
 }
 
 .slot-comida .slot-label {
-  background: var(--pink);
-  color: var(--pink-ink);
+  background: var(--color-lunch);
+  color: var(--color-on-lunch);
 }
 
 .slot-cena .slot-label {
-  background: var(--lilac);
-  color: var(--lilac-ink);
+  background: var(--color-dinner);
+  color: var(--color-on-dinner);
 }
 
 .slot-controls {
@@ -1255,7 +1330,7 @@ a:focus-visible {
   background: none;
   padding: 2px 0;
   font-size: 0.82rem;
-  color: var(--muted);
+  color: var(--color-text-muted);
   cursor: pointer;
 }
 
@@ -1265,26 +1340,26 @@ a:focus-visible {
 
 .day.today .slot-add,
 .day.today .slot-open {
-  color: var(--text);
+  color: var(--color-text);
 }
 
 .slot-add:hover,
 .slot-open:hover {
-  color: var(--text);
+  color: var(--color-text);
 }
 
 /* Equilibrio de la semana: barras verticales tipo píldora, una por tipo de alimento */
 .balance-card {
   margin-top: 20px;
   padding: 22px 20px 18px;
-  background: var(--surface);
-  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
 }
 
 .balance-head {
   padding-bottom: 14px;
   margin-bottom: 18px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .balance-head h2 {
@@ -1304,7 +1379,7 @@ a:focus-visible {
 
 .bar,
 .bar.ok {
-  color: var(--text);
+  color: var(--color-text);
 }
 
 .bar {
@@ -1324,7 +1399,7 @@ a:focus-visible {
   max-width: 64px;
   height: 160px;
   margin-bottom: 6px;
-  background: var(--surface-2);
+  background: var(--color-surface-subtle);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -1351,33 +1426,33 @@ a:focus-visible {
   left: 0;
   right: 0;
   bottom: 10px;
-  color: var(--muted);
+  color: var(--color-text-muted);
 }
 
 .bar-legumbres .bar-fill {
-  background: var(--brown);
+  background: var(--color-group-legumbres);
 }
 
 .bar-pescado .bar-fill {
-  background: var(--taupe);
+  background: var(--color-group-pescado);
 }
 
 .bar-carne .bar-fill {
-  background: var(--terracotta);
+  background: var(--color-group-carne);
 }
 
 .bar-huevos .bar-fill {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }
 
 .bar-cereales .bar-fill {
-  background: var(--sand);
+  background: var(--color-group-cereales);
   color: #1d1b19;
 }
 
 .bar-verdura .bar-fill {
-  background: var(--olive);
+  background: var(--color-group-verdura);
 }
 
 .bar-label {
@@ -1388,24 +1463,24 @@ a:focus-visible {
 }
 
 .bar-rec {
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 0.75rem;
 }
 
 .bar.low .bar-rec {
-  color: var(--text);
+  color: var(--color-text);
   font-weight: 600;
 }
 
 .bar.high .bar-label,
 .bar.high .bar-rec {
-  color: var(--danger);
+  color: var(--color-danger);
   font-weight: 600;
 }
 
 .balance-note {
   margin: 14px 0 0;
-  color: var(--danger);
+  color: var(--color-danger);
   font-size: 0.875rem;
 }
 
@@ -1457,7 +1532,7 @@ a:focus-visible {
 
 .greeting-hi {
   margin: 0;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-weight: 700;
 }
 
@@ -1467,7 +1542,7 @@ a:focus-visible {
   flex-direction: column;
   gap: 18px;
   padding: 24px;
-  background: var(--today);
+  background: var(--color-highlight);
   border-radius: 28px;
 }
 
@@ -1510,7 +1585,7 @@ a:focus-visible {
   min-height: 132px;
   padding: 14px 18px;
   border-radius: 22px;
-  background: var(--surface);
+  background: var(--color-surface);
 }
 
 .hero-stage-text {
@@ -1551,7 +1626,7 @@ a:focus-visible {
   height: 88px;
   overflow: hidden;
   border-radius: 18px;
-  background: var(--surface-2);
+  background: var(--color-surface-subtle);
 }
 
 .hero-sprite img {
@@ -1584,7 +1659,7 @@ a:focus-visible {
   align-items: center;
   gap: 8px;
   padding-top: 12px;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--color-border);
 }
 
 .hero-today .chip {
@@ -1593,31 +1668,31 @@ a:focus-visible {
 }
 
 .hero-today .slot-chip-comida {
-  background: var(--pink);
-  color: var(--pink-ink);
+  background: var(--color-lunch);
+  color: var(--color-on-lunch);
 }
 
 .hero-today .slot-chip-cena {
-  background: var(--lilac);
-  color: var(--lilac-ink);
+  background: var(--color-dinner);
+  color: var(--color-on-dinner);
 }
 
 .hero-added {
-  color: var(--ok);
+  color: var(--color-success);
   font-weight: 600;
 }
 
 .btn.hero-roll {
   align-self: flex-start;
   padding: 13px 26px;
-  background: var(--text);
-  color: var(--surface);
+  background: var(--color-text);
+  color: var(--color-surface);
   font-size: 1.05rem;
   font-weight: 600;
 }
 
 .btn.hero-roll:hover:not(:disabled) {
-  background: var(--text);
+  background: var(--color-text);
   opacity: 0.9;
 }
 
@@ -1639,7 +1714,7 @@ a:focus-visible {
   border-radius: 22px;
   text-align: left;
   cursor: pointer;
-  color: var(--text);
+  color: var(--color-text);
 }
 
 .mood strong {
@@ -1662,7 +1737,7 @@ a:focus-visible {
 }
 
 .mood.on {
-  border-color: var(--text);
+  border-color: var(--color-text);
 }
 
 .mood:disabled {
@@ -1671,25 +1746,25 @@ a:focus-visible {
 }
 
 .mood-comida {
-  background: var(--pink);
+  background: var(--color-lunch);
 }
 
 .mood-cena {
-  background: var(--lilac);
+  background: var(--color-dinner);
 }
 
 .mood-rapida {
-  background: var(--beige);
+  background: var(--color-neutral-soft);
 }
 
 .mood-thermomix {
-  background: var(--green-soft);
+  background: var(--color-thermomix);
 }
 
 /* Tarjeta blanca de "¿Qué hay en la nevera?" con resultados en lista */
 .fridge {
   padding: 22px;
-  background: var(--surface);
+  background: var(--color-surface);
   border-radius: 28px;
 }
 
@@ -1719,16 +1794,16 @@ a:focus-visible {
 }
 
 .fridge-filter .segmented {
-  background: var(--surface-2);
+  background: var(--color-surface-subtle);
 }
 
 .fridge-filter .segmented button.on {
-  background: var(--surface);
-  color: var(--text);
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
 .fridge .chip:not(.on) {
-  background: var(--surface-2);
+  background: var(--color-surface-subtle);
 }
 
 .match-list {
@@ -1738,7 +1813,7 @@ a:focus-visible {
 }
 
 .match-list li + li {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--color-border);
 }
 
 .match-row {
@@ -1761,7 +1836,7 @@ a:focus-visible {
   height: 56px;
   overflow: hidden;
   border-radius: 16px;
-  background: var(--surface-2);
+  background: var(--color-surface-subtle);
 }
 
 .match-thumb img {
@@ -1793,14 +1868,14 @@ a:focus-visible {
   height: 32px;
   padding: 0 10px;
   border-radius: var(--radius-tag);
-  background: var(--surface-2);
+  background: var(--color-surface-subtle);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
 .match-list li:first-child .match-score {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }
 
 @media (max-width: 720px) {
@@ -1838,8 +1913,8 @@ a:focus-visible {
   max-width: 520px;
   margin-top: 16px;
   padding: 24px;
-  background: var(--surface);
-  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
 }
 
 .account-card p {
@@ -1864,8 +1939,8 @@ a:focus-visible {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
   font-size: 1.4rem;
   font-weight: 700;
 }
@@ -1883,7 +1958,7 @@ a:focus-visible {
 }
 
 .account-actions .btn {
-  background: var(--surface-2);
+  background: var(--color-surface-subtle);
 }
 
 /* ---------- Pizza que baila ---------- */
@@ -2068,18 +2143,18 @@ a:focus-visible {
   padding: 14px 8px 10px;
   border: 2px solid transparent;
   border-radius: 20px;
-  background: var(--surface-2);
+  background: var(--color-surface-subtle);
   cursor: pointer;
   font-size: 0.85rem;
 }
 
 .avatar-option:hover {
-  background: var(--beige);
+  background: var(--color-surface-hover);
 }
 
 .avatar-option.on {
-  border-color: var(--accent);
-  background: var(--today);
+  border-color: var(--color-primary);
+  background: var(--color-highlight);
   font-weight: 600;
 }
 
@@ -2107,9 +2182,9 @@ a:focus-visible {
   position: relative;
   width: 100%;
   overflow: hidden;
-  background: var(--surface-2);
-  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-  border-top: 2px dashed var(--border);
+  background: var(--color-surface-subtle);
+  border-radius: 0 0 var(--radius-card) var(--radius-card);
+  border-top: 2px dashed var(--color-border);
   transition: height 0.3s;
   user-select: none;
   -webkit-user-select: none;
@@ -2153,19 +2228,19 @@ a:focus-visible {
   border: 0;
   border-radius: var(--radius-tag);
   background: transparent;
-  color: var(--muted);
+  color: var(--color-text-muted);
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
 }
 
 .slot-cook:hover {
-  color: var(--text);
+  color: var(--color-text);
 }
 
 .slot-cook.done {
-  background: var(--green-soft);
-  color: var(--green-ink);
+  background: var(--color-success-soft);
+  color: var(--color-success);
 }
 
 .cook-row {
@@ -2187,8 +2262,8 @@ a:focus-visible {
   gap: 12px;
   width: min(420px, calc(100% - 32px));
   padding: 12px 12px 12px 14px;
-  background: var(--surface);
-  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
   box-shadow: 0 10px 30px rgb(0 0 0 / 18%);
   transform: translateX(-50%);
   animation: reward-in 0.35s ease-out;
@@ -2200,8 +2275,8 @@ a:focus-visible {
   place-items: center;
   width: 64px;
   height: 64px;
-  background: var(--accent);
-  border-radius: var(--radius);
+  background: var(--color-primary);
+  border-radius: var(--radius-inner);
 }
 
 .reward-sprite .food-sprite {
@@ -2216,7 +2291,7 @@ a:focus-visible {
 }
 
 .reward-text a {
-  color: var(--text);
+  color: var(--color-text);
   font-size: 0.875rem;
   font-weight: 600;
 }

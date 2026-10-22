@@ -3,10 +3,11 @@ import Chef from './Chef';
 import { Sprite, type SpriteName } from './FoodSprite';
 import Modal from './Modal';
 import Unicorn from './Unicorn';
+import VoucherTicket from './VoucherTicket';
 
 /** Cambia la versión para volver a enseñar el onboarding cuando haya otra novedad */
 const SEEN_KEY = 'majochef.novedades';
-const VERSION = 'despensa-1';
+const VERSION = 'despensa-2'; // 2: añade los vales
 
 const RAIN: SpriteName[] = ['tomato', 'fries', 'egg', 'carrot', 'cheese', 'bread', 'fish'];
 
@@ -30,6 +31,16 @@ const STEPS = [
     art: (
       <div className="onb-art" aria-hidden>
         <Unicorn size={170} />
+      </div>
+    ),
+  },
+  {
+    title: 'Canjéalas por vales',
+    text: 'Gasta las comidas de tu bote en vales para tu pareja: un masaje, un día de cine, una cena fuera… Le llegará un aviso de que te lo debe.',
+    art: (
+      <div className="onb-art onb-tickets" aria-hidden>
+        <VoucherTicket title="Vale por un masaje" detail="6 comidas" />
+        <VoucherTicket title="Vale por un día de cine" detail="Le debes un día de cine" />
       </div>
     ),
   },

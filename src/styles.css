@@ -3072,3 +3072,28 @@ textarea {
     left: calc(50% + 6px);
   }
 }
+
+/* Paso de los vales del onboarding: dos vales un poco girados */
+.onb-tickets {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.onb-tickets .ticket {
+  width: min(100%, 280px);
+  text-align: left;
+  animation: ticket-in var(--motion-enter) both;
+}
+
+.onb-tickets .ticket:first-child {
+  background: var(--color-surface);
+  transform: rotate(-2deg);
+}
+
+.onb-tickets .ticket:last-child {
+  background: var(--color-surface);
+  transform: rotate(1.5deg);
+  animation-delay: 80ms;
+}

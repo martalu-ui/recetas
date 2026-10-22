@@ -33,6 +33,7 @@
   --radius: 16px;
   --radius-lg: 24px;
   --radius-btn: 12px; /* botones, controles segmentados y pestañas */
+  --radius-tag: 6px; /* etiquetas, avisos y chips */
   --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%237c766f' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   --font: 'Inconsolata', ui-monospace, Menlo, Consolas, monospace;
   color-scheme: light;
@@ -469,7 +470,7 @@ a:focus-visible {
 .tag {
   display: inline-block;
   padding: 2px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-tag);
   font-size: 0.8rem;
   font-weight: 500;
 }
@@ -580,7 +581,7 @@ a:focus-visible {
 .best {
   align-self: flex-start;
   padding: 2px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-tag);
   background: var(--accent);
   color: var(--on-accent);
   font-size: 0.8rem;
@@ -1037,7 +1038,7 @@ a:focus-visible {
 .chip {
   padding: 7px 14px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-tag);
   background: var(--surface);
   cursor: pointer;
   font-size: 0.9rem;
@@ -1186,7 +1187,7 @@ a:focus-visible {
 
 .today-badge {
   padding: 1px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-tag);
   background: var(--surface);
   color: var(--text);
   font-size: 0.75rem;
@@ -1212,7 +1213,7 @@ a:focus-visible {
 .slot-label {
   align-self: flex-start;
   padding: 1px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-tag);
   font-size: 0.78rem;
   font-weight: 500;
 }
@@ -1494,13 +1495,13 @@ a:focus-visible {
   margin-left: 8px;
   padding: 2px 10px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-tag);
   background: rgb(255 255 255 / 55%);
   cursor: pointer;
   font-size: 0.85rem;
 }
 
-/* Caja blanca dentro de la tarjeta amarilla: espera, "pensando" con la pizza bailando, o el resultado */
+/* Caja blanca dentro de la tarjeta amarilla: espera, "pensando" con el chef cocinando, o el resultado */
 .hero-stage {
   display: flex;
   align-items: center;
@@ -1653,7 +1654,7 @@ a:focus-visible {
 .mood .mood-count {
   margin-top: auto;
   padding: 2px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-tag);
   background: rgb(255 255 255 / 70%);
   color: #1d1b19;
   font-size: 0.78rem;
@@ -1791,7 +1792,7 @@ a:focus-visible {
   min-width: 48px;
   height: 32px;
   padding: 0 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-tag);
   background: var(--surface-2);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -1886,6 +1887,75 @@ a:focus-visible {
 }
 
 /* ---------- Pizza que baila ---------- */
+
+/* Chef que saltea una tortita: la sartén y la tortita saltan a pasos */
+.chef {
+  display: block;
+  flex: none;
+}
+
+.chef .chef-food-b {
+  opacity: 0;
+}
+
+.chef.cooking .chef-pan,
+.chef.cooking .chef-food,
+.chef.cooking .chef-food-a,
+.chef.cooking .chef-food-b {
+  animation-duration: 1.6s;
+  animation-timing-function: step-end;
+  animation-iteration-count: infinite;
+}
+
+.chef.cooking .chef-pan {
+  animation-name: chef-pan;
+}
+
+.chef.cooking .chef-food {
+  animation-name: chef-food;
+}
+
+.chef.cooking .chef-food-a {
+  animation-name: chef-food-a;
+}
+
+.chef.cooking .chef-food-b {
+  animation-name: chef-food-b;
+}
+
+@keyframes chef-pan {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(-2px); }
+  50% { transform: translateY(-1px); }
+  75% { transform: translateY(0); }
+}
+
+@keyframes chef-food {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(-4px); }
+  50% { transform: translateY(-8px); }
+  75% { transform: translateY(-3px); }
+  100% { transform: translateY(-3px); }
+}
+
+@keyframes chef-food-a {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes chef-food-b {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chef.cooking .chef-pan,
+  .chef.cooking .chef-food,
+  .chef.cooking .chef-food-a,
+  .chef.cooking .chef-food-b {
+    animation: none;
+  }
+}
 
 .pizza {
   display: block;
@@ -2021,4 +2091,170 @@ a:focus-visible {
 .tab-icon .pizza {
   width: 22px;
   height: auto;
+}
+
+/* ---------- Mi despensa ---------- */
+
+.jar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+/* El bote: abierto por arriba, las comidas caen dentro */
+.jar {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: var(--surface-2);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  border-top: 2px dashed var(--border);
+  transition: height 0.3s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.jar-empty {
+  position: absolute;
+  inset: auto 16px 16px;
+  margin: 0;
+  text-align: center;
+}
+
+.jar-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: grab;
+  touch-action: none;
+  will-change: transform;
+}
+
+.jar-item:active {
+  cursor: grabbing;
+}
+
+.jar-item .food-sprite {
+  display: block;
+  pointer-events: none;
+}
+
+/* Marcar como hecha desde la semana */
+.slot-links {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.slot-cook {
+  padding: 2px 8px;
+  border: 0;
+  border-radius: var(--radius-tag);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.slot-cook:hover {
+  color: var(--text);
+}
+
+.slot-cook.done {
+  background: var(--green-soft);
+  color: var(--green-ink);
+}
+
+.cook-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 20px;
+}
+
+/* Aviso de premio: la comida ganada da un salto */
+.reward {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(420px, calc(100% - 32px));
+  padding: 12px 12px 12px 14px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 18%);
+  transform: translateX(-50%);
+  animation: reward-in 0.35s ease-out;
+}
+
+.reward-sprite {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  background: var(--accent);
+  border-radius: var(--radius);
+}
+
+.reward-sprite .food-sprite {
+  animation: reward-hop 0.9s ease-out;
+}
+
+.reward-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.reward-text a {
+  color: var(--text);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+@keyframes reward-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+}
+
+@keyframes reward-hop {
+  0% {
+    transform: translateY(-60px) rotate(-20deg);
+  }
+  45% {
+    transform: translateY(0) rotate(0);
+  }
+  65% {
+    transform: translateY(-12px);
+  }
+  85% {
+    transform: translateY(0);
+  }
+  92% {
+    transform: translateY(-3px);
+  }
+}
+
+@media (max-width: 720px) {
+  .reward {
+    bottom: 96px; /* encima de la barra de abajo */
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reward,
+  .reward-sprite .food-sprite {
+    animation: none;
+  }
 }

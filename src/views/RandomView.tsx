@@ -6,7 +6,7 @@ import { store } from '../lib/store';
 import { toISODate } from '../lib/dates';
 import { MEAL_LABEL, type MealType, type Recipe } from '../lib/types';
 import FoodSprite from '../components/FoodSprite';
-import DancingPizza from '../components/DancingPizza';
+import Chef from '../components/Chef';
 import Icon from '../components/Icon';
 import { MealTags } from '../components/RecipeCard';
 
@@ -52,7 +52,7 @@ export default function RandomView({ demo = false }: { demo?: boolean }) {
     let ticks = 0;
     setRolling(pickRandom(pool)!.title);
     window.clearInterval(timer.current);
-    // Dura un poco más de un baile completo de la pizza
+    // Dura un poco más de una vuelta completa de la tortita
     timer.current = window.setInterval(() => {
       ticks++;
       if (ticks >= 14) {
@@ -93,7 +93,7 @@ export default function RandomView({ demo = false }: { demo?: boolean }) {
 
         {rolling !== null ? (
           <div className="hero-stage rolling" aria-live="polite">
-            <DancingPizza size={112} />
+            <Chef size={112} />
             <span className="hero-stage-text">
               <span className="muted small">Pensando…</span>
               <strong>{rolling}</strong>
@@ -126,10 +126,10 @@ export default function RandomView({ demo = false }: { demo?: boolean }) {
           </div>
         ) : (
           <div className="hero-stage empty">
-            <DancingPizza size={96} dancing={false} />
+            <Chef size={96} cooking={false} />
             <span className="hero-stage-text">
               <strong>¿No sabéis qué hacer?</strong>
-              <span className="muted">Tira el dado y la pizza elige entre vuestras recetas.</span>
+              <span className="muted">Tira el dado y el chef elige entre vuestras recetas.</span>
             </span>
           </div>
         )}

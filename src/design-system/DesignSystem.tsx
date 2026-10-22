@@ -4,9 +4,10 @@ import { addDays, startOfWeek, toISODate, weekDays } from '../lib/dates';
 import { emptyGroupCounts } from '../lib/planner';
 import { EATING_OUT, LEFTOVERS, type MealType, type PlanPosition } from '../lib/types';
 import Avatar, { AVATARS } from '../components/Avatar';
-import DancingPizza from '../components/DancingPizza';
-import { Sprite, SPRITE_NAMES } from '../components/FoodSprite';
+import Chef from '../components/Chef';
+import { Sprite, SPRITE_LABEL, SPRITE_NAMES } from '../components/FoodSprite';
 import Icon, { ICON_NAMES } from '../components/Icon';
+import PantryJar from '../components/PantryJar';
 import RecipeCard, { MealTags } from '../components/RecipeCard';
 import MealFilter, { type MealFilterValue } from '../views/MealFilter';
 import { Greeting } from '../views/DiscoverView';
@@ -43,6 +44,7 @@ const SECTIONS = [
   ['recipe-card', 'Recipe card'],
   ['week', 'Week'],
   ['discover', 'Discover'],
+  ['pantry', 'Pantry'],
 ] as const;
 
 export default function DesignSystem() {
@@ -100,6 +102,7 @@ export default function DesignSystem() {
             <Recipes />
             <Week />
             <Discover />
+            <Pantry />
           </main>
         </div>
       </div>
@@ -245,7 +248,7 @@ function Shape({ tokens }: { tokens: Token[] }) {
         <div className="ds-radius">
           <span style={{ borderRadius: 999 }} />
           <code>999px</code>
-          <span className="ds-values">Pills: tags and chips</span>
+          <span className="ds-values">Bars in the weekly balance</span>
         </div>
       </div>
     </Section>
@@ -270,7 +273,7 @@ function Icons() {
 
 function Illustrations() {
   return (
-    <Section id="illustrations" title="Illustrations" intro="Cute food for recipes without a photo, the dancing pizza and the avatars.">
+    <Section id="illustrations" title="Illustrations" intro="Cute food for recipes without a photo, the cooking chef and the avatars.">
       <div className="ds-grid-2">
         <Specimen name="Food sprites" source="src/components/FoodSprite.tsx" code={'<Sprite name="egg" />\n<FoodSprite recipe={recipe} />'}>
           <div className="ds-row">
@@ -282,10 +285,10 @@ function Illustrations() {
             ))}
           </div>
         </Specimen>
-        <Specimen name="Dancing pizza" source="src/components/DancingPizza.tsx" code={'<DancingPizza />\n<DancingPizza dancing={false} />'}>
+        <Specimen name="Cooking chef" source="src/components/Chef.tsx" code={'<Chef />\n<Chef cooking={false} />'}>
           <div className="ds-row">
-            <DancingPizza size={110} />
-            <DancingPizza size={110} dancing={false} />
+            <Chef size={110} />
+            <Chef size={110} cooking={false} />
           </div>
         </Specimen>
         <Specimen name="Avatars" source="src/components/Avatar.tsx" code={'<Avatar value="pizza" />'} wide>
@@ -395,7 +398,7 @@ function Controls() {
 function Tags() {
   const [lentejas, salmon, , crema] = SAMPLE_RECIPES;
   return (
-    <Section id="tags" title="Tags" intro="Pastel with text in the same hue. Lunch in pink, dinner in lilac, side dish in sand and Thermomix in green.">
+    <Section id="tags" title="Tags" intro={<>Squarish corners with <code>--radius-tag</code>. Pastel with text in the same hue: lunch in pink, dinner in lilac, side dish in sand and Thermomix in green.</>}>
       <div className="ds-grid-2">
         <Specimen name="Recipe tags" source="src/components/RecipeCard.tsx · <MealTags />" code={'<MealTags recipe={recipe} />'}>
           <div className="ds-stack">
@@ -510,6 +513,40 @@ function Discover() {
           <RandomView demo />
         </Specimen>
       </div>
+    </Section>
+  );
+}
+
+function Pantry() {
+  const items = useMemo(
+    () =>
+      SPRITE_NAMES.flatMap((sprite, i) =>
+        [0, 1].map((n) => ({
+          id: `${sprite}-${n}`,
+          recipeId: null,
+          recipeTitle: SAMPLE_RECIPES[(i + n) % SAMPLE_RECIPES.length].title,
+          sprite,
+          day: null,
+          slot: null,
+          createdAt: '',
+        })),
+      ),
+    [],
+  );
+  return (
+    <Section
+      id="pantry"
+      title="Pantry"
+      intro={
+        <>
+          Every cooked recipe earns a food sprite ({SPRITE_NAMES.map((n) => SPRITE_LABEL[n]).join(', ')}). They fall into the jar with
+          gravity: drag one and throw it, tap it to make it hop, or shake the jar.
+        </>
+      }
+    >
+      <Specimen name="Pantry jar" source="src/components/PantryJar.tsx" code={'<PantryJar items={pantry.items} />'} wide>
+        <PantryJar items={items} />
+      </Specimen>
     </Section>
   );
 }

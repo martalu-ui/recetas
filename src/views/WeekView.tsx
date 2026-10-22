@@ -7,6 +7,7 @@ import { emptyGroupCounts, pickBalanced, type PickContext } from '../lib/planner
 import { store } from '../lib/store';
 import { EATING_OUT, LEFTOVERS, MEAL_LABEL, MEAL_TYPES, type Course, type MealType, type PlanPosition, type Recipe } from '../lib/types';
 import Icon, { type IconName } from '../components/Icon';
+import { usePantry } from '../pantry';
 import Empty from './Empty';
 
 const slotKey = (day: string, slot: MealType, position: PlanPosition) => `${day}|${slot}|${position}`;
@@ -20,6 +21,7 @@ function candidates(recipes: Recipe[], slot: MealType, course: Course): Recipe[]
 
 export default function WeekView() {
   const { recipes, loading, openRecipe } = useData();
+  const pantry = usePantry();
   const [monday, setMonday] = useState(() => startOfWeek(new Date()));
   const [plan, setPlan] = useState<Map<string, string>>(new Map());
   const [error, setError] = useState<string | null>(null);
@@ -42,6 +44,28 @@ export default function WeekView() {
   useEffect(() => {
     loadPlan();
   }, [loadPlan, recipes]);
+
+  /** Marcar un plato de hoy o de días pasados como hecho (o desmarcarlo) */
+  function cookProps(day: string, slot: MealType) {
+    const recipeAt = (position: PlanPosition) => recipes.find((r) => r.id === plan.get(slotKey(day, slot, position)));
+    return {
+      cooked: (position: PlanPosition) => {
+        const r = recipeAt(position);
+        return Boolean(r && pantry!.cookedAt(day, slot, r.id));
+      },
+      onCook: async (position: PlanPosition) => {
+        const r = recipeAt(position);
+        if (!r) return;
+        const done = pantry!.cookedAt(day, slot, r.id);
+        try {
+          if (done) await pantry!.uncook(done);
+          else await pantry!.cook(r, { day, slot });
+        } catch (e) {
+          setError(`No se ha podido guardar: ${(e as Error).message}`);
+        }
+      },
+    };
+  }
 
   async function assign(day: string, slot: MealType, position: PlanPosition, value: string | null) {
     const key = slotKey(day, slot, position);
@@ -219,6 +243,7 @@ export default function WeekView() {
                   onChange={(position, value) => assign(day, slot, position, value)}
                   onRandom={(position) => randomFor(day, slot, position)}
                   onOpen={openRecipe}
+                  {...(pantry && day <= today ? cookProps(day, slot) : {})}
                 />
               ))}
             </div>
@@ -238,6 +263,9 @@ export function Slot(props: {
   onChange(position: PlanPosition, value: string | null): void;
   onRandom(position: PlanPosition): void;
   onOpen(r: Recipe): void;
+  /** Para hoy y días pasados: si el plato ya está marcado como hecho y cómo marcarlo (gana una comida) */
+  cooked?(position: PlanPosition): boolean;
+  onCook?(position: PlanPosition): void;
 }) {
   const { slot, values } = props;
   const [showSecond, setShowSecond] = useState(false);
@@ -279,6 +307,8 @@ function Dish(props: {
   onRandom(position: PlanPosition): void;
   onOpen(r: Recipe): void;
   onRemove?(): void;
+  cooked?(position: PlanPosition): boolean;
+  onCook?(position: PlanPosition): void;
 }) {
   const { slot, recipes, position, value } = props;
   const recipe = recipes.find((r) => r.id === value) ?? null;
@@ -328,9 +358,21 @@ function Dish(props: {
         )}
       </div>
       {recipe && (
-        <button className="slot-open" onClick={() => props.onOpen(recipe)}>
-          Ver receta →
-        </button>
+        <div className="slot-links">
+          <button className="slot-open" onClick={() => props.onOpen(recipe)}>
+            Ver receta →
+          </button>
+          {props.onCook &&
+            (props.cooked?.(position) ? (
+              <button className="slot-cook done" onClick={() => props.onCook!(position)} title="Desmarcar">
+                ✓ Hecha
+              </button>
+            ) : (
+              <button className="slot-cook" onClick={() => props.onCook!(position)}>
+                ¿La habéis hecho?
+              </button>
+            ))}
+        </div>
       )}
     </div>
   );

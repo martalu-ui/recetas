@@ -2,10 +2,13 @@ import { useState } from 'react';
 import { useData } from '../data';
 import { appUrl, supabase } from '../lib/supabase';
 import Avatar, { AVATARS } from '../components/Avatar';
+import PantryJar from '../components/PantryJar';
+import { usePantry } from '../pantry';
 
 export default function AccountView(props: { email: string | null; avatar: string | null; onChooseAvatar(value: string): Promise<void> }) {
   const { email, avatar } = props;
   const { recipes } = useData();
+  const pantry = usePantry();
   const [info, setInfo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -33,6 +36,18 @@ export default function AccountView(props: { email: string | null; avatar: strin
   return (
     <section className="account">
       <h1>Cuenta</h1>
+
+      {pantry && (
+        <div className="account-card">
+          <h2>Mi despensa</h2>
+          <p className="muted small">
+            {pantry.items.length === 0
+              ? 'Cada vez que cocinéis una receta, márcala y ganas una comida para tu bote.'
+              : `${pantry.items.length === 1 ? '1 comida ganada' : `${pantry.items.length} comidas ganadas`} cocinando. Coge una y lánzala, o sacude el bote.`}
+          </p>
+          <PantryJar items={pantry.items} />
+        </div>
+      )}
 
       <div className="account-card">
         {supabase && email ? (

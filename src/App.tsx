@@ -1,6 +1,7 @@
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { DataProvider, useData } from './data';
+import { PantryProvider } from './pantry';
 import { authLinkType, supabase } from './lib/supabase';
 import type { Recipe } from './lib/types';
 import Avatar, { isAvatar } from './components/Avatar';
@@ -10,6 +11,7 @@ import SetPassword from './components/SetPassword';
 import Modal from './components/Modal';
 import RecipeDetail from './components/RecipeDetail';
 import RecipeForm from './components/RecipeForm';
+import RewardToast from './components/RewardToast';
 import AccountView from './views/AccountView';
 import DiscoverView from './views/DiscoverView';
 import RecipesView from './views/RecipesView';
@@ -107,46 +109,49 @@ function Shell(props: { email: string | null; author: string | null; avatar: str
 
   return (
     <DataProvider author={author} onOpen={onOpen} onEdit={onEdit}>
-      <header className="topbar">
-        <a className="brand" href="#/recetas">
-          <img className="brand-icon" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" /> MajoChef
-        </a>
-        <nav className="tabs" aria-label="Secciones">
-          {VIEWS.map((v, i) => (
-            <Fragment key={v.id}>
-              {/* En el móvil, el botón redondo de «Nueva receta» va en el centro de la barra */}
-              {i === 2 && (
-                <button className="tab-add" onClick={() => onEdit(null)} aria-label="Nueva receta" title="Nueva receta">
-                  <Icon name="plus" size={22} />
-                </button>
-              )}
-              <a href={`#/${v.id}`} className={v.id === view ? 'tab active' : 'tab'} aria-current={v.id === view ? 'page' : undefined}>
-                <span className="tab-icon">
-                  {v.id === 'cuenta' && avatar ? <Avatar value={avatar} size={22} /> : <Icon name={v.icon} />}
-                </span>
-                <span className="tab-label">{v.label}</span>
-              </a>
-            </Fragment>
-          ))}
-        </nav>
-      </header>
+      <PantryProvider>
+        <header className="topbar">
+          <a className="brand" href="#/recetas">
+            <img className="brand-icon" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" /> MajoChef
+          </a>
+          <nav className="tabs" aria-label="Secciones">
+            {VIEWS.map((v, i) => (
+              <Fragment key={v.id}>
+                {/* En el móvil, el botón redondo de «Nueva receta» va en el centro de la barra */}
+                {i === 2 && (
+                  <button className="tab-add" onClick={() => onEdit(null)} aria-label="Nueva receta" title="Nueva receta">
+                    <Icon name="plus" size={22} />
+                  </button>
+                )}
+                <a href={`#/${v.id}`} className={v.id === view ? 'tab active' : 'tab'} aria-current={v.id === view ? 'page' : undefined}>
+                  <span className="tab-icon">
+                    {v.id === 'cuenta' && avatar ? <Avatar value={avatar} size={22} /> : <Icon name={v.icon} />}
+                  </span>
+                  <span className="tab-label">{v.label}</span>
+                </a>
+              </Fragment>
+            ))}
+          </nav>
+        </header>
 
-      {!supabase && (
-        <p className="banner">
-          {import.meta.env.VITE_PREVIEW
-            ? 'Vista previa: puedes probarlo todo, pero lo que cambies aquí no se guarda en vuestras recetas.'
-            : 'Modo local: las recetas se guardan solo en este navegador. Configura Supabase (mira el README) para compartirlas.'}
-        </p>
-      )}
+        {!supabase && (
+          <p className="banner">
+            {import.meta.env.VITE_PREVIEW
+              ? 'Vista previa: puedes probarlo todo, pero lo que cambies aquí no se guarda en vuestras recetas.'
+              : 'Modo local: las recetas se guardan solo en este navegador. Configura Supabase (mira el README) para compartirlas.'}
+          </p>
+        )}
 
-      <main className="content">
-        {view === 'recetas' && <RecipesView />}
-        {view === 'descubrir' && <DiscoverView avatar={avatar} />}
-        {view === 'semana' && <WeekView />}
-        {view === 'cuenta' && <AccountView email={email} avatar={avatar} onChooseAvatar={props.onChooseAvatar} />}
-      </main>
+        <main className="content">
+          {view === 'recetas' && <RecipesView />}
+          {view === 'descubrir' && <DiscoverView avatar={avatar} />}
+          {view === 'semana' && <WeekView />}
+          {view === 'cuenta' && <AccountView email={email} avatar={avatar} onChooseAvatar={props.onChooseAvatar} />}
+        </main>
 
-      <RecipeModals openId={openId} onCloseDetail={() => setOpenId(null)} editing={editing} onCloseForm={() => setEditing(undefined)} />
+        <RecipeModals openId={openId} onCloseDetail={() => setOpenId(null)} editing={editing} onCloseForm={() => setEditing(undefined)} />
+        <RewardToast />
+      </PantryProvider>
     </DataProvider>
   );
 }

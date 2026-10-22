@@ -58,3 +58,28 @@ create policy "subir fotos" on storage.objects
 drop policy if exists "borrar fotos" on storage.objects;
 create policy "borrar fotos" on storage.objects
   for delete to authenticated using (bucket_id = 'fotos');
+
+-- Despensa ----------------------------------------------------------------
+-- Cada vez que alguien marca que ha cocinado una receta gana una comida
+-- pixel art (sprite). Es personal: cada uno ve solo la suya.
+create table if not exists public.pantry (
+  id           uuid primary key default gen_random_uuid(),
+  user_id      uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  recipe_id    uuid references public.recipes(id) on delete set null,
+  recipe_title text not null,
+  sprite       text not null,
+  day          date,
+  slot         text check (slot in ('comida', 'cena')),
+  created_at   timestamptz not null default now()
+);
+
+create index if not exists pantry_user_id_idx on public.pantry (user_id);
+create index if not exists pantry_recipe_id_idx on public.pantry (recipe_id);
+
+alter table public.pantry enable row level security;
+
+drop policy if exists "mi despensa" on public.pantry;
+create policy "mi despensa" on public.pantry
+  for all to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));

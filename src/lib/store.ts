@@ -1,7 +1,7 @@
 import { blobToDataUrl } from './image';
 import type { FoodGroup } from './nutrition';
 import { PHOTO_BUCKET, supabase } from './supabase';
-import { EATING_OUT, LEFTOVERS, type Course, type Ingredient, type MealType, type PlanEntry, type PlanPosition, type Recipe, type RecipeDraft } from './types';
+import { EATING_OUT, LEFTOVERS, type Course, type Ingredient, type MealType, type PantryDraft, type PantryItem, type PlanEntry, type PlanPosition, type Recipe, type RecipeDraft } from './types';
 
 export interface DataStore {
   mode: 'local' | 'supabase';
@@ -12,6 +12,10 @@ export interface DataStore {
   listPlan(from: string, to: string): Promise<PlanEntry[]>;
   /** `value` es el id de una receta, LEFTOVERS, EATING_OUT, o null para vaciar el hueco */
   setPlan(day: string, slot: MealType, position: PlanPosition, value: string | null): Promise<void>;
+  /** «Mi despensa»: comidas ganadas por quien ha entrado, la más reciente primero */
+  listPantry(): Promise<PantryItem[]>;
+  addPantry(item: PantryDraft): Promise<PantryItem>;
+  removePantry(id: string): Promise<void>;
 }
 
 function cleanIngredients(list: Ingredient[]): Ingredient[] {
@@ -27,6 +31,7 @@ function cleanIngredients(list: Ingredient[]): Ingredient[] {
 
 const LS_RECIPES = 'recetas.recipes';
 const LS_PLAN = 'recetas.plan';
+const LS_PANTRY = 'recetas.pantry';
 
 function readLS<T>(key: string, fallback: T): T {
   try {
@@ -98,6 +103,17 @@ const localStore: DataStore = {
     const plan = readLocalPlan().filter((p) => !(p.day === day && p.slot === slot && p.position === position));
     if (value) plan.push({ day, slot, position, value });
     writeLS(LS_PLAN, plan);
+  },
+  async listPantry() {
+    return readLS<PantryItem[]>(LS_PANTRY, []);
+  },
+  async addPantry(draft) {
+    const item: PantryItem = { ...draft, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
+    writeLS(LS_PANTRY, [item, ...readLS<PantryItem[]>(LS_PANTRY, [])]);
+    return item;
+  },
+  async removePantry(id) {
+    writeLS(LS_PANTRY, readLS<PantryItem[]>(LS_PANTRY, []).filter((i) => i.id !== id));
   },
 };
 
@@ -215,6 +231,46 @@ const supabaseStore: DataStore = {
       check(await supabase!.from('meal_plan').delete().eq('day', day).eq('slot', slot).eq('position', position));
     }
   },
+  // Cada uno ve solo su despensa: lo filtra la política de la tabla con auth.uid()
+  async listPantry() {
+    const rows = check(await supabase!.from('pantry').select('*').order('created_at', { ascending: false }));
+    return (rows as PantryRow[]).map(pantryFromRow);
+  },
+  async addPantry(draft) {
+    const row = check(
+      await supabase!
+        .from('pantry')
+        .insert({ recipe_id: draft.recipeId, recipe_title: draft.recipeTitle, sprite: draft.sprite, day: draft.day, slot: draft.slot })
+        .select()
+        .single(),
+    );
+    return pantryFromRow(row as PantryRow);
+  },
+  async removePantry(id) {
+    check(await supabase!.from('pantry').delete().eq('id', id));
+  },
 };
+
+interface PantryRow {
+  id: string;
+  recipe_id: string | null;
+  recipe_title: string;
+  sprite: string;
+  day: string | null;
+  slot: MealType | null;
+  created_at: string;
+}
+
+function pantryFromRow(row: PantryRow): PantryItem {
+  return {
+    id: row.id,
+    recipeId: row.recipe_id,
+    recipeTitle: row.recipe_title,
+    sprite: row.sprite,
+    day: row.day,
+    slot: row.slot,
+    createdAt: row.created_at,
+  };
+}
 
 export const store: DataStore = supabase ? supabaseStore : localStore;

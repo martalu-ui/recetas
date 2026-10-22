@@ -63,6 +63,12 @@
   --radius-lg: 16px;
   /* Tipografía */
   --font-martian-mono: 'Martian Mono', ui-monospace, Menlo, Consolas, monospace;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --tracking-tight: -0.03em;
+  --tracking-tighter: -0.05em;
   /* Movimiento (valores de Fluid Functionalism): rápido, moderado y lento, con salidas más cortas */
   --duration-fast: 80ms;
   --duration-moderate: 160ms;
@@ -127,6 +133,13 @@
   --motion-exit: var(--duration-slow-exit) var(--ease-in-out); /* desaparecer */
   /* Tipografía e iconos */
   --font-body: var(--font-martian-mono);
+  /* Pesos: Martian Mono pesa mucho, así que todo va un escalón por debajo de lo habitual */
+  --font-weight-body: var(--weight-regular);
+  --font-weight-ui: var(--weight-regular); /* pestañas, botones, filtros, etiquetas */
+  --font-weight-strong: var(--weight-medium); /* lo elegido, el botón principal, textos destacados */
+  --font-weight-heading: var(--weight-semibold); /* títulos y marca */
+  --tracking-body: var(--tracking-tight); /* Martian Mono viene muy espaciada */
+  --tracking-heading: var(--tracking-tighter);
   --icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%237c766f' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   color-scheme: light;
 }
@@ -173,6 +186,8 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   font: 1rem/1.55 var(--font-body);
+  letter-spacing: var(--tracking-body);
+  font-weight: var(--font-weight-body);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -180,11 +195,16 @@ body.no-scroll {
   overflow: hidden;
 }
 
+strong,
+b {
+  font-weight: var(--font-weight-heading);
+}
+
 h1,
 h2,
 h3 {
-  font-weight: 700;
-  letter-spacing: 0;
+  font-weight: var(--font-weight-heading);
+  letter-spacing: var(--tracking-heading);
   text-wrap: balance;
 }
 
@@ -215,6 +235,7 @@ input,
 select,
 textarea {
   font: inherit;
+  letter-spacing: inherit;
   color: inherit;
 }
 
@@ -227,7 +248,8 @@ textarea {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-field);
   min-width: 0;
-  font-size: 1rem;
+  font-size: 1rem; /* el zoom del iPhone al escribir se evita en index.html */
+  line-height: 1.35;
 }
 
 /* Desplegables: flecha propia con su hueco a la derecha (la del navegador queda pegada al borde) */
@@ -302,9 +324,9 @@ a:focus-visible {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-weight: 700;
+  font-weight: var(--font-weight-heading);
   font-size: 1.3rem;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--tracking-heading);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -334,7 +356,7 @@ a:focus-visible {
   border-radius: calc(var(--radius-button) - 3px);
   text-decoration: none;
   color: var(--color-text-muted);
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
 }
 
 .tab:hover {
@@ -432,7 +454,7 @@ a:focus-visible {
   .tab.active {
     background: none;
     color: var(--color-text);
-    font-weight: 600;
+    font-weight: var(--font-weight-strong);
   }
   .tab-add {
     display: grid;
@@ -475,7 +497,7 @@ a:focus-visible {
   border-radius: var(--radius-button);
   background: var(--color-surface);
   cursor: pointer;
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
   white-space: nowrap;
 }
 
@@ -491,7 +513,7 @@ a:focus-visible {
 .btn.primary {
   background: var(--color-primary);
   color: var(--color-on-primary);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .btn.primary:hover:not(:disabled) {
@@ -526,8 +548,8 @@ a:focus-visible {
 
 .icon-btn {
   flex: none;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   display: grid;
   place-items: center;
   border: 0;
@@ -558,7 +580,7 @@ a:focus-visible {
   border-radius: calc(var(--radius-button) - 3px);
   cursor: pointer;
   color: var(--color-text-muted);
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
 }
 
 .segmented button.on {
@@ -573,7 +595,7 @@ a:focus-visible {
   padding: 2px 10px;
   border-radius: var(--radius-tag);
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
 }
 
 .tag-comida {
@@ -686,11 +708,11 @@ a:focus-visible {
   background: var(--color-primary);
   color: var(--color-on-primary);
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .match-info {
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
 }
 
 .empty {
@@ -812,7 +834,7 @@ a:focus-visible {
 
 .field > span {
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
   color: var(--color-text-muted);
 }
 
@@ -839,7 +861,7 @@ a:focus-visible {
   border-radius: var(--radius-button);
   background: var(--color-surface-subtle);
   cursor: pointer;
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
 }
 
 .toggle.on {
@@ -890,7 +912,7 @@ a:focus-visible {
 .add-ingredient {
   align-self: flex-start;
   color: var(--color-text);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .ingredient-item {
@@ -1021,7 +1043,7 @@ a:focus-visible {
 }
 
 .link {
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 @keyframes pop {
@@ -1101,7 +1123,7 @@ a:focus-visible {
 .check-group legend {
   padding: 16px 0 4px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
   color: var(--color-text-muted);
 }
 
@@ -1177,7 +1199,7 @@ a:focus-visible {
 .week-label {
   min-width: 130px;
   text-align: center;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 /* Fila de días: el número en un cuadrado redondeado, hoy en amarillo */
@@ -1213,18 +1235,18 @@ a:focus-visible {
   border-radius: var(--radius-button);
   background: var(--color-surface);
   font-size: 1.05rem;
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
 }
 
 .strip-day.today .strip-name {
   color: var(--color-text);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .strip-day.today .strip-num {
   background: var(--color-primary);
   color: var(--color-on-primary);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 /* Puntito si ese día ya tiene menú */
@@ -1265,7 +1287,7 @@ a:focus-visible {
 
 .day-head strong {
   font-size: 1.15rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .day-date {
@@ -1292,7 +1314,7 @@ a:focus-visible {
   background: var(--color-surface);
   color: var(--color-text);
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 /* Días de esta semana que ya han pasado: al final y más apagados */
@@ -1316,7 +1338,7 @@ a:focus-visible {
   padding: 1px 10px;
   border-radius: var(--radius-tag);
   font-size: 0.78rem;
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
 }
 
 .slot-comida .slot-label {
@@ -1361,7 +1383,7 @@ a:focus-visible {
 }
 
 .slot-add {
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .day.today .slot-add,
@@ -1442,7 +1464,7 @@ a:focus-visible {
 }
 
 .bar-count {
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
   font-size: 0.95rem;
   font-variant-numeric: tabular-nums;
 }
@@ -1484,7 +1506,7 @@ a:focus-visible {
 .bar-label {
   max-width: 100%;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
   line-height: 1.2;
 }
 
@@ -1495,13 +1517,13 @@ a:focus-visible {
 
 .bar.low .bar-rec {
   color: var(--color-text);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .bar.high .bar-label,
 .bar.high .bar-rec {
   color: var(--color-danger);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .balance-note {
@@ -1526,7 +1548,7 @@ a:focus-visible {
   }
   .bar-label {
     font-size: 0.7rem;
-    letter-spacing: -0.01em;
+    letter-spacing: var(--tracking-heading);
   }
   .bar-rec {
     font-size: 0.68rem;
@@ -1559,7 +1581,7 @@ a:focus-visible {
 .greeting-hi {
   margin: 0;
   color: var(--color-text-muted);
-  font-weight: 700;
+  font-weight: var(--font-weight-heading);
 }
 
 /* Tarjeta amarilla de "¿Qué cocinamos hoy?" */
@@ -1674,7 +1696,7 @@ a:focus-visible {
 }
 
 .hero-link {
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
   font-size: 0.9rem;
 }
 
@@ -1690,7 +1712,7 @@ a:focus-visible {
 
 .hero-today .chip {
   padding: 5px 14px;
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
 }
 
 .hero-today .slot-chip-comida {
@@ -1705,7 +1727,7 @@ a:focus-visible {
 
 .hero-added {
   color: var(--color-success);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .btn.hero-roll {
@@ -1714,7 +1736,7 @@ a:focus-visible {
   background: var(--color-text);
   color: var(--color-surface);
   font-size: 1.05rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .btn.hero-roll:hover:not(:disabled) {
@@ -1895,7 +1917,7 @@ a:focus-visible {
   padding: 0 10px;
   border-radius: var(--radius-tag);
   background: var(--color-surface-subtle);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1968,11 +1990,11 @@ a:focus-visible {
   background: var(--color-primary);
   color: var(--color-on-primary);
   font-size: 1.4rem;
-  font-weight: 700;
+  font-weight: var(--font-weight-heading);
 }
 
 .account-email {
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
   overflow-wrap: anywhere;
 }
 
@@ -2181,7 +2203,7 @@ a:focus-visible {
 .avatar-option.on {
   border-color: var(--color-primary);
   background: var(--color-highlight);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .avatar .pizza,
@@ -2256,7 +2278,7 @@ a:focus-visible {
   background: transparent;
   color: var(--color-text-muted);
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
   cursor: pointer;
 }
 
@@ -2315,7 +2337,7 @@ a:focus-visible {
 .reward-text a {
   color: var(--color-text);
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 @keyframes reward-in {
@@ -2452,7 +2474,7 @@ a:focus-visible {
 
 .score-name {
   overflow: hidden;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -2535,7 +2557,7 @@ a:focus-visible {
 .onb-kicker {
   color: var(--color-text-muted);
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .onb-dots {
@@ -2604,14 +2626,6 @@ textarea {
   outline-offset: 2px;
 }
 
-/* En pantallas táctiles los campos van a 16px: con menos, el iPhone hace zoom al escribir */
-@media (pointer: coarse) {
-  input,
-  select,
-  textarea {
-    font-size: 16px;
-  }
-}
 
 .btn:active:not(:disabled),
 .icon-btn:active,
@@ -2637,12 +2651,12 @@ textarea {
 /* La pestaña o la opción elegida se pone más negrita; con letra monoespaciada no se mueve nada */
 .tab,
 .segmented button {
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
 }
 
 .tab.active,
 .segmented button.on {
-  font-weight: 700;
+  font-weight: var(--font-weight-heading);
 }
 
 /* Resaltado que se desliza: el de la opción elegida y el que sigue al ratón (ver useGlide) */
@@ -2899,5 +2913,162 @@ textarea {
   .moods.scroll-fade-x {
     mask-image: none;
     animation: none;
+  }
+}
+
+/* ---------- Vales ---------- */
+
+.tickets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+/* Un vale con forma de entrada: cuerpo y matriz separados por una línea de puntos con muescas */
+.ticket {
+  --notch: 8px;
+  --stub: 8.5rem;
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  background: var(--color-highlight);
+  border-radius: var(--radius-inner);
+}
+
+.ticket.with-stub {
+  mask:
+    radial-gradient(circle var(--notch) at calc(100% - var(--stub)) 0, transparent 98%, #000) top / 100% 51% no-repeat,
+    radial-gradient(circle var(--notch) at calc(100% - var(--stub)) 100%, transparent 98%, #000) bottom / 100% 51% no-repeat;
+}
+
+.ticket-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 12px 14px;
+}
+
+.ticket-kicker {
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-strong);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.ticket-title {
+  font-weight: var(--font-weight-heading);
+  line-height: 1.25;
+}
+
+.ticket-detail {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.ticket-stub {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--stub);
+  padding: 8px;
+  border-left: 2px dashed color-mix(in srgb, var(--color-text) 25%, transparent);
+}
+
+.ticket.done {
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+}
+
+.ticket.done .ticket-title {
+  text-decoration: line-through;
+}
+
+.ticket .btn {
+  max-width: 100%;
+  padding-inline: 10px;
+  background: var(--color-surface);
+  white-space: normal;
+}
+
+.ticket .btn.primary {
+  background: var(--color-text);
+  color: var(--color-surface);
+}
+
+.ticket .btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.account-card h2.owed-second {
+  margin-top: 28px;
+}
+
+.notify-btn {
+  margin-top: 12px;
+}
+
+.voucher-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 4px 4px;
+  text-align: center;
+}
+
+.voucher-notice .ticket {
+  width: 100%;
+  max-width: 320px;
+  text-align: left;
+  animation: ticket-in var(--motion-enter) both;
+}
+
+.voucher-notice h2 {
+  max-width: 100%;
+  margin: 0;
+  font-size: 1.2rem;
+  overflow-wrap: anywhere;
+}
+
+.voucher-notice .onb-actions {
+  flex-wrap: wrap;
+}
+
+@keyframes ticket-in {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) rotate(-4deg);
+  }
+}
+
+/* Numerito de vales pendientes en la pestaña de Cuenta */
+.tab {
+  position: relative;
+}
+
+.tab-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--color-danger);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: var(--font-weight-strong);
+  line-height: 1;
+}
+
+@media (max-width: 720px) {
+  .tab-badge {
+    position: absolute;
+    top: 0;
+    left: calc(50% + 6px);
   }
 }

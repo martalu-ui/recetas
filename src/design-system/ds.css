@@ -30,7 +30,7 @@ html {
 
 .ds-top-label {
   color: var(--color-text-muted);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .ds-theme {
@@ -61,7 +61,7 @@ html {
   padding: 8px 14px;
   border-radius: var(--radius-button);
   color: var(--color-text-muted);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
   text-decoration: none;
 }
 
@@ -232,7 +232,7 @@ html {
   border: 0;
   background: none;
   color: var(--color-text);
-  font: 700 0.95rem var(--font-body);
+  font: var(--font-weight-heading) 0.95rem var(--font-body);
   cursor: pointer;
 }
 
@@ -322,7 +322,7 @@ html {
 .ds-table th {
   padding: 10px 8px;
   color: var(--color-text-muted);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
   text-align: left;
   white-space: nowrap;
 }
@@ -343,7 +343,7 @@ html {
   padding: 1px 8px;
   border-radius: var(--radius-tag);
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .ds-tier.semantic {
@@ -710,7 +710,7 @@ html {
 }
 
 .ds-motion-name {
-  font-weight: 700;
+  font-weight: var(--font-weight-heading);
   overflow-wrap: anywhere;
 }
 

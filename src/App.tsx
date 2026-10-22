@@ -14,6 +14,8 @@ import RecipeDetail from './components/RecipeDetail';
 import RecipeForm from './components/RecipeForm';
 import RewardToast from './components/RewardToast';
 import Onboarding from './components/Onboarding';
+import { VoucherNotice } from './components/Vouchers';
+import { usePantry } from './pantry';
 import AccountView from './views/AccountView';
 import DiscoverView from './views/DiscoverView';
 import RecipesView from './views/RecipesView';
@@ -131,6 +133,7 @@ function Shell(props: { email: string | null; author: string | null; avatar: str
                     {v.id === 'cuenta' && avatar ? <Avatar value={avatar} size={22} /> : <Icon name={v.icon} />}
                   </span>
                   <span className="tab-label">{v.label}</span>
+                {v.id === 'cuenta' && <OwedBadge />}
                 </a>
               </Fragment>
             ))}
@@ -155,6 +158,7 @@ function Shell(props: { email: string | null; author: string | null; avatar: str
         <RecipeModals openId={openId} onCloseDetail={() => setOpenId(null)} editing={editing} onCloseForm={() => setEditing(undefined)} />
         <RewardToast />
         <Onboarding />
+        <VoucherNotice />
       </PantryProvider>
     </DataProvider>
   );
@@ -187,5 +191,17 @@ function RecipeModals(props: {
         </Modal>
       )}
     </>
+  );
+}
+
+/** Numerito en la pestaña de Cuenta con los vales que debes y aún no has cumplido */
+function OwedBadge() {
+  const pantry = usePantry();
+  const owed = pantry?.vouchers.filter((v) => !v.mine && v.status === 'pendiente').length ?? 0;
+  if (!owed) return null;
+  return (
+    <span className="tab-badge" aria-label={`${owed} vales pendientes`}>
+      {owed}
+    </span>
   );
 }

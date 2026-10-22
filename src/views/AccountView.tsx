@@ -3,6 +3,7 @@ import { useData } from '../data';
 import { appUrl, supabase } from '../lib/supabase';
 import Avatar, { AVATARS } from '../components/Avatar';
 import PantryJar from '../components/PantryJar';
+import { OwedCard, VouchersCard } from '../components/Vouchers';
 import { usePantry } from '../pantry';
 import type { Score } from '../lib/store';
 
@@ -44,11 +45,16 @@ export default function AccountView(props: { email: string | null; avatar: strin
           <p className="muted small">
             {pantry.items.length === 0
               ? 'Cada vez que cocines un plato del menú, márcalo en la semana con «¿La has hecho?» y ganarás una comida para tu bote.'
-              : `${pantry.items.length === 1 ? '1 comida ganada' : `${pantry.items.length} comidas ganadas`} cocinando. Coge una y lánzala, o sacude el bote.`}
+              : `${pantry.available.length === 1 ? '1 comida' : `${pantry.available.length} comidas`} en el bote${
+                  pantry.items.length > pantry.available.length ? ` (${pantry.items.length - pantry.available.length} ya canjeadas en vales)` : ''
+                }. Coge una y lánzala, o sacude el bote.`}
           </p>
-          <PantryJar items={pantry.items} />
+          <PantryJar items={pantry.available} />
         </div>
       )}
+
+      {pantry && <OwedCard />}
+      {pantry && <VouchersCard />}
 
       {pantry && pantry.scores.length > 0 && (
         <div className="account-card">

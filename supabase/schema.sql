@@ -89,3 +89,67 @@ create policy "mi despensa" on public.pantry
 drop policy if exists "despensa visible para el marcador" on public.pantry;
 create policy "despensa visible para el marcador" on public.pantry
   for select to authenticated using (true);
+
+-- Vales -------------------------------------------------------------------
+-- Las comidas de la despensa se canjean por vales para la pareja (un masaje,
+-- un día de cine…). Quien canjea es el dueño del vale; la otra persona se lo
+-- debe, recibe el aviso y lo marca como visto y como cumplido.
+create table if not exists public.vouchers (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  author     text, -- nombre de quien lo canjea
+  kind       text not null, -- id del vale del catálogo (src/lib/vouchers.ts)
+  title      text not null,
+  cost       int not null check (cost > 0), -- comidas gastadas
+  status     text not null default 'pendiente' check (status in ('pendiente', 'cumplido')),
+  seen_at    timestamptz, -- cuando la pareja ha visto el aviso
+  done_at    timestamptz,
+  created_at timestamptz not null default now()
+);
+
+alter table public.vouchers enable row level security;
+
+drop policy if exists "vales visibles para los dos" on public.vouchers;
+create policy "vales visibles para los dos" on public.vouchers
+  for select to authenticated using (true);
+
+drop policy if exists "canjear mis vales" on public.vouchers;
+create policy "canjear mis vales" on public.vouchers
+  for insert to authenticated with check (user_id = (select auth.uid()));
+
+drop policy if exists "la pareja marca visto o cumplido" on public.vouchers;
+create policy "la pareja marca visto o cumplido" on public.vouchers
+  for update to authenticated
+  using (user_id <> (select auth.uid()))
+  with check (user_id <> (select auth.uid()));
+
+-- Las comidas gastadas en un vale salen del bote (pero siguen contando en el marcador)
+alter table public.pantry add column if not exists voucher_id uuid references public.vouchers(id) on delete set null;
+create index if not exists pantry_voucher_id_idx on public.pantry (voucher_id);
+
+-- Canjear: comprueba que hay comidas suficientes, crea el vale y gasta las más antiguas, todo a la vez
+create or replace function public.redeem_voucher(p_kind text, p_title text, p_cost int, p_author text)
+returns public.vouchers
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare
+  v public.vouchers;
+  available int;
+begin
+  select count(*) into available from public.pantry where user_id = auth.uid() and voucher_id is null;
+  if available < p_cost then
+    raise exception 'No tienes comidas suficientes: tienes %, el vale cuesta %', available, p_cost;
+  end if;
+  insert into public.vouchers (kind, title, cost, author) values (p_kind, p_title, p_cost, p_author) returning * into v;
+  update public.pantry set voucher_id = v.id
+  where id in (
+    select id from public.pantry where user_id = auth.uid() and voucher_id is null order by created_at limit p_cost
+  );
+  return v;
+end;
+$$;
+
+-- Avisos al momento a la pareja
+alter publication supabase_realtime add table public.vouchers;

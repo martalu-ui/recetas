@@ -8,6 +8,7 @@ import Chef from '../components/Chef';
 import { Sprite, SPRITE_LABEL, SPRITE_NAMES } from '../components/FoodSprite';
 import Icon, { ICON_NAMES } from '../components/Icon';
 import PantryJar from '../components/PantryJar';
+import VoucherTicket from '../components/VoucherTicket';
 import RecipeCard, { MealTags } from '../components/RecipeCard';
 import MealFilter, { type MealFilterValue } from '../views/MealFilter';
 import { Greeting } from '../views/DiscoverView';
@@ -337,13 +338,22 @@ function Radius({ tokens }: { tokens: Token[] }) {
 }
 
 function TypeTokens({ tokens }: { tokens: Token[] }) {
-  const fonts = tokens.filter((t) => t.name.startsWith('--font'));
+  const fonts = tokens.filter((t) => /^--(font|tracking|weight)/.test(t.name));
+  const sampleStyle = (name: string) =>
+    /weight/.test(name)
+      ? { fontWeight: `var(${name})` }
+      : name.startsWith('--tracking')
+        ? { letterSpacing: `var(${name})` }
+        : { fontFamily: `var(${name})` };
   return (
-    <Section id="type-tokens" title="Typography" intro="One family for everything. Hierarchy comes from size and weight (see Explore → Typography).">
+    <Section id="type-tokens" title="Typography" intro="One family for everything, with tighter letter spacing and weights one step lighter than usual (Martian Mono is heavy). Hierarchy comes from size and weight (see Explore → Typography).">
       <div className="ds-type">
         {fonts.map((t) => (
           <div key={t.name} className="ds-type-row">
-            <span className="ds-type-sample" style={{ fontFamily: `var(${t.name})`, fontSize: '1.4rem' }}>
+            <span
+              className="ds-type-sample"
+              style={{ ...sampleStyle(t.name), fontSize: '1.4rem' }}
+            >
               Aa Bb Cc 123 · ¿Qué cocinamos hoy?
             </span>
             <span className="muted small">
@@ -779,6 +789,7 @@ function Pantry() {
           sprite,
           day: null,
           slot: null,
+          voucherId: null,
           createdAt: '',
         })),
       ),
@@ -790,14 +801,29 @@ function Pantry() {
       title="Pantry"
       intro={
         <>
-          Every cooked recipe earns a food sprite ({SPRITE_NAMES.map((n) => SPRITE_LABEL[n]).join(', ')}). They fall into the jar with
-          gravity: drag one and throw it, tap it to make it hop, or shake the jar.
+          Every cooked dish earns a food sprite ({SPRITE_NAMES.map((n) => SPRITE_LABEL[n]).join(', ')}). They fall into the jar with
+          gravity: drag one and throw it, tap it to make it hop, or shake the jar. Foods are spent on vouchers for your partner, who gets notified.
         </>
       }
     >
-      <Specimen name="Pantry jar" source="src/components/PantryJar.tsx" code={'<PantryJar items={pantry.items} />'} wide>
-        <PantryJar items={items} />
-      </Specimen>
+      <div className="ds-grid-2">
+        <Specimen name="Pantry jar" source="src/components/PantryJar.tsx" code={'<PantryJar items={pantry.available} />'} wide>
+          <PantryJar items={items} />
+        </Specimen>
+        <Specimen name="Voucher" source="src/components/VoucherTicket.tsx" code={'<VoucherTicket title="Vale por un masaje" detail="6 comidas">\n  <button className="btn small primary">Canjear</button>\n</VoucherTicket>'}>
+          <div className="ds-stack">
+            <VoucherTicket title="Vale por un masaje" detail="6 comidas">
+              <button className="btn small primary">Canjear</button>
+            </VoucherTicket>
+            <VoucherTicket title="Vale por un día de cine" detail="Le debes un día de cine a Marta">
+              <button className="btn small">¡Cumplido!</button>
+            </VoucherTicket>
+          </div>
+        </Specimen>
+        <Specimen name="Voucher (done)" source="src/components/VoucherTicket.tsx" code={'<VoucherTicket title="…" detail="Cumplido" done />'}>
+          <VoucherTicket title="Vale por elegir la peli" detail="Cumplido" done />
+        </Specimen>
+      </div>
     </Section>
   );
 }

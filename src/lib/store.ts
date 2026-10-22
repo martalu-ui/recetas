@@ -1,4 +1,5 @@
 import { blobToDataUrl } from './image';
+import { voucherKind, type Voucher } from './vouchers';
 import type { FoodGroup } from './nutrition';
 import { PHOTO_BUCKET, supabase } from './supabase';
 import { EATING_OUT, LEFTOVERS, type Course, type Ingredient, type MealType, type PantryDraft, type PantryItem, type PlanEntry, type PlanPosition, type Recipe, type RecipeDraft } from './types';
@@ -18,6 +19,15 @@ export interface DataStore {
   removePantry(id: string): Promise<void>;
   /** Marcador de «¿Quién cocina más?»: comidas ganadas por cada persona */
   listScores(author: string | null): Promise<Score[]>;
+  /** Vales de los dos, el más reciente primero */
+  listVouchers(): Promise<Voucher[]>;
+  /** Gasta comidas del bote en un vale para la pareja */
+  redeemVoucher(kind: string, author: string | null): Promise<Voucher>;
+  /** La pareja ha visto el aviso / ha cumplido el vale */
+  markVoucherSeen(id: string): Promise<void>;
+  completeVoucher(id: string): Promise<void>;
+  /** Avisa cuando cambian los vales (p. ej. la pareja canjea uno). Devuelve cómo dejar de escuchar */
+  watchVouchers(onChange: () => void): () => void;
 }
 
 export interface Score {
@@ -40,6 +50,7 @@ function cleanIngredients(list: Ingredient[]): Ingredient[] {
 const LS_RECIPES = 'recetas.recipes';
 const LS_PLAN = 'recetas.plan';
 const LS_PANTRY = 'recetas.pantry';
+const LS_VOUCHERS = 'recetas.vouchers';
 
 function readLS<T>(key: string, fallback: T): T {
   try {
@@ -113,15 +124,55 @@ const localStore: DataStore = {
     writeLS(LS_PLAN, plan);
   },
   async listPantry() {
-    return readLS<PantryItem[]>(LS_PANTRY, []);
+    return readLS<PantryItem[]>(LS_PANTRY, []).map((i) => ({ ...i, voucherId: i.voucherId ?? null }));
   },
   async addPantry(draft) {
-    const item: PantryItem = { ...draft, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
+    const item: PantryItem = { ...draft, id: crypto.randomUUID(), voucherId: null, createdAt: new Date().toISOString() };
     writeLS(LS_PANTRY, [item, ...readLS<PantryItem[]>(LS_PANTRY, [])]);
     return item;
   },
   async removePantry(id) {
-    writeLS(LS_PANTRY, readLS<PantryItem[]>(LS_PANTRY, []).filter((i) => i.id !== id));
+    const items = readLS<PantryItem[]>(LS_PANTRY, []);
+    if (items.find((i) => i.id === id)?.voucherId) throw new Error('esa comida ya está gastada en un vale');
+    writeLS(LS_PANTRY, items.filter((i) => i.id !== id));
+  },
+  // En local no hay pareja: los vales quedan como tuyos y nadie los cumple
+  async listVouchers() {
+    return readLS<Voucher[]>(LS_VOUCHERS, []);
+  },
+  async redeemVoucher(kind, author) {
+    const k = voucherKind(kind);
+    if (!k) throw new Error('Ese vale no existe');
+    const items = readLS<PantryItem[]>(LS_PANTRY, []);
+    const free = items.filter((i) => !i.voucherId).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    if (free.length < k.cost) throw new Error(`No tienes comidas suficientes: tienes ${free.length}, el vale cuesta ${k.cost}`);
+    const voucher: Voucher = {
+      id: crypto.randomUUID(),
+      userId: null,
+      author,
+      kind,
+      title: k.title,
+      cost: k.cost,
+      status: 'pendiente',
+      seenAt: null,
+      doneAt: null,
+      createdAt: new Date().toISOString(),
+      mine: true,
+    };
+    const spent = new Set(free.slice(0, k.cost).map((i) => i.id));
+    writeLS(LS_PANTRY, items.map((i) => (spent.has(i.id) ? { ...i, voucherId: voucher.id } : i)));
+    writeLS(LS_VOUCHERS, [voucher, ...readLS<Voucher[]>(LS_VOUCHERS, [])]);
+    return voucher;
+  },
+  async markVoucherSeen(id) {
+    writeLS(LS_VOUCHERS, readLS<Voucher[]>(LS_VOUCHERS, []).map((v) => (v.id === id ? { ...v, seenAt: new Date().toISOString() } : v)));
+  },
+  async completeVoucher(id) {
+    const now = new Date().toISOString();
+    writeLS(LS_VOUCHERS, readLS<Voucher[]>(LS_VOUCHERS, []).map((v) => (v.id === id ? { ...v, status: 'cumplido', doneAt: now } : v)));
+  },
+  watchVouchers() {
+    return () => {};
   },
   async listScores(author) {
     return [{ author: author ?? 'Tú', count: readLS<PantryItem[]>(LS_PANTRY, []).length, me: true }];
@@ -181,8 +232,38 @@ async function removePhoto(url: string | null) {
   if (path) await supabase!.storage.from(PHOTO_BUCKET).remove([path]);
 }
 
+const supabaseVouchers: Pick<DataStore, 'listVouchers' | 'redeemVoucher' | 'markVoucherSeen' | 'completeVoucher' | 'watchVouchers'> = {
+  async listVouchers() {
+    const uid = await currentUserId();
+    const rows = check(await supabase!.from('vouchers').select('*').order('created_at', { ascending: false }));
+    return (rows as VoucherRow[]).map((r) => voucherFromRow(r, uid));
+  },
+  async redeemVoucher(kind, author) {
+    const k = voucherKind(kind);
+    if (!k) throw new Error('Ese vale no existe');
+    const row = check(await supabase!.rpc('redeem_voucher', { p_kind: kind, p_title: k.title, p_cost: k.cost, p_author: author }));
+    return voucherFromRow(row as VoucherRow, await currentUserId());
+  },
+  async markVoucherSeen(id) {
+    check(await supabase!.from('vouchers').update({ seen_at: new Date().toISOString() }).eq('id', id));
+  },
+  async completeVoucher(id) {
+    check(await supabase!.from('vouchers').update({ status: 'cumplido', done_at: new Date().toISOString() }).eq('id', id));
+  },
+  watchVouchers(onChange) {
+    const channel = supabase!
+      .channel(`vales-${crypto.randomUUID()}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'vouchers' }, onChange)
+      .subscribe();
+    return () => {
+      supabase!.removeChannel(channel);
+    };
+  },
+};
+
 const supabaseStore: DataStore = {
   mode: 'supabase',
+  ...supabaseVouchers,
   async listRecipes() {
     const rows = check(await supabase!.from('recipes').select('*').order('created_at', { ascending: false }));
     return (rows as RecipeRow[]).map(fromRow);
@@ -259,7 +340,9 @@ const supabaseStore: DataStore = {
     return pantryFromRow(row as PantryRow);
   },
   async removePantry(id) {
-    check(await supabase!.from('pantry').delete().eq('id', id));
+    // Lo gastado en un vale no se puede quitar (se descuadraría lo canjeado)
+    const rows = check(await supabase!.from('pantry').delete().eq('id', id).is('voucher_id', null).select('id')) as { id: string }[];
+    if (rows.length === 0) throw new Error('esa comida ya está gastada en un vale');
   },
   async listScores(author) {
     const uid = await currentUserId();
@@ -277,6 +360,36 @@ const supabaseStore: DataStore = {
   },
 };
 
+
+interface VoucherRow {
+  id: string;
+  user_id: string;
+  author: string | null;
+  kind: string;
+  title: string;
+  cost: number;
+  status: 'pendiente' | 'cumplido';
+  seen_at: string | null;
+  done_at: string | null;
+  created_at: string;
+}
+
+function voucherFromRow(row: VoucherRow, uid: string | null): Voucher {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    author: row.author,
+    kind: row.kind,
+    title: row.title,
+    cost: row.cost,
+    status: row.status,
+    seenAt: row.seen_at,
+    doneAt: row.done_at,
+    createdAt: row.created_at,
+    mine: row.user_id === uid,
+  };
+}
+
 async function currentUserId(): Promise<string | null> {
   const { data } = await supabase!.auth.getSession();
   return data.session?.user.id ?? null;
@@ -289,6 +402,7 @@ interface PantryRow {
   sprite: string;
   day: string | null;
   slot: MealType | null;
+  voucher_id: string | null;
   created_at: string;
 }
 
@@ -300,6 +414,7 @@ function pantryFromRow(row: PantryRow): PantryItem {
     sprite: row.sprite,
     day: row.day,
     slot: row.slot,
+    voucherId: row.voucher_id,
     createdAt: row.created_at,
   };
 }

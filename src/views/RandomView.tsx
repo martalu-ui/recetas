@@ -6,7 +6,7 @@ import { store } from '../lib/store';
 import { toISODate } from '../lib/dates';
 import { MEAL_LABEL, type MealType, type Recipe } from '../lib/types';
 import FoodSprite from '../components/FoodSprite';
-import DancingPizza from '../components/DancingPizza';
+import Chef from '../components/Chef';
 import Icon from '../components/Icon';
 import { MealTags } from '../components/RecipeCard';
 
@@ -28,7 +28,8 @@ function poolFor(recipes: Recipe[], mood: Mood): Recipe[] {
   return mains.length ? mains : matching;
 }
 
-export default function RandomView() {
+/** `demo`: en el sistema de diseño, «Para hoy» no guarda nada */
+export default function RandomView({ demo = false }: { demo?: boolean }) {
   const { recipes, openRecipe } = useData();
   const [mood, setMood] = useState<Mood>('todo');
   const [resultId, setResultId] = useState<string | null>(null);
@@ -51,7 +52,7 @@ export default function RandomView() {
     let ticks = 0;
     setRolling(pickRandom(pool)!.title);
     window.clearInterval(timer.current);
-    // Dura un poco más de un baile completo de la pizza
+    // Dura un poco más de una vuelta completa de la tortita
     timer.current = window.setInterval(() => {
       ticks++;
       if (ticks >= 14) {
@@ -66,7 +67,7 @@ export default function RandomView() {
 
   async function addToday(recipe: Recipe, slot: MealType) {
     try {
-      await store.setPlan(toISODate(new Date()), slot, 1, recipe.id);
+      if (!demo) await store.setPlan(toISODate(new Date()), slot, 1, recipe.id);
       setAdded(`Puesta en la ${MEAL_LABEL[slot].toLowerCase()} de hoy`);
     } catch (e) {
       setAdded(`No se ha podido guardar: ${(e as Error).message}`);
@@ -79,7 +80,7 @@ export default function RandomView() {
     <section className="discover-random">
       <div className="hero">
         <div className="hero-head">
-          <h2>¿Qué cocinamos hoy?</h2>
+          <h2>Una receta al azar</h2>
           <p>
             {moodTitle ? `${moodTitle}, al azar entre nuestras recetas` : `Una de nuestras ${recipes.length} recetas, al azar`}
             {mood !== 'todo' && (
@@ -92,7 +93,7 @@ export default function RandomView() {
 
         {rolling !== null ? (
           <div className="hero-stage rolling" aria-live="polite">
-            <DancingPizza size={112} />
+            <Chef size={112} />
             <span className="hero-stage-text">
               <span className="muted small">Pensando…</span>
               <strong>{rolling}</strong>
@@ -125,10 +126,10 @@ export default function RandomView() {
           </div>
         ) : (
           <div className="hero-stage empty">
-            <DancingPizza size={96} dancing={false} />
+            <Chef size={96} cooking={false} />
             <span className="hero-stage-text">
               <strong>¿No sabéis qué hacer?</strong>
-              <span className="muted">Tira el dado y la pizza elige entre vuestras recetas.</span>
+              <span className="muted">Tira el dado y el chef elige entre vuestras recetas.</span>
             </span>
           </div>
         )}

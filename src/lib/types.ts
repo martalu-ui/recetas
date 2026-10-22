@@ -68,3 +68,18 @@ export interface PlanEntry {
   /** id de una receta, LEFTOVERS o EATING_OUT */
   value: string;
 }
+
+/** Comida ganada al marcar una receta como cocinada (va a «Mi despensa») */
+export interface PantryItem {
+  id: string;
+  recipeId: string | null;
+  recipeTitle: string;
+  /** Nombre del sprite de comida que se ha ganado */
+  sprite: string;
+  /** Hueco del menú en el que se cocinó, si se marcó desde la semana */
+  day: string | null;
+  slot: MealType | null;
+  createdAt: string;
+}
+
+export type PantryDraft = Omit<PantryItem, 'id' | 'createdAt'>;

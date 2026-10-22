@@ -223,6 +223,8 @@ const ICONS = {
 
 export type IconName = keyof typeof ICONS;
 
+export const ICON_NAMES = Object.keys(ICONS) as IconName[];
+
 export default function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
   const rows = ICONS[name];
   const rects = [];

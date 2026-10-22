@@ -17,6 +17,12 @@ const PALETTE: Record<string, string> = {
   A: '#8fb6d6',
   Z: '#5d8bb0',
   R: '#d9776a',
+  F: '#ffd24a',
+  f: '#f0a90f',
+  T: '#e04a3a',
+  t: '#b8352a',
+  E: '#c98a4b',
+  e: '#f1c98a',
 };
 
 const SPRITES = {
@@ -110,6 +116,96 @@ const SPRITES = {
     '................',
     '................',
   ],
+  fries: [
+    '................',
+    '.....KK..KK.....',
+    '..KK.KFK.KFK....',
+    '.KFfKKFfKKFfKK..',
+    '.KFfKFFfKFFfKFK.',
+    '.KFfKFFfKFFfKfK.',
+    'KKKKKKKKKKKKKKKK',
+    'KTTTTTTTTTTTTTtK',
+    '.KTTTKTTTTKTTtK.',
+    '.KTTTKTTTTKTTtK.',
+    '.KTPPTTKKTTPPtK.',
+    '..KTTTTTTTTTtK..',
+    '..KTTTTTTTTTtK..',
+    '...KKKKKKKKKK...',
+    '................',
+    '................',
+  ],
+  tomato: [
+    '................',
+    '.......KK.......',
+    '.....KKGGKK.....',
+    '...KKTGGGGTKK...',
+    '..KTTTTGGTTTtK..',
+    '.KTWTTTTTTTTTtK.',
+    '.KTWTTKTTTTKTtK.',
+    '.KTTTTKTTTTKTtK.',
+    '.KTTPPTTKKTPPtK.',
+    '.KTTTTTTTTTTTtK.',
+    '..KTTTTTTTTTtK..',
+    '..KtTTTTTTTttK..',
+    '...KKttttttKK...',
+    '.....KKKKKK.....',
+    '................',
+    '................',
+  ],
+  carrot: [
+    '................',
+    '.......K.KK.....',
+    '......KGKGGK....',
+    '.....KGGKDGK....',
+    '....KKKGGDKK....',
+    '...KOOOKKKOK....',
+    '...KOKOOOKOK....',
+    '...KOKOOOKOK....',
+    '...KPOOKOOPK....',
+    '....KOOOOOK.....',
+    '....KOOOOfK.....',
+    '.....KOOOK......',
+    '.....KOOfK......',
+    '......KOK.......',
+    '.......K........',
+    '................',
+  ],
+  cheese: [
+    '................',
+    '................',
+    '...........KK...',
+    '.........KKFFK..',
+    '.......KKFFFFK..',
+    '.....KKFFfFFFK..',
+    '...KKFFFFFFFFK..',
+    '..KFFFFFFFFFFK..',
+    '..KKKKKKKKKKKfK.',
+    '..KFfFFFFFFFFfK.',
+    '..KFFFKFFFKFFfK.',
+    '..KFFFKFFFKFfFK.',
+    '..KFPPFKKFPPFfK.',
+    '..KfffffffffffK.',
+    '..KKKKKKKKKKKKK.',
+    '................',
+  ],
+  bread: [
+    '................',
+    '................',
+    '....KKKKKKKK....',
+    '..KKEEEEEEEEKK..',
+    '.KEEeEEeEEeEEEK.',
+    '.KEEEEEEEEEEEEK.',
+    '.KKEeeeeeeeeEKK.',
+    '..KeeeeeeeeeeK..',
+    '..KeeKeeeeKeeK..',
+    '..KeeKeeeeKeeK..',
+    '..KePPeKKePPeK..',
+    '..KeeeeeeeeeeK..',
+    '..KEeeeeeeeeEK..',
+    '..KKKKKKKKKKKK..',
+    '................',
+    '................',
+  ],
 } as const;
 
 /** Qué comida sale según el tipo de alimento de la receta */
@@ -126,8 +222,30 @@ export type SpriteName = keyof typeof SPRITES;
 
 export const SPRITE_NAMES = Object.keys(SPRITES) as SpriteName[];
 
+/** Nombre para enseñar cada comida (p. ej. al ganarla en la despensa) */
+export const SPRITE_LABEL: Record<SpriteName, string> = {
+  onigiri: 'Onigiri',
+  egg: 'Huevo',
+  fish: 'Pescado',
+  broccoli: 'Brócoli',
+  pot: 'Guiso',
+  fries: 'Patatas',
+  tomato: 'Tomate',
+  carrot: 'Zanahoria',
+  cheese: 'Queso',
+  bread: 'Pan',
+};
+
+export function isSpriteName(value: string): value is SpriteName {
+  return value in SPRITES;
+}
+
+export function spriteForRecipe(recipe: Recipe): SpriteName {
+  return SPRITE_FOR[foodGroupOf(recipe)];
+}
+
 export default function FoodSprite({ recipe, size = 64 }: { recipe: Recipe; size?: number }) {
-  return <Sprite name={SPRITE_FOR[foodGroupOf(recipe)]} size={size} />;
+  return <Sprite name={spriteForRecipe(recipe)} size={size} />;
 }
 
 export function Sprite({ name, size = 64 }: { name: SpriteName; size?: number }) {

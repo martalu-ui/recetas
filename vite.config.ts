@@ -5,4 +5,10 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   base: './',
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      // Dos páginas: la app y el sistema de diseño (que usa los mismos componentes y estilos)
+      input: { app: 'index.html', sistema: 'sistema.html' },
+    },
+  },
 });

@@ -49,3 +49,7 @@ En el móvil podéis abrirla y usar «Añadir a pantalla de inicio» para tenerl
 - `npm run build`: comprobación de tipos y build de producción en `dist/`
 
 Hecha con React + TypeScript + Vite. Código en `src/`: `views/` son las cuatro secciones, `components/` las piezas comunes y `lib/` la lógica (`store.ts` guarda los datos en Supabase o en local, `match.ts` el buscador por ingredientes).
+
+## Sistema de diseño
+
+`sistema.html` (en local: `npm run dev` y abre `/sistema.html`; publicado: `…/recetas/sistema.html`) enseña los tokens y componentes de la app. No es una copia: los colores y radios se leen en vivo de `src/styles.css` y cada ejemplo es el componente real de `src/` con recetas de ejemplo (`src/design-system/sample.ts`). Si cambias un token o un componente, la página cambia con él. El código está en `src/design-system/`.

@@ -2409,3 +2409,139 @@ a:focus-visible {
   0% { opacity: 1; }
   50% { opacity: 0; }
 }
+
+/* ---------- Marcador de la despensa ---------- */
+
+.scoreboard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.score {
+  display: grid;
+  grid-template-columns: minmax(0, 9rem) 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.score-name {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.score-bar {
+  height: 14px;
+  overflow: hidden;
+  background: var(--color-surface-subtle);
+  border-radius: var(--radius-tag);
+}
+
+.score-bar span {
+  display: block;
+  height: 100%;
+  min-width: 4px;
+  background: var(--color-dinner);
+  border-radius: var(--radius-tag);
+  transition: width 0.4s;
+}
+
+.score.me .score-bar span {
+  background: var(--color-primary);
+}
+
+/* ---------- Onboarding de novedades ---------- */
+
+.onboarding {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 4px 4px;
+  text-align: center;
+}
+
+.onb-art,
+.onb-rain {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  min-height: 150px;
+  padding: 12px;
+  background: var(--color-highlight);
+  border-radius: var(--radius-card);
+}
+
+.onb-rain {
+  flex-wrap: wrap;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.onb-rain span {
+  animation: onb-drop 0.7s cubic-bezier(0.3, 0, 0.5, 1.4) both;
+}
+
+.onb-rain .food-sprite {
+  display: block;
+}
+
+@keyframes onb-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-140px) rotate(-30deg);
+  }
+  60% {
+    opacity: 1;
+  }
+}
+
+.onb-text h2 {
+  margin: 4px 0 6px;
+}
+
+.onb-text p {
+  margin: 0;
+}
+
+.onb-kicker {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.onb-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.onb-dots span {
+  width: 8px;
+  height: 8px;
+  background: var(--color-border);
+  border-radius: 2px;
+}
+
+.onb-dots span.on {
+  width: 20px;
+  background: var(--color-primary);
+}
+
+.onb-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onb-rain span {
+    animation: none;
+  }
+}

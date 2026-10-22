@@ -12,6 +12,7 @@ import Modal from './components/Modal';
 import RecipeDetail from './components/RecipeDetail';
 import RecipeForm from './components/RecipeForm';
 import RewardToast from './components/RewardToast';
+import Onboarding from './components/Onboarding';
 import AccountView from './views/AccountView';
 import DiscoverView from './views/DiscoverView';
 import RecipesView from './views/RecipesView';
@@ -151,6 +152,7 @@ function Shell(props: { email: string | null; author: string | null; avatar: str
 
         <RecipeModals openId={openId} onCloseDetail={() => setOpenId(null)} editing={editing} onCloseForm={() => setEditing(undefined)} />
         <RewardToast />
+        <Onboarding />
       </PantryProvider>
     </DataProvider>
   );

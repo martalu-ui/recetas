@@ -14,8 +14,16 @@ export interface DataStore {
   setPlan(day: string, slot: MealType, position: PlanPosition, value: string | null): Promise<void>;
   /** «Mi despensa»: comidas ganadas por quien ha entrado, la más reciente primero */
   listPantry(): Promise<PantryItem[]>;
-  addPantry(item: PantryDraft): Promise<PantryItem>;
+  addPantry(item: PantryDraft, author: string | null): Promise<PantryItem>;
   removePantry(id: string): Promise<void>;
+  /** Marcador de «¿Quién cocina más?»: comidas ganadas por cada persona */
+  listScores(author: string | null): Promise<Score[]>;
+}
+
+export interface Score {
+  author: string;
+  count: number;
+  me: boolean;
 }
 
 function cleanIngredients(list: Ingredient[]): Ingredient[] {
@@ -114,6 +122,9 @@ const localStore: DataStore = {
   },
   async removePantry(id) {
     writeLS(LS_PANTRY, readLS<PantryItem[]>(LS_PANTRY, []).filter((i) => i.id !== id));
+  },
+  async listScores(author) {
+    return [{ author: author ?? 'Tú', count: readLS<PantryItem[]>(LS_PANTRY, []).length, me: true }];
   },
 };
 
@@ -231,16 +242,17 @@ const supabaseStore: DataStore = {
       check(await supabase!.from('meal_plan').delete().eq('day', day).eq('slot', slot).eq('position', position));
     }
   },
-  // Cada uno ve solo su despensa: lo filtra la política de la tabla con auth.uid()
+  // En el bote cada uno ve solo lo suyo (todos pueden leer la tabla para el marcador)
   async listPantry() {
-    const rows = check(await supabase!.from('pantry').select('*').order('created_at', { ascending: false }));
+    const uid = await currentUserId();
+    const rows = check(await supabase!.from('pantry').select('*').eq('user_id', uid).order('created_at', { ascending: false }));
     return (rows as PantryRow[]).map(pantryFromRow);
   },
-  async addPantry(draft) {
+  async addPantry(draft, author) {
     const row = check(
       await supabase!
         .from('pantry')
-        .insert({ recipe_id: draft.recipeId, recipe_title: draft.recipeTitle, sprite: draft.sprite, day: draft.day, slot: draft.slot })
+        .insert({ recipe_id: draft.recipeId, recipe_title: draft.recipeTitle, sprite: draft.sprite, day: draft.day, slot: draft.slot, author })
         .select()
         .single(),
     );
@@ -249,7 +261,26 @@ const supabaseStore: DataStore = {
   async removePantry(id) {
     check(await supabase!.from('pantry').delete().eq('id', id));
   },
+  async listScores(author) {
+    const uid = await currentUserId();
+    const rows = check(await supabase!.from('pantry').select('user_id, author')) as { user_id: string; author: string | null }[];
+    const scores = new Map<string, Score>();
+    for (const r of rows) {
+      const me = r.user_id === uid;
+      const s = scores.get(r.user_id) ?? { author: (me ? author : r.author) ?? 'Alguien', count: 0, me };
+      s.count++;
+      scores.set(r.user_id, s);
+    }
+    // Siempre sales tú, aunque aún no hayas cocinado nada
+    if (uid && !scores.has(uid)) scores.set(uid, { author: author ?? 'Tú', count: 0, me: true });
+    return [...scores.values()].sort((a, b) => b.count - a.count);
+  },
 };
+
+async function currentUserId(): Promise<string | null> {
+  const { data } = await supabase!.auth.getSession();
+  return data.session?.user.id ?? null;
+}
 
 interface PantryRow {
   id: string;

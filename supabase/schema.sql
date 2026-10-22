@@ -61,7 +61,8 @@ create policy "borrar fotos" on storage.objects
 
 -- Despensa ----------------------------------------------------------------
 -- Cada vez que alguien marca que ha cocinado una receta gana una comida
--- pixel art (sprite). Es personal: cada uno ve solo la suya.
+-- pixel art (sprite). Cada uno añade y quita solo las suyas; todos pueden
+-- leerlas para el marcador de «¿Quién cocina más?».
 create table if not exists public.pantry (
   id           uuid primary key default gen_random_uuid(),
   user_id      uuid not null default auth.uid() references auth.users(id) on delete cascade,
@@ -70,6 +71,7 @@ create table if not exists public.pantry (
   sprite       text not null,
   day          date,
   slot         text check (slot in ('comida', 'cena')),
+  author       text, -- nombre para el marcador
   created_at   timestamptz not null default now()
 );
 
@@ -83,3 +85,7 @@ create policy "mi despensa" on public.pantry
   for all to authenticated
   using (user_id = (select auth.uid()))
   with check (user_id = (select auth.uid()));
+
+drop policy if exists "despensa visible para el marcador" on public.pantry;
+create policy "despensa visible para el marcador" on public.pantry
+  for select to authenticated using (true);

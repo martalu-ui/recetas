@@ -2,7 +2,7 @@
  * MajoChef: estilo cálido y amable.
  * Fondo gris piedra, tarjetas blancas muy redondeadas, amarillo mostaza como color principal,
  * tonos tierra (marrón, oliva, topo) y pasteles (rosa, lila, arena) para etiquetas,
- * letra Inconsolata e iconos en pixel art.
+ * letra Martian Mono e iconos en pixel art.
  */
 /*
  * Tokens en dos capas:
@@ -62,7 +62,18 @@
   --radius-md: 12px;
   --radius-lg: 16px;
   /* Tipografía */
-  --font-inconsolata: 'Inconsolata', ui-monospace, Menlo, Consolas, monospace;
+  --font-martian-mono: 'Martian Mono', ui-monospace, Menlo, Consolas, monospace;
+  /* Movimiento (valores de Fluid Functionalism): rápido, moderado y lento, con salidas más cortas */
+  --duration-fast: 80ms;
+  --duration-moderate: 160ms;
+  --duration-slow: 240ms;
+  --duration-fast-exit: 60ms;
+  --duration-moderate-exit: 120ms;
+  --duration-slow-exit: 160ms;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  /* Muelle con un rebote mínimo (bounce 0.15), para lo que se desliza */
+  --ease-spring: linear(0, 0.026, 0.091, 0.179, 0.276, 0.376, 0.473, 0.562, 0.642, 0.713, 0.773, 0.824, 0.866, 0.901, 0.928, 0.95, 0.967, 0.979, 0.989, 0.995, 1, 1.003, 1.005, 1.006, 1);
 
   /* ---------- Semánticos ---------- */
   /* Superficies */
@@ -105,8 +116,17 @@
   --radius-field: var(--radius-sm); /* inputs y desplegables */
   --radius-inner: var(--radius-md); /* cajas dentro de tarjetas */
   --radius-card: var(--radius-lg); /* tarjetas */
+  /* Barras de scroll: finas y discretas, se oscurecen al pasar por encima */
+  --color-scrollbar: color-mix(in srgb, var(--color-text) 14%, transparent);
+  --color-scrollbar-hover: color-mix(in srgb, var(--color-text) 28%, transparent);
+  /* Movimiento: para qué sirve cada velocidad */
+  --motion-hover: var(--duration-moderate) var(--ease-out); /* hover y cambios de color */
+  --motion-press: var(--duration-fast) var(--ease-out); /* al pulsar */
+  --motion-glide: var(--duration-slow) var(--ease-spring); /* el resaltado que se desliza entre opciones */
+  --motion-enter: var(--duration-slow) var(--ease-out); /* aparecer: modales, pantallas, avisos */
+  --motion-exit: var(--duration-slow-exit) var(--ease-in-out); /* desaparecer */
   /* Tipografía e iconos */
-  --font-body: var(--font-inconsolata);
+  --font-body: var(--font-martian-mono);
   --icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%237c766f' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   color-scheme: light;
 }
@@ -143,11 +163,16 @@
   box-sizing: border-box;
 }
 
+/* Martian Mono es ancha: la escala base baja a 14px y todo lo que va en rem se ajusta con ella */
+html {
+  font-size: 14px;
+}
+
 body {
   margin: 0;
   background: var(--color-bg);
   color: var(--color-text);
-  font: 17px/1.5 var(--font-body);
+  font: 1rem/1.55 var(--font-body);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -202,7 +227,7 @@ textarea {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-field);
   min-width: 0;
-  font-size: 1rem; /* 16px: menos y el iPhone hace zoom al escribir */
+  font-size: 1rem;
 }
 
 /* Desplegables: flecha propia con su hueco a la derecha (la del navegador queda pegada al borde) */
@@ -291,6 +316,7 @@ a:focus-visible {
 }
 
 .tabs {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -2538,6 +2564,340 @@ a:focus-visible {
 
 @media (prefers-reduced-motion: reduce) {
   .onb-rain span {
+    animation: none;
+  }
+}
+
+/* ---------- Movimiento fluido ---------- */
+/* Todo lo que se puede tocar cambia de color con suavidad y se encoge un poco al pulsarlo */
+button,
+a,
+.btn,
+.tab,
+.chip,
+.toggle,
+.icon-btn,
+.segmented button,
+.mood,
+.avatar-option,
+.strip-num,
+.slot-cook {
+  transition:
+    background-color var(--motion-hover),
+    color var(--motion-hover),
+    box-shadow var(--motion-hover),
+    opacity var(--motion-hover),
+    font-weight var(--motion-hover),
+    transform var(--motion-press);
+}
+
+input,
+select,
+textarea {
+  transition:
+    background-color var(--motion-hover),
+    border-color var(--motion-hover),
+    outline-offset var(--motion-press);
+}
+
+:focus-visible {
+  outline-offset: 2px;
+}
+
+/* En pantallas táctiles los campos van a 16px: con menos, el iPhone hace zoom al escribir */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+.btn:active:not(:disabled),
+.icon-btn:active,
+.chip:active,
+.toggle:active,
+.tab-add:active,
+.segmented button:active,
+.mood:active,
+.avatar-option:active,
+.strip-day:active .strip-num,
+.slot-cook:active {
+  transform: scale(0.96);
+}
+
+.recipe-card {
+  transition: transform var(--motion-hover);
+}
+
+.recipe-card:active {
+  transform: scale(0.98);
+}
+
+/* La pestaña o la opción elegida se pone más negrita; con letra monoespaciada no se mueve nada */
+.tab,
+.segmented button {
+  font-weight: 500;
+}
+
+.tab.active,
+.segmented button.on {
+  font-weight: 700;
+}
+
+/* Resaltado que se desliza: el de la opción elegida y el que sigue al ratón (ver useGlide) */
+.glide {
+  isolation: isolate;
+}
+
+/* Las pastillas se colocan respecto al grupo (la barra de abajo del móvil ya es fixed) */
+.segmented {
+  position: relative;
+}
+
+.glide::before,
+.glide::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: var(--glide-w, 0);
+  height: var(--glide-h, 0);
+  border-radius: calc(var(--radius-button) - 3px);
+  transform: translate(var(--glide-x, 0), var(--glide-y, 0));
+  pointer-events: none;
+}
+
+/* El de la opción elegida */
+.glide::before {
+  background: var(--glide-bg, var(--color-primary));
+  opacity: var(--glide-on, 0);
+}
+
+/* El que sigue al ratón, por debajo */
+.glide::after {
+  z-index: -2;
+  width: var(--hover-w, 0);
+  height: var(--hover-h, 0);
+  background: var(--color-surface-hover);
+  transform: translate(var(--hover-x, 0), var(--hover-y, 0));
+  opacity: 0;
+  transition: opacity var(--motion-hover);
+}
+
+.glide[data-hovering]::after {
+  opacity: 1;
+}
+
+/* Solo se desliza cuando ya está colocado (así no entra volando al cargar) */
+.glide[data-glide-ready]::before {
+  transition:
+    transform var(--motion-glide),
+    width var(--motion-glide),
+    height var(--motion-glide),
+    opacity var(--motion-hover);
+}
+
+.glide[data-glide-ready][data-hovering]::after {
+  transition:
+    transform var(--motion-glide),
+    width var(--motion-glide),
+    height var(--motion-glide),
+    opacity var(--motion-hover);
+}
+
+/* Con el resaltado deslizante, las opciones no pintan su propio fondo */
+.glide[data-glide-ready] > .on,
+.glide[data-glide-ready] > .active,
+.glide[data-glide-ready] > button:hover,
+.glide[data-glide-ready] > a:hover {
+  background: transparent;
+}
+
+.tabs.glide {
+  --glide-bg: var(--color-text);
+}
+
+/* ---------- Barras de scroll ---------- */
+/* Finas y discretas con ratón; en móviles se quedan las del sistema */
+@media (pointer: fine) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-scrollbar) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-scrollbar);
+    background-clip: content-box;
+    border: 3px solid transparent;
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-scrollbar-hover);
+  }
+}
+
+/* Listas que se deslizan de lado: el contenido se difumina por el borde que tiene más.
+   Con scroll-driven animations, el borde del principio o del final se queda nítido hasta que hay algo detrás. */
+@property --fade-start {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+@property --fade-end {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+.scroll-fade-x {
+  --fade-size: 32px;
+  mask-image: linear-gradient(to right, transparent 0, #000 var(--fade-size), #000 calc(100% - var(--fade-size)), transparent 100%);
+}
+
+@supports (animation-timeline: scroll()) {
+  .scroll-fade-x {
+    mask-image: linear-gradient(
+      to right,
+      rgb(0 0 0 / calc(1 - var(--fade-start))) 0,
+      #000 var(--fade-size),
+      #000 calc(100% - var(--fade-size)),
+      rgb(0 0 0 / calc(1 - var(--fade-end))) 100%
+    );
+    animation:
+      fade-start linear both,
+      fade-end linear both;
+    animation-timeline: scroll(self inline), scroll(self inline);
+    animation-range:
+      0 var(--fade-size),
+      calc(100% - var(--fade-size)) 100%;
+  }
+}
+
+@keyframes fade-start {
+  from {
+    --fade-start: 0;
+  }
+  to {
+    --fade-start: 1;
+  }
+}
+
+@keyframes fade-end {
+  from {
+    --fade-end: 1;
+  }
+  to {
+    --fade-end: 0;
+  }
+}
+
+/* ---------- Entradas y salidas ---------- */
+/* Cada pantalla entra con un pequeño fundido hacia arriba */
+.content > * {
+  animation: view-in var(--motion-enter) both;
+}
+
+@keyframes view-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.modal-backdrop {
+  animation: fade-in var(--motion-enter) both;
+}
+
+.modal {
+  animation: modal-in var(--motion-enter) both;
+}
+
+.modal-backdrop.closing {
+  animation: fade-out var(--motion-exit) both;
+}
+
+.modal-backdrop.closing .modal {
+  animation: modal-out var(--motion-exit) both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+}
+
+@keyframes modal-out {
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+@media (max-width: 720px) {
+  /* En el móvil el modal es una hoja que sube desde abajo */
+  @keyframes modal-in {
+    from {
+      transform: translateY(40px);
+    }
+  }
+
+  @keyframes modal-out {
+    to {
+      transform: translateY(100%);
+    }
+  }
+}
+
+/* Quien prefiere menos movimiento: cambios inmediatos */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* En la barra de abajo del móvil no hay pastilla: la pestaña elegida solo cambia de color */
+@media (max-width: 720px) {
+  .tabs.glide::before,
+  .tabs.glide::after {
+    display: none;
+  }
+}
+
+/* Estas listas solo se deslizan de lado en el móvil; en pantallas grandes no se difuminan */
+@media (min-width: 721px) {
+  .moods.scroll-fade-x {
+    mask-image: none;
     animation: none;
   }
 }

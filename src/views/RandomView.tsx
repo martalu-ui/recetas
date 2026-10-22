@@ -139,7 +139,7 @@ export default function RandomView({ demo = false }: { demo?: boolean }) {
         </button>
       </div>
 
-      <div className="moods" aria-label="Al azar con un criterio">
+      <div className="moods scroll-fade-x" aria-label="Al azar con un criterio">
         {MOODS.map((m) => {
           const count = poolFor(recipes, m.id).length;
           return (

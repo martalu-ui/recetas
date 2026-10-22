@@ -63,7 +63,7 @@ export function readTokens(): Token[] {
     const darkRaw = dark.get(name) ?? null;
     return {
       name,
-      tier: refOf(value) ? 'semantic' : 'primitive',
+      tier: value.includes('var(--') ? 'semantic' : 'primitive',
       light: value,
       dark: darkRaw,
       lightRef: refOf(value),
@@ -76,7 +76,7 @@ export function readTokens(): Token[] {
 }
 
 export function isColor(value: string): boolean {
-  return /^(#|rgb|hsl)/i.test(value);
+  return /^(#|rgb|hsl|color-mix)/i.test(value);
 }
 
 /** Cambia el tema del sistema de diseño copiando los valores de un tema sobre :root */

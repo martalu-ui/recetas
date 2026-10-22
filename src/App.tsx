@@ -6,6 +6,7 @@ import { authLinkType, supabase } from './lib/supabase';
 import type { Recipe } from './lib/types';
 import Avatar, { isAvatar } from './components/Avatar';
 import Icon from './components/Icon';
+import { useGlide } from './lib/useGlide';
 import Login from './components/Login';
 import SetPassword from './components/SetPassword';
 import Modal from './components/Modal';
@@ -95,6 +96,7 @@ function Shell(props: { email: string | null; author: string | null; avatar: str
   const [view, setView] = useState<ViewId>(viewFromHash);
   const [openId, setOpenId] = useState<string | null>(null);
   const [editing, setEditing] = useState<Recipe | null | undefined>(undefined); // undefined = cerrado
+  const tabsRef = useGlide<HTMLElement>(':scope > a');
 
   useEffect(() => {
     const onHash = () => setView(viewFromHash());
@@ -115,7 +117,7 @@ function Shell(props: { email: string | null; author: string | null; avatar: str
           <a className="brand" href="#/recetas">
             <img className="brand-icon" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" /> MajoChef
           </a>
-          <nav className="tabs" aria-label="Secciones">
+          <nav ref={tabsRef} className="tabs" aria-label="Secciones">
             {VIEWS.map((v, i) => (
               <Fragment key={v.id}>
                 {/* En el móvil, el botón redondo de «Nueva receta» va en el centro de la barra */}

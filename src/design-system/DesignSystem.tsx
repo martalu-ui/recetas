@@ -14,6 +14,8 @@ import { Greeting } from '../views/DiscoverView';
 import RandomView from '../views/RandomView';
 import { DayStrip, Slot, WeekBalance } from '../views/WeekView';
 import { SAMPLE_RECIPES } from './sample';
+import { useGlide } from '../lib/useGlide';
+import Inspector from './Inspector';
 import { applyTheme, isColor, readTokens, type Tier, type Token } from './tokens';
 
 type Theme = 'sistema' | 'claro' | 'oscuro';
@@ -22,8 +24,8 @@ type Theme = 'sistema' | 'claro' | 'oscuro';
 const COLOR_GROUPS: { title: string; hint: string; names: string[] }[] = [
   {
     title: 'Surfaces',
-    hint: 'App background, cards, fills inside cards and borders',
-    names: ['--color-bg', '--color-surface', '--color-surface-subtle', '--color-surface-hover', '--color-border'],
+    hint: 'App background, cards, fills inside cards, borders and scrollbars',
+    names: ['--color-bg', '--color-surface', '--color-surface-subtle', '--color-surface-hover', '--color-border', '--color-scrollbar', '--color-scrollbar-hover'],
   },
   { title: 'Text', hint: 'Primary and secondary text', names: ['--color-text', '--color-text-muted'] },
   {
@@ -54,7 +56,7 @@ const COLOR_GROUPS: { title: string; hint: string; names: string[] }[] = [
   },
 ];
 
-type Tab = 'tokens' | 'components';
+type Tab = 'tokens' | 'explore';
 
 const SECTIONS: Record<Tab, [string, string][]> = {
   tokens: [
@@ -62,9 +64,10 @@ const SECTIONS: Record<Tab, [string, string][]> = {
     ['primitive-colors', 'Primitive colors'],
     ['radius', 'Radius'],
     ['type-tokens', 'Typography'],
+    ['motion', 'Motion'],
     ['all-tokens', 'All tokens'],
   ],
-  components: [
+  explore: [
     ['typography', 'Typography'],
     ['icons', 'Icons'],
     ['illustrations', 'Illustrations'],
@@ -81,10 +84,15 @@ const SECTIONS: Record<Tab, [string, string][]> = {
 export default function DesignSystem() {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [theme, setTheme] = useState<Theme>('sistema');
-  const [tab, setTab] = useState<Tab>(() => (location.hash === '#components' ? 'components' : 'tokens'));
+  const [inspect, setInspect] = useState(false);
+  const tabsRef = useGlide<HTMLDivElement>();
+  const themeRef = useGlide<HTMLDivElement>();
+  const dark = theme === 'oscuro' || (theme === 'sistema' && window.matchMedia?.('(prefers-color-scheme: dark)').matches);
+  const [tab, setTab] = useState<Tab>(() => (location.hash === '#explore' ? 'explore' : 'tokens'));
 
   function chooseTab(t: Tab) {
     setTab(t);
+    setInspect(false);
     history.replaceState(null, '', `#${t}`);
     window.scrollTo(0, 0);
   }
@@ -102,14 +110,14 @@ export default function DesignSystem() {
             <img className="brand-icon" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" /> MajoChef
           </a>
           <span className="ds-top-label">Design system</span>
-          <div className="ds-tabs segmented" role="tablist" aria-label="Design system">
-            {(['tokens', 'components'] as Tab[]).map((t) => (
+          <div ref={tabsRef} className="ds-tabs segmented" role="tablist" aria-label="Design system">
+            {(['tokens', 'explore'] as Tab[]).map((t) => (
               <button key={t} role="tab" aria-selected={t === tab} className={t === tab ? 'on' : ''} onClick={() => chooseTab(t)}>
-                {t === 'tokens' ? 'Tokens' : 'Components'}
+                {t === 'tokens' ? 'Tokens' : 'Explore'}
               </button>
             ))}
           </div>
-          <div className="ds-theme segmented" role="group" aria-label="Theme">
+          <div ref={themeRef} className="ds-theme segmented" role="group" aria-label="Theme">
             {(['sistema', 'claro', 'oscuro'] as Theme[]).map((t) => (
               <button key={t} className={t === theme ? 'on' : ''} aria-pressed={t === theme} onClick={() => setTheme(t)}>
                 {t === 'sistema' ? 'Auto' : t === 'claro' ? 'Light' : 'Dark'}
@@ -119,7 +127,7 @@ export default function DesignSystem() {
         </header>
 
         <div className="ds-layout">
-          <nav className="ds-nav" aria-label="Sections">
+          <nav className="ds-nav scroll-fade-x" aria-label="Sections">
             {SECTIONS[tab].map(([id, label]) => (
               <a key={id} href={`#${id}`}>
                 {label}
@@ -142,12 +150,13 @@ export default function DesignSystem() {
                 <PrimitiveColors tokens={tokens} />
                 <Radius tokens={tokens} />
                 <TypeTokens tokens={tokens} />
+                <Motion tokens={tokens} />
                 <AllTokens tokens={tokens} />
               </>
             ) : (
               <>
                 <section className="ds-intro">
-                  <h1>Components</h1>
+                  <h1>Explore</h1>
                   <p className="muted">
                     Every example is the real component from <code>src/</code>, filled with sample recipes and styled with the semantic
                     tokens. Change something in the code and this page changes with it.
@@ -167,6 +176,13 @@ export default function DesignSystem() {
             )}
           </main>
         </div>
+
+        {tab === 'explore' && (
+          <button className={inspect ? 'btn primary ds-inspect-toggle' : 'btn ds-inspect-toggle'} aria-pressed={inspect} onClick={() => setInspect((v) => !v)}>
+            <Icon name="search" size={18} /> {inspect ? 'Inspecting · hover or tap' : 'Inspect'}
+          </button>
+        )}
+        <Inspector enabled={inspect} tokens={tokens} dark={dark} />
       </div>
     </StaticDataProvider>
   );
@@ -323,7 +339,7 @@ function Radius({ tokens }: { tokens: Token[] }) {
 function TypeTokens({ tokens }: { tokens: Token[] }) {
   const fonts = tokens.filter((t) => t.name.startsWith('--font'));
   return (
-    <Section id="type-tokens" title="Typography" intro="One family for everything. Hierarchy comes from size and weight (see Components → Typography).">
+    <Section id="type-tokens" title="Typography" intro="One family for everything. Hierarchy comes from size and weight (see Explore → Typography).">
       <div className="ds-type">
         {fonts.map((t) => (
           <div key={t.name} className="ds-type-row">
@@ -340,10 +356,53 @@ function TypeTokens({ tokens }: { tokens: Token[] }) {
   );
 }
 
+/** Duraciones, curvas y para qué se usa cada una; pulsa una fila para verla moverse */
+function Motion({ tokens }: { tokens: Token[] }) {
+  const [played, setPlayed] = useState<Record<string, boolean>>({});
+  const motion = tokens.filter((t) => /^--(duration|ease|motion)-/.test(t.name));
+  const groups: [string, string, Token[]][] = [
+    ['Semantic', 'What each speed is for. Components use these.', motion.filter((t) => t.tier === 'semantic')],
+    ['Durations', 'Fast, moderate and slow, with shorter exits.', motion.filter((t) => t.name.startsWith('--duration'))],
+    ['Easing', 'Ease-out for almost everything; a soft spring for what glides.', motion.filter((t) => t.name.startsWith('--ease'))],
+  ];
+  const transitionFor = (t: Token) =>
+    t.name.startsWith('--duration')
+      ? `transform var(${t.name}) var(--ease-out)`
+      : t.name.startsWith('--ease')
+        ? `transform 600ms var(${t.name})`
+        : `transform var(${t.name})`;
+  return (
+    <Section
+      id="motion"
+      title="Motion"
+      intro="Based on Fluid Functionalism: short, purposeful motion. Press, hover and glide are fast; nothing waits on an animation. Click a row to play it."
+    >
+      {groups.map(([title, hint, list]) => (
+        <div key={title} className="ds-group">
+          <h3>{title}</h3>
+          <p className="muted small">{hint}</p>
+          <div className="ds-motion">
+            {list.map((t) => (
+              <button key={t.name} className="ds-motion-row" onClick={() => setPlayed((p) => ({ ...p, [t.name]: !p[t.name] }))}>
+                <span className="ds-motion-track">
+                  <span className="ds-motion-dot" style={{ transition: transitionFor(t), transform: played[t.name] ? 'translateX(var(--travel))' : 'none' }} />
+                </span>
+                <code className="ds-motion-name">{t.name}</code>
+                <span className="ds-values">{t.light.length > 60 ? `${t.light.slice(0, 57)}…` : t.light}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+    </Section>
+  );
+}
+
 function AllTokens({ tokens }: { tokens: Token[] }) {
   const [query, setQuery] = useState('');
   const [tier, setTier] = useState<'all' | Tier>('all');
   const q = query.trim().toLowerCase();
+  const tierRef = useGlide<HTMLDivElement>();
   const rows = tokens.filter(
     (t) => (tier === 'all' || t.tier === tier) && (!q || t.name.includes(q) || t.light.toLowerCase().includes(q) || (t.dark ?? '').toLowerCase().includes(q)),
   );
@@ -352,7 +411,7 @@ function AllTokens({ tokens }: { tokens: Token[] }) {
     <Section id="all-tokens" title="All tokens" intro={`Every custom property in :root (${tokens.length}). Search by name or value.`}>
       <div className="ds-filter">
         <input type="search" placeholder="Search tokens…" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search tokens" />
-        <div className="segmented" role="group" aria-label="Tier">
+        <div ref={tierRef} className="segmented" role="group" aria-label="Tier">
           {(['all', 'semantic', 'primitive'] as const).map((t) => (
             <button key={t} className={t === tier ? 'on' : ''} aria-pressed={t === tier} onClick={() => setTier(t)}>
               {t === 'all' ? 'All' : t === 'semantic' ? 'Semantic' : 'Primitive'}
@@ -413,7 +472,7 @@ function Typography() {
     { el: <p className="muted small" style={{ margin: 0 }}>Platos principales según las recomendaciones de la AESAN</p>, label: '.muted .small · notes' },
   ];
   return (
-    <Section id="typography" title="Typography" intro={<>A single family, Inconsolata, in <code>--font-body</code>. Hierarchy comes from size and weight.</>}>
+    <Section id="typography" title="Typography" intro={<>A single family, Martian Mono, in <code>--font-body</code>. Hierarchy comes from size and weight.</>}>
       <div className="ds-type">
         {samples.map((s) => (
           <TypeRow key={s.label} label={s.label}>

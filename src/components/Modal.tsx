@@ -1,10 +1,17 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 
 export default function Modal({ label, onClose, children }: { label: string; onClose(): void; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [closing, setClosing] = useState(false);
+
+  // Al cerrar, primero se va con su animación (--motion-exit) y luego se desmonta
+  const close = useCallback(() => {
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return onClose();
+    setClosing(true);
+  }, [onClose]);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && close();
     document.addEventListener('keydown', onKey);
     document.body.classList.add('no-scroll');
     ref.current?.focus();
@@ -12,12 +19,16 @@ export default function Modal({ label, onClose, children }: { label: string; onC
       document.removeEventListener('keydown', onKey);
       document.body.classList.remove('no-scroll');
     };
-  }, [onClose]);
+  }, [close]);
 
   return (
-    <div className="modal-backdrop" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+    <div
+      className={closing ? 'modal-backdrop closing' : 'modal-backdrop'}
+      onMouseDown={(e) => e.target === e.currentTarget && close()}
+      onAnimationEnd={(e) => closing && e.target === e.currentTarget && onClose()}
+    >
       <div className="modal" role="dialog" aria-modal="true" aria-label={label} tabIndex={-1} ref={ref}>
-        <button className="modal-close" onClick={onClose} aria-label="Cerrar">
+        <button className="modal-close" onClick={close} aria-label="Cerrar">
           ×
         </button>
         {children}

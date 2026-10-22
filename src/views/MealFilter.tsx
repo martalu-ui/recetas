@@ -1,3 +1,4 @@
+import { useGlide } from '../lib/useGlide';
 import { MEAL_LABEL, MEAL_TYPES, type MealType, type Recipe } from '../lib/types';
 
 export type MealFilterValue = MealType | 'todas';
@@ -8,8 +9,9 @@ export function filterByMeal(recipes: Recipe[], filter: MealFilterValue): Recipe
 
 export default function MealFilter({ value, onChange, allLabel = 'Todas' }: { value: MealFilterValue; onChange(v: MealFilterValue): void; allLabel?: string }) {
   const options: MealFilterValue[] = ['todas', ...MEAL_TYPES];
+  const ref = useGlide<HTMLDivElement>();
   return (
-    <div className="segmented" role="group" aria-label="Filtrar por comida o cena">
+    <div ref={ref} className="segmented" role="group" aria-label="Filtrar por comida o cena">
       {options.map((o) => (
         <button key={o} className={o === value ? 'on' : ''} aria-pressed={o === value} onClick={() => onChange(o)}>
           {o === 'todas' ? allLabel : MEAL_LABEL[o]}

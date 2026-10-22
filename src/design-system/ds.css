@@ -568,3 +568,155 @@ html {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* ---------- Modo inspeccionar ---------- */
+
+.ds-inspect-toggle {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 40;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 16%);
+}
+
+.ds-inspecting .ds-preview,
+.ds-inspecting .ds-preview * {
+  cursor: crosshair !important;
+}
+
+.ds-inspector {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+}
+
+.ds-inspector > div {
+  position: fixed;
+}
+
+/* Colores de las herramientas del navegador: contenido azul, padding verde, margin naranja */
+.ds-ins-content {
+  background: rgb(111 168 220 / 40%);
+  outline: 1px solid rgb(61 120 200 / 80%);
+}
+
+.ds-ins-padding {
+  background: rgb(147 196 125 / 45%);
+}
+
+.ds-ins-margin {
+  background: rgb(246 178 107 / 45%);
+}
+
+.ds-ins-tip {
+  width: 260px;
+  padding: 10px 12px;
+  background: #1d1b19;
+  color: #f4f0eb;
+  border-radius: var(--radius-button);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 25%);
+  font: 0.8rem/1.45 var(--font-body);
+}
+
+.ds-ins-tip strong {
+  display: block;
+  overflow: hidden;
+  color: #fcc548;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ds-ins-tip dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1px 10px;
+  margin: 6px 0 0;
+}
+
+.ds-ins-tip dt {
+  color: #a49d95;
+}
+
+.ds-ins-tip dt.pad {
+  color: #a8d98f;
+}
+
+.ds-ins-tip dt.mar {
+  color: #f6b26b;
+}
+
+.ds-ins-tip dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.ds-ins-tip em {
+  color: #cbbdff;
+  font-style: normal;
+}
+
+@media (min-width: 861px) {
+  .ds-nav.scroll-fade-x {
+    mask-image: none;
+    animation: none;
+  }
+}
+
+/* ---------- Motion ---------- */
+
+.ds-motion {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ds-motion-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(0, 14rem) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  text-align: left;
+  background: var(--color-surface);
+  border: 0;
+  border-radius: var(--radius-inner);
+  cursor: pointer;
+}
+
+.ds-motion-row:hover {
+  background: var(--color-surface-hover);
+}
+
+.ds-motion-track {
+  --travel: calc(100% - 0px);
+  position: relative;
+  display: block;
+  height: 18px;
+  background: var(--color-surface-subtle);
+  border-radius: var(--radius-tag);
+  container-type: inline-size;
+}
+
+.ds-motion-dot {
+  --travel: calc(100cqw - 18px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 18px;
+  background: var(--color-primary);
+  border-radius: var(--radius-tag);
+}
+
+.ds-motion-name {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 860px) {
+  .ds-motion-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}

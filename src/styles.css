@@ -3102,3 +3102,73 @@ textarea {
 .hero-stage.empty {
   justify-content: center;
 }
+
+/* Cabecera de tarjeta con título y una acción a la derecha */
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card-head h2 {
+  margin: 0;
+}
+
+/* Editar el catálogo de vales */
+.kinds-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.kind-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: var(--color-surface-subtle);
+  border-radius: var(--radius-inner);
+}
+
+.kind-row.new {
+  background: var(--color-highlight);
+}
+
+.kind-row label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.kind-row label span {
+  flex: none;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.kind-row.new label span {
+  color: inherit;
+}
+
+.kind-cost input {
+  width: 4.5rem;
+  text-align: right;
+}
+
+.kind-row input {
+  background-color: var(--color-surface);
+}
+
+@media (max-width: 560px) {
+  .kind-row {
+    grid-template-columns: 1fr auto;
+  }
+
+  .kind-what {
+    grid-column: 1 / -1;
+  }
+}

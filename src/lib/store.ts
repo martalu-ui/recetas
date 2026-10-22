@@ -1,5 +1,5 @@
 import { blobToDataUrl } from './image';
-import { voucherKind, type Voucher } from './vouchers';
+import { byCost, DEFAULT_VOUCHERS, voucherTitle, type Voucher, type VoucherKind } from './vouchers';
 import type { FoodGroup } from './nutrition';
 import { PHOTO_BUCKET, supabase } from './supabase';
 import { EATING_OUT, LEFTOVERS, type Course, type Ingredient, type MealType, type PantryDraft, type PantryItem, type PlanEntry, type PlanPosition, type Recipe, type RecipeDraft } from './types';
@@ -21,8 +21,13 @@ export interface DataStore {
   listScores(author: string | null): Promise<Score[]>;
   /** Vales de los dos, el más reciente primero */
   listVouchers(): Promise<Voucher[]>;
+  /** Catálogo de vales, compartido y editable */
+  listVoucherKinds(): Promise<VoucherKind[]>;
+  /** Crea (sin id) o cambia un vale del catálogo */
+  saveVoucherKind(kind: { id?: string; what: string; cost: number }): Promise<VoucherKind>;
+  deleteVoucherKind(id: string): Promise<void>;
   /** Gasta comidas del bote en un vale para la pareja */
-  redeemVoucher(kind: string, author: string | null): Promise<Voucher>;
+  redeemVoucher(kind: VoucherKind, author: string | null): Promise<Voucher>;
   /** La pareja ha visto el aviso / ha cumplido el vale */
   markVoucherSeen(id: string): Promise<void>;
   completeVoucher(id: string): Promise<void>;
@@ -51,6 +56,7 @@ const LS_RECIPES = 'recetas.recipes';
 const LS_PLAN = 'recetas.plan';
 const LS_PANTRY = 'recetas.pantry';
 const LS_VOUCHERS = 'recetas.vouchers';
+const LS_VOUCHER_KINDS = 'recetas.voucherKinds';
 
 function readLS<T>(key: string, fallback: T): T {
   try {
@@ -140,9 +146,19 @@ const localStore: DataStore = {
   async listVouchers() {
     return readLS<Voucher[]>(LS_VOUCHERS, []);
   },
-  async redeemVoucher(kind, author) {
-    const k = voucherKind(kind);
-    if (!k) throw new Error('Ese vale no existe');
+  async listVoucherKinds() {
+    return readLS<VoucherKind[]>(LS_VOUCHER_KINDS, DEFAULT_VOUCHERS).sort(byCost);
+  },
+  async saveVoucherKind({ id, what, cost }) {
+    const kinds = readLS<VoucherKind[]>(LS_VOUCHER_KINDS, DEFAULT_VOUCHERS);
+    const kind: VoucherKind = { id: id ?? crypto.randomUUID(), what: what.trim(), cost };
+    writeLS(LS_VOUCHER_KINDS, id ? kinds.map((k) => (k.id === id ? kind : k)) : [...kinds, kind]);
+    return kind;
+  },
+  async deleteVoucherKind(id) {
+    writeLS(LS_VOUCHER_KINDS, readLS<VoucherKind[]>(LS_VOUCHER_KINDS, DEFAULT_VOUCHERS).filter((k) => k.id !== id));
+  },
+  async redeemVoucher(k, author) {
     const items = readLS<PantryItem[]>(LS_PANTRY, []);
     const free = items.filter((i) => !i.voucherId).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
     if (free.length < k.cost) throw new Error(`No tienes comidas suficientes: tienes ${free.length}, el vale cuesta ${k.cost}`);
@@ -150,8 +166,8 @@ const localStore: DataStore = {
       id: crypto.randomUUID(),
       userId: null,
       author,
-      kind,
-      title: k.title,
+      kind: k.id,
+      title: voucherTitle(k.what),
       cost: k.cost,
       status: 'pendiente',
       seenAt: null,
@@ -232,16 +248,28 @@ async function removePhoto(url: string | null) {
   if (path) await supabase!.storage.from(PHOTO_BUCKET).remove([path]);
 }
 
-const supabaseVouchers: Pick<DataStore, 'listVouchers' | 'redeemVoucher' | 'markVoucherSeen' | 'completeVoucher' | 'watchVouchers'> = {
+const supabaseVouchers: Pick<DataStore, 'listVouchers' | 'listVoucherKinds' | 'saveVoucherKind' | 'deleteVoucherKind' | 'redeemVoucher' | 'markVoucherSeen' | 'completeVoucher' | 'watchVouchers'> = {
   async listVouchers() {
     const uid = await currentUserId();
     const rows = check(await supabase!.from('vouchers').select('*').order('created_at', { ascending: false }));
     return (rows as VoucherRow[]).map((r) => voucherFromRow(r, uid));
   },
-  async redeemVoucher(kind, author) {
-    const k = voucherKind(kind);
-    if (!k) throw new Error('Ese vale no existe');
-    const row = check(await supabase!.rpc('redeem_voucher', { p_kind: kind, p_title: k.title, p_cost: k.cost, p_author: author }));
+  async listVoucherKinds() {
+    const rows = check(await supabase!.from('voucher_kinds').select('id, what, cost').order('cost').order('what'));
+    return rows as VoucherKind[];
+  },
+  async saveVoucherKind({ id, what, cost }) {
+    const fields = { what: what.trim(), cost };
+    const row = id
+      ? check(await supabase!.from('voucher_kinds').update(fields).eq('id', id).select('id, what, cost').single())
+      : check(await supabase!.from('voucher_kinds').insert(fields).select('id, what, cost').single());
+    return row as VoucherKind;
+  },
+  async deleteVoucherKind(id) {
+    check(await supabase!.from('voucher_kinds').delete().eq('id', id));
+  },
+  async redeemVoucher(k, author) {
+    const row = check(await supabase!.rpc('redeem_voucher', { p_kind: k.id, p_title: voucherTitle(k.what), p_cost: k.cost, p_author: author }));
     return voucherFromRow(row as VoucherRow, await currentUserId());
   },
   async markVoucherSeen(id) {

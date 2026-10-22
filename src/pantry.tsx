@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { pickReward } from './lib/reward';
 import { useData } from './data';
 import { store, type Score } from './lib/store';
-import { oweText, type Voucher } from './lib/vouchers';
+import { oweText, type Voucher, type VoucherKind } from './lib/vouchers';
 import type { MealType, PantryItem, Recipe } from './lib/types';
 
 interface PantryContextValue {
@@ -12,8 +12,12 @@ interface PantryContextValue {
   available: PantryItem[];
   /** Vales de los dos: los míos me los deben; los de mi pareja los debo yo */
   vouchers: Voucher[];
+  /** Catálogo de vales que se pueden canjear (lo editáis los dos) */
+  kinds: VoucherKind[];
+  saveKind(kind: { id?: string; what: string; cost: number }): Promise<void>;
+  deleteKind(kind: VoucherKind): Promise<void>;
   /** Gasta comidas en un vale; a la pareja le llega el aviso */
-  redeem(kind: string): Promise<Voucher>;
+  redeem(kind: VoucherKind): Promise<Voucher>;
   /** Vales que mi pareja ha canjeado y aún no he visto (para el aviso) */
   incoming: Voucher[];
   markSeen(voucher: Voucher): Promise<void>;
@@ -43,6 +47,11 @@ export function PantryProvider({ children }: { children: ReactNode }) {
   const [scores, setScores] = useState<Score[]>([]);
   const [reward, setReward] = useState<PantryItem | null>(null);
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
+  const [kinds, setKinds] = useState<VoucherKind[]>([]);
+
+  const loadKinds = useCallback(() => {
+    store.listVoucherKinds().then(setKinds, () => setKinds([]));
+  }, []);
   const known = useRef<Set<string> | null>(null);
 
   const loadVouchers = useCallback(async () => {
@@ -52,7 +61,7 @@ export function PantryProvider({ children }: { children: ReactNode }) {
       if (known.current) {
         for (const v of list) {
           if (!v.mine && !known.current.has(v.id) && document.hidden && 'Notification' in window && Notification.permission === 'granted') {
-            new Notification('MajoChef', { body: `${oweText(v.kind, v.title, v.author)} 🎟️`, icon: `${import.meta.env.BASE_URL}icon-192.png` });
+            new Notification('MajoChef', { body: `${oweText(v.title, v.author)} 🎟️`, icon: `${import.meta.env.BASE_URL}icon-192.png` });
           }
         }
       }
@@ -71,11 +80,13 @@ export function PantryProvider({ children }: { children: ReactNode }) {
     store.listPantry().then(setItems, () => setItems([]));
     loadScores();
     loadVouchers();
+    loadKinds();
     // Al volver a la pestaña, por si la otra persona ha cocinado o canjeado un vale
     const onVisible = () => {
       if (document.visibilityState !== 'visible') return;
       loadScores();
       loadVouchers();
+      loadKinds();
     };
     document.addEventListener('visibilitychange', onVisible);
     // Y al momento, mientras la app está abierta
@@ -84,10 +95,23 @@ export function PantryProvider({ children }: { children: ReactNode }) {
       document.removeEventListener('visibilitychange', onVisible);
       stop();
     };
-  }, [loadScores, loadVouchers]);
+  }, [loadScores, loadVouchers, loadKinds]);
+
+  const saveKind = useCallback(
+    async (kind: { id?: string; what: string; cost: number }) => {
+      const saved = await store.saveVoucherKind(kind);
+      setKinds((list) => (kind.id ? list.map((k) => (k.id === saved.id ? saved : k)) : [...list, saved]).sort((a, b) => a.cost - b.cost));
+    },
+    [],
+  );
+
+  const deleteKind = useCallback(async (kind: VoucherKind) => {
+    await store.deleteVoucherKind(kind.id);
+    setKinds((list) => list.filter((k) => k.id !== kind.id));
+  }, []);
 
   const redeem = useCallback(
-    async (kind: string) => {
+    async (kind: VoucherKind) => {
       const voucher = await store.redeemVoucher(kind, author);
       setItems(await store.listPantry());
       setVouchers((list) => [voucher, ...list.filter((v) => v.id !== voucher.id)]);
@@ -143,6 +167,9 @@ export function PantryProvider({ children }: { children: ReactNode }) {
       items,
       available: items.filter((i) => !i.voucherId),
       vouchers,
+      kinds,
+      saveKind,
+      deleteKind,
       redeem,
       incoming: vouchers.filter((v) => !v.mine && !v.seenAt && v.status === 'pendiente'),
       markSeen,
@@ -154,7 +181,7 @@ export function PantryProvider({ children }: { children: ReactNode }) {
       reward,
       dismissReward: () => setReward(null),
     }),
-    [items, vouchers, redeem, markSeen, complete, scores, cook, uncook, reward],
+    [items, vouchers, kinds, saveKind, deleteKind, redeem, markSeen, complete, scores, cook, uncook, reward],
   );
 
   return <PantryContext.Provider value={value}>{children}</PantryContext.Provider>;

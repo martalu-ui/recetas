@@ -153,3 +153,32 @@ $$;
 
 -- Avisos al momento a la pareja
 alter publication supabase_realtime add table public.vouchers;
+
+-- Catálogo de vales: compartido y editable por los dos desde Cuenta.
+-- Cada vale es «Vale por <what>» y cuesta <cost> comidas.
+create table if not exists public.voucher_kinds (
+  id         uuid primary key default gen_random_uuid(),
+  what       text not null check (length(trim(what)) > 0),
+  cost       int not null check (cost > 0 and cost <= 999),
+  created_at timestamptz not null default now()
+);
+
+alter table public.voucher_kinds enable row level security;
+
+drop policy if exists "catálogo de vales compartido" on public.voucher_kinds;
+create policy "catálogo de vales compartido" on public.voucher_kinds
+  for all to authenticated using (true) with check (true);
+
+-- Catálogo inicial, solo si está vacío
+insert into public.voucher_kinds (what, cost)
+select v.what, v.cost
+from (values
+  ('elegir la peli', 3),
+  ('un «hoy friego yo»', 4),
+  ('una siesta sin interrupciones', 5),
+  ('un masaje', 6),
+  ('un desayuno en la cama', 8),
+  ('un día de cine', 10),
+  ('una cena fuera', 15)
+) as v(what, cost)
+where not exists (select 1 from public.voucher_kinds);

@@ -1,39 +1,38 @@
-/** Catálogo de vales que se compran con las comidas de la despensa */
+/** Vale del catálogo (lo editáis los dos): qué es y cuántas comidas cuesta */
 export interface VoucherKind {
   id: string;
-  /** Lo que pone en el vale */
-  title: string;
-  /** Para el aviso: «Le debes …» */
-  owe: string;
-  /** Comidas que cuesta */
+  /** Lo que se regala: «un masaje». El vale dice «Vale por un masaje» */
+  what: string;
   cost: number;
 }
 
-export const VOUCHERS: VoucherKind[] = [
-  { id: 'peli', title: 'Vale por elegir la peli', owe: 'dejarle elegir la peli', cost: 3 },
-  { id: 'friego', title: 'Vale por un «hoy friego yo»', owe: 'fregar hoy', cost: 4 },
-  { id: 'siesta', title: 'Vale por una siesta sin interrupciones', owe: 'una siesta sin interrupciones', cost: 5 },
-  { id: 'masaje', title: 'Vale por un masaje', owe: 'un masaje', cost: 6 },
-  { id: 'desayuno', title: 'Vale por un desayuno en la cama', owe: 'un desayuno en la cama', cost: 8 },
-  { id: 'cine', title: 'Vale por un día de cine', owe: 'un día de cine', cost: 10 },
-  { id: 'cena', title: 'Vale por una cena fuera', owe: 'una cena fuera', cost: 15 },
+/** Catálogo inicial (en Supabase se crea igual en la tabla voucher_kinds) */
+export const DEFAULT_VOUCHERS: VoucherKind[] = [
+  { id: 'peli', what: 'elegir la peli', cost: 3 },
+  { id: 'friego', what: 'un «hoy friego yo»', cost: 4 },
+  { id: 'siesta', what: 'una siesta sin interrupciones', cost: 5 },
+  { id: 'masaje', what: 'un masaje', cost: 6 },
+  { id: 'desayuno', what: 'un desayuno en la cama', cost: 8 },
+  { id: 'cine', what: 'un día de cine', cost: 10 },
+  { id: 'cena', what: 'una cena fuera', cost: 15 },
 ];
 
-export function voucherKind(id: string): VoucherKind | undefined {
-  return VOUCHERS.find((v) => v.id === id);
-}
+export const voucherTitle = (what: string) => `Vale por ${what.trim()}`;
 
 /** «Le debes un masaje a Marta» */
-export function oweText(kind: string, title: string, author: string | null): string {
-  const what = voucherKind(kind)?.owe ?? title.replace(/^Vale por /, '');
-  return `Le debes ${what} a ${author ?? 'tu pareja'}`;
+export function oweText(title: string, author: string | null): string {
+  return `Le debes ${title.replace(/^Vale por /, '')} a ${author ?? 'tu pareja'}`;
 }
+
+/** Ordena el catálogo de más barato a más caro */
+export const byCost = (a: VoucherKind, b: VoucherKind) => a.cost - b.cost || a.what.localeCompare(b.what, 'es');
 
 export interface Voucher {
   id: string;
   /** Quien lo ha canjeado (y a quien se lo deben) */
   userId: string | null;
   author: string | null;
+  /** Id del vale del catálogo cuando se canjeó (puede haberse editado o borrado después) */
   kind: string;
   title: string;
   cost: number;

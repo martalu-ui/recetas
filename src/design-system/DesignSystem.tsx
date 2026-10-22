@@ -14,6 +14,7 @@ import { Greeting } from '../views/DiscoverView';
 import RandomView from '../views/RandomView';
 import { DayStrip, Slot, WeekBalance } from '../views/WeekView';
 import { SAMPLE_RECIPES } from './sample';
+import Inspector from './Inspector';
 import { applyTheme, isColor, readTokens, type Tier, type Token } from './tokens';
 
 type Theme = 'sistema' | 'claro' | 'oscuro';
@@ -81,10 +82,13 @@ const SECTIONS: Record<Tab, [string, string][]> = {
 export default function DesignSystem() {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [theme, setTheme] = useState<Theme>('sistema');
+  const [inspect, setInspect] = useState(false);
+  const dark = theme === 'oscuro' || (theme === 'sistema' && window.matchMedia?.('(prefers-color-scheme: dark)').matches);
   const [tab, setTab] = useState<Tab>(() => (location.hash === '#explore' ? 'explore' : 'tokens'));
 
   function chooseTab(t: Tab) {
     setTab(t);
+    setInspect(false);
     history.replaceState(null, '', `#${t}`);
     window.scrollTo(0, 0);
   }
@@ -167,6 +171,13 @@ export default function DesignSystem() {
             )}
           </main>
         </div>
+
+        {tab === 'explore' && (
+          <button className={inspect ? 'btn primary ds-inspect-toggle' : 'btn ds-inspect-toggle'} aria-pressed={inspect} onClick={() => setInspect((v) => !v)}>
+            <Icon name="search" size={18} /> {inspect ? 'Inspecting · hover or tap' : 'Inspect'}
+          </button>
+        )}
+        <Inspector enabled={inspect} tokens={tokens} dark={dark} />
       </div>
     </StaticDataProvider>
   );

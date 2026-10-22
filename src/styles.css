@@ -2258,3 +2258,79 @@ a:focus-visible {
     animation: none;
   }
 }
+
+/* Unicornio que cruza la pantalla al ganar una comida */
+.unicorn-run {
+  position: fixed;
+  top: 30%;
+  left: 0;
+  z-index: 70;
+  pointer-events: none;
+  animation: unicorn-run 2.8s linear forwards;
+}
+
+.unicorn {
+  display: block;
+}
+
+@keyframes unicorn-run {
+  from {
+    transform: translateX(-280px);
+  }
+  to {
+    transform: translateX(100vw);
+  }
+}
+
+.unicorn .uni-legs-a,
+.unicorn .uni-legs-b,
+.unicorn .uni-bob,
+.unicorn .uni-spark {
+  animation-timing-function: step-end;
+  animation-iteration-count: infinite;
+}
+
+.unicorn .uni-legs-a {
+  animation-name: uni-a;
+  animation-duration: 0.5s;
+}
+
+.unicorn .uni-legs-b {
+  opacity: 0;
+  animation-name: uni-b;
+  animation-duration: 0.5s;
+}
+
+.unicorn .uni-bob {
+  animation-name: uni-bob;
+  animation-duration: 0.5s;
+}
+
+.unicorn .uni-spark {
+  animation-name: uni-twinkle;
+  animation-duration: 0.6s;
+}
+
+.unicorn .uni-spark-2 {
+  animation-delay: 0.3s;
+}
+
+@keyframes uni-a {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes uni-b {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+@keyframes uni-bob {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-1px); }
+}
+
+@keyframes uni-twinkle {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+}

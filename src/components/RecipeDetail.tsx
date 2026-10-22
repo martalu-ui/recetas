@@ -10,20 +10,7 @@ export default function RecipeDetail({ recipe, onDeleted }: { recipe: Recipe; on
   const { editRecipe, deleteRecipe } = useData();
   const pantry = usePantry();
   const [busy, setBusy] = useState(false);
-  const [cookError, setCookError] = useState<string | null>(null);
   const times = pantry?.items.filter((i) => i.recipeId === recipe.id).length ?? 0;
-
-  async function cook() {
-    setBusy(true);
-    setCookError(null);
-    try {
-      await pantry!.cook(recipe);
-    } catch (e) {
-      setCookError(`No se ha podido guardar: ${(e as Error).message}`);
-    } finally {
-      setBusy(false);
-    }
-  }
 
   async function remove() {
     if (!confirm(`¿Borrar «${recipe.title}»? También se quitará del menú semanal.`)) return;
@@ -68,17 +55,8 @@ export default function RecipeDetail({ recipe, onDeleted }: { recipe: Recipe; on
           </>
         )}
 
-        {pantry && (
-          <div className="cook-row">
-            <button className="btn primary" onClick={cook} disabled={busy}>
-              ¡La he cocinado!
-            </button>
-            <span className="muted small">
-              {times === 0 ? 'Gana una comida para tu despensa' : times === 1 ? 'La has cocinado 1 vez' : `La has cocinado ${times} veces`}
-            </span>
-          </div>
-        )}
-        {cookError && <p className="error">{cookError}</p>}
+        {/* Se marca como hecha desde el menú de la semana; aquí solo se ve cuántas veces */}
+        {times > 0 && <p className="muted small cook-count">{times === 1 ? 'La has cocinado 1 vez' : `La has cocinado ${times} veces`}</p>}
 
         <div className="actions">
           <button className="btn" onClick={() => editRecipe(recipe)} disabled={busy}>

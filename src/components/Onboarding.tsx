@@ -26,7 +26,7 @@ const STEPS = [
   },
   {
     title: 'Márcalo al cocinar',
-    text: 'Pulsa «¡La he cocinado!» en la receta, o «¿La has hecho?» en el menú de la semana. Y atento al unicornio.',
+    text: 'En el menú de la semana, pulsa «¿La has hecho?» debajo de cada plato que hayas cocinado. Y atento al unicornio.',
     art: (
       <div className="onb-art" aria-hidden>
         <Unicorn size={170} />

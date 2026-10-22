@@ -121,21 +121,22 @@ input,
 select,
 textarea {
   width: 100%;
-  padding: 11px 14px;
+  padding: 8px 12px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--radius-btn);
   min-width: 0;
+  font-size: 1rem; /* 16px: menos y el iPhone hace zoom al escribir */
 }
 
 /* Desplegables: flecha propia con su hueco a la derecha (la del navegador queda pegada al borde) */
 select {
   appearance: none;
   -webkit-appearance: none;
-  padding-right: 40px;
+  padding-right: 36px;
   background-image: var(--chevron);
   background-repeat: no-repeat;
-  background-position: right 16px center;
+  background-position: right 14px center;
   background-size: 12px 8px;
   text-overflow: ellipsis;
   cursor: pointer;
@@ -423,8 +424,8 @@ a:focus-visible {
 
 .icon-btn {
   flex: none;
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   display: grid;
   place-items: center;
   border: 0;
@@ -450,7 +451,8 @@ a:focus-visible {
 .segmented button {
   border: 0;
   background: transparent;
-  padding: 7px 16px;
+  padding: 5px 14px;
+  font-size: 0.95rem;
   border-radius: calc(var(--radius-btn) - 3px);
   cursor: pointer;
   color: var(--muted);
@@ -729,7 +731,8 @@ a:focus-visible {
 }
 
 .toggle {
-  padding: 9px 18px;
+  padding: 7px 14px;
+  font-size: 0.95rem;
   border: 0;
   border-radius: var(--radius-btn);
   background: var(--surface-2);
@@ -1230,7 +1233,7 @@ a:focus-visible {
 }
 
 .slot-controls select {
-  padding: 9px 36px 9px 12px;
+  padding: 7px 34px 7px 12px;
   background-position: right 14px center;
 }
 

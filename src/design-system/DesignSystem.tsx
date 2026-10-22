@@ -9,6 +9,7 @@ import { Sprite, SPRITE_NAMES } from '../components/FoodSprite';
 import Icon, { ICON_NAMES } from '../components/Icon';
 import RecipeCard, { MealTags } from '../components/RecipeCard';
 import MealFilter, { type MealFilterValue } from '../views/MealFilter';
+import { Greeting } from '../views/DiscoverView';
 import RandomView from '../views/RandomView';
 import { DayStrip, Slot, WeekBalance } from '../views/WeekView';
 import { SAMPLE_RECIPES } from './sample';
@@ -16,32 +17,32 @@ import { applyTheme, isColor, readTokens, type Token } from './tokens';
 
 type Theme = 'sistema' | 'claro' | 'oscuro';
 
-/** Grupos de colores por nombre de token; lo que no está aquí sale en «Otros» */
+/** Color groups by token name; anything not listed here goes under «Other» */
 const COLOR_GROUPS: { title: string; hint: string; names: string[] }[] = [
-  { title: 'Superficies', hint: 'Fondo de la app, tarjetas y bordes', names: ['--bg', '--surface', '--surface-2', '--border'] },
-  { title: 'Texto', hint: 'Texto principal y secundario', names: ['--text', '--muted'] },
-  { title: 'Marca', hint: 'Amarillo mostaza: botones principales, hoy, selección', names: ['--accent', '--accent-hover', '--on-accent', '--today'] },
-  { title: 'Tierra', hint: 'Barras del equilibrio de la semana', names: ['--brown', '--olive', '--taupe', '--terracotta', '--sand'] },
+  { title: 'Surfaces', hint: 'App background, cards and borders', names: ['--bg', '--surface', '--surface-2', '--border'] },
+  { title: 'Text', hint: 'Primary and secondary text', names: ['--text', '--muted'] },
+  { title: 'Brand', hint: 'Mustard yellow: primary buttons, today, selection', names: ['--accent', '--accent-hover', '--on-accent', '--today'] },
+  { title: 'Earth', hint: 'Bars in the weekly balance', names: ['--brown', '--olive', '--taupe', '--terracotta', '--sand'] },
   {
     title: 'Pastel',
-    hint: 'Etiquetas y atajos: comida (rosa), cena (lila), acompañamiento (arena), Thermomix (verde)',
+    hint: 'Tags and shortcuts: lunch (pink), dinner (lilac), side dish (sand), Thermomix (green)',
     names: ['--pink', '--pink-ink', '--lilac', '--lilac-ink', '--beige', '--beige-ink', '--green-soft', '--green-ink'],
   },
-  { title: 'Estado', hint: 'Errores y confirmaciones', names: ['--danger', '--ok'] },
+  { title: 'Status', hint: 'Errors and confirmations', names: ['--danger', '--ok'] },
 ];
 
 const SECTIONS = [
-  ['colores', 'Colores'],
-  ['tipografia', 'Tipografía'],
-  ['forma', 'Forma'],
-  ['iconos', 'Iconos'],
-  ['ilustraciones', 'Ilustraciones'],
-  ['botones', 'Botones'],
-  ['controles', 'Controles'],
-  ['etiquetas', 'Etiquetas'],
-  ['recetas', 'Tarjeta de receta'],
-  ['semana', 'Semana'],
-  ['descubrir', 'Descubrir'],
+  ['colors', 'Colors'],
+  ['typography', 'Typography'],
+  ['shape', 'Shape'],
+  ['icons', 'Icons'],
+  ['illustrations', 'Illustrations'],
+  ['buttons', 'Buttons'],
+  ['controls', 'Controls'],
+  ['tags', 'Tags'],
+  ['recipe-card', 'Recipe card'],
+  ['week', 'Week'],
+  ['discover', 'Discover'],
 ] as const;
 
 export default function DesignSystem() {
@@ -60,18 +61,18 @@ export default function DesignSystem() {
           <a className="brand" href="./index.html">
             <img className="brand-icon" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" /> MajoChef
           </a>
-          <span className="ds-top-label">Sistema de diseño</span>
-          <div className="ds-theme segmented" role="group" aria-label="Tema">
+          <span className="ds-top-label">Design system</span>
+          <div className="ds-theme segmented" role="group" aria-label="Theme">
             {(['sistema', 'claro', 'oscuro'] as Theme[]).map((t) => (
               <button key={t} className={t === theme ? 'on' : ''} aria-pressed={t === theme} onClick={() => setTheme(t)}>
-                {t === 'sistema' ? 'Auto' : t === 'claro' ? 'Claro' : 'Oscuro'}
+                {t === 'sistema' ? 'Auto' : t === 'claro' ? 'Light' : 'Dark'}
               </button>
             ))}
           </div>
         </header>
 
         <div className="ds-layout">
-          <nav className="ds-nav" aria-label="Secciones">
+          <nav className="ds-nav" aria-label="Sections">
             {SECTIONS.map(([id, label]) => (
               <a key={id} href={`#${id}`}>
                 {label}
@@ -81,10 +82,10 @@ export default function DesignSystem() {
 
           <main className="ds-main">
             <section className="ds-intro">
-              <h1>Sistema de diseño</h1>
+              <h1>Design system</h1>
               <p className="muted">
-                Todo lo que ves aquí sale del código de la app: los colores se leen de <code>src/styles.css</code> y cada ejemplo es el
-                componente real con recetas de ejemplo. Si cambias algo en el código, esta página cambia con él.
+                Everything here comes from the app's code: colors are read from <code>src/styles.css</code> and every example is the
+                real component, filled with sample recipes. Change something in the code and this page changes with it.
               </p>
             </section>
 
@@ -116,7 +117,7 @@ function Section({ id, title, children, intro }: { id: string; title: string; in
   );
 }
 
-/** Ejemplo en vivo + de dónde sale en el código */
+/** Live example + where it lives in the code */
 function Specimen({ name, source, code, children, wide }: { name: string; source: string; code?: string; wide?: boolean; children: ReactNode }) {
   return (
     <div className={wide ? 'ds-specimen wide' : 'ds-specimen'}>
@@ -138,12 +139,12 @@ function CopyName({ name }: { name: string }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1200);
     } catch {
-      // sin portapapeles: el nombre se puede seleccionar a mano
+      // no clipboard: the name can still be selected by hand
     }
   }
   return (
-    <button className="ds-token-name" onClick={copy} title="Copiar var(…)">
-      {copied ? 'Copiado' : name}
+    <button className="ds-token-name" onClick={copy} title="Copy var(…)">
+      {copied ? 'Copied' : name}
     </button>
   );
 }
@@ -152,10 +153,10 @@ function Colors({ tokens }: { tokens: Token[] }) {
   const colors = tokens.filter((t) => isColor(t.light));
   const grouped = new Set(COLOR_GROUPS.flatMap((g) => g.names));
   const others = colors.filter((t) => !grouped.has(t.name));
-  const groups = [...COLOR_GROUPS, ...(others.length ? [{ title: 'Otros', hint: 'Tokens nuevos sin grupo', names: others.map((t) => t.name) }] : [])];
+  const groups = [...COLOR_GROUPS, ...(others.length ? [{ title: 'Other', hint: 'New tokens without a group', names: others.map((t) => t.name) }] : [])];
 
   return (
-    <Section id="colores" title="Colores" intro="Pulsa un nombre para copiar var(--token). Cada color tiene su valor en tema claro y oscuro.">
+    <Section id="colors" title="Colors" intro="Click a name to copy var(--token). Each color shows its light and dark theme value.">
       {groups.map((g) => {
         const items = g.names.map((n) => colors.find((t) => t.name === n)).filter((t): t is Token => !!t);
         if (!items.length) return null;
@@ -167,15 +168,15 @@ function Colors({ tokens }: { tokens: Token[] }) {
               {items.map((t) => (
                 <div key={t.name} className="ds-swatch">
                   <div className="ds-chip-pair" aria-hidden>
-                    <span style={{ background: t.light }} title={`Claro: ${t.light}`} />
-                    <span style={{ background: t.dark ?? t.light }} title={`Oscuro: ${t.dark ?? t.light}`} />
+                    <span style={{ background: t.light }} title={`Light: ${t.light}`} />
+                    <span style={{ background: t.dark ?? t.light }} title={`Dark: ${t.dark ?? t.light}`} />
                   </div>
                   <CopyName name={t.name} />
                   <span className="ds-values">
                     {t.light}
                     {t.dark && <> · {t.dark}</>}
                   </span>
-                  <span className="muted ds-uses">{t.uses === 1 ? '1 uso' : `${t.uses} usos`}</span>
+                  <span className="muted ds-uses">{t.uses === 1 ? '1 use' : `${t.uses} uses`}</span>
                 </div>
               ))}
             </div>
@@ -188,14 +189,14 @@ function Colors({ tokens }: { tokens: Token[] }) {
 
 function Typography() {
   const samples: { el: ReactNode; label: string }[] = [
-    { el: <h1 style={{ margin: 0 }}>Nuestras recetas</h1>, label: 'h1 · títulos de sección' },
-    { el: <h2 style={{ margin: 0 }}>¿Qué cocinamos hoy?</h2>, label: 'h2 · títulos de tarjeta' },
-    { el: <h3 style={{ margin: 0 }}>Lentejas con verduras</h3>, label: 'h3 · nombre de receta' },
-    { el: <p style={{ margin: 0 }}>Marca lo que tenéis y te decimos qué receta se parece más.</p>, label: 'Texto' },
-    { el: <p className="muted small" style={{ margin: 0 }}>Platos principales según las recomendaciones de la AESAN</p>, label: '.muted .small · notas' },
+    { el: <h1 style={{ margin: 0 }}>Nuestras recetas</h1>, label: 'h1 · section titles' },
+    { el: <h2 style={{ margin: 0 }}>¿Qué cocinamos hoy?</h2>, label: 'h2 · card titles' },
+    { el: <h3 style={{ margin: 0 }}>Lentejas con verduras</h3>, label: 'h3 · recipe name' },
+    { el: <p style={{ margin: 0 }}>Marca lo que tenéis y te decimos qué receta se parece más.</p>, label: 'Body' },
+    { el: <p className="muted small" style={{ margin: 0 }}>Platos principales según las recomendaciones de la AESAN</p>, label: '.muted .small · notes' },
   ];
   return (
-    <Section id="tipografia" title="Tipografía" intro={<>Una sola familia, Inconsolata, en <code>--font</code>. La jerarquía sale del tamaño y el peso.</>}>
+    <Section id="typography" title="Typography" intro={<>A single family, Inconsolata, in <code>--font</code>. Hierarchy comes from size and weight.</>}>
       <div className="ds-type">
         {samples.map((s) => (
           <TypeRow key={s.label} label={s.label}>
@@ -207,7 +208,7 @@ function Typography() {
   );
 }
 
-/** Enseña el tamaño y peso reales (calculados por el navegador) de cada muestra */
+/** Shows the real size and weight (computed by the browser) of each sample */
 function TypeRow({ label, children }: { label: string; children: ReactNode }) {
   const [info, setInfo] = useState('');
   const ref = (el: HTMLDivElement | null) => {
@@ -232,7 +233,7 @@ function TypeRow({ label, children }: { label: string; children: ReactNode }) {
 function Shape({ tokens }: { tokens: Token[] }) {
   const radii = tokens.filter((t) => t.name.startsWith('--radius'));
   return (
-    <Section id="forma" title="Forma" intro="Esquinas muy redondeadas y sin sombras: las tarjetas se separan del fondo por color.">
+    <Section id="shape" title="Shape" intro="Very round corners and no shadows: cards stand out from the background by color.">
       <div className="ds-radii">
         {radii.map((t) => (
           <div key={t.name} className="ds-radius">
@@ -244,7 +245,7 @@ function Shape({ tokens }: { tokens: Token[] }) {
         <div className="ds-radius">
           <span style={{ borderRadius: 999 }} />
           <code>999px</code>
-          <span className="ds-values">Píldoras: botones, etiquetas, chips</span>
+          <span className="ds-values">Pills: tags and chips</span>
         </div>
       </div>
     </Section>
@@ -253,7 +254,7 @@ function Shape({ tokens }: { tokens: Token[] }) {
 
 function Icons() {
   return (
-    <Section id="iconos" title="Iconos" intro={<>Pixel art de 16×16 dibujado a mano; toman el color del texto. <code>&lt;Icon name="…" /&gt;</code></>}>
+    <Section id="icons" title="Icons" intro={<>Hand-drawn 16×16 pixel art; they take the text color. <code>&lt;Icon name="…" /&gt;</code></>}>
       <div className="ds-icons">
         {ICON_NAMES.map((n) => (
           <div key={n} className="ds-icon">
@@ -269,9 +270,9 @@ function Icons() {
 
 function Illustrations() {
   return (
-    <Section id="ilustraciones" title="Ilustraciones" intro="Comidas cuquis para recetas sin foto, la pizza que baila y los avatares.">
+    <Section id="illustrations" title="Illustrations" intro="Cute food for recipes without a photo, the dancing pizza and the avatars.">
       <div className="ds-grid-2">
-        <Specimen name="Comidas cuquis" source="src/components/FoodSprite.tsx" code={'<Sprite name="egg" />\n<FoodSprite recipe={receta} />'}>
+        <Specimen name="Food sprites" source="src/components/FoodSprite.tsx" code={'<Sprite name="egg" />\n<FoodSprite recipe={recipe} />'}>
           <div className="ds-row">
             {SPRITE_NAMES.map((n) => (
               <div key={n} className="ds-icon">
@@ -281,13 +282,13 @@ function Illustrations() {
             ))}
           </div>
         </Specimen>
-        <Specimen name="Pizza que baila" source="src/components/DancingPizza.tsx" code={'<DancingPizza />\n<DancingPizza dancing={false} />'}>
+        <Specimen name="Dancing pizza" source="src/components/DancingPizza.tsx" code={'<DancingPizza />\n<DancingPizza dancing={false} />'}>
           <div className="ds-row">
             <DancingPizza size={110} />
             <DancingPizza size={110} dancing={false} />
           </div>
         </Specimen>
-        <Specimen name="Avatares" source="src/components/Avatar.tsx" code={'<Avatar value="pizza" />'} wide>
+        <Specimen name="Avatars" source="src/components/Avatar.tsx" code={'<Avatar value="pizza" />'} wide>
           <div className="ds-row">
             {AVATARS.map((a) => (
               <span key={a.id} className="avatar" title={a.label}>
@@ -303,9 +304,9 @@ function Illustrations() {
 
 function Buttons() {
   return (
-    <Section id="botones" title="Botones" intro="Siempre en píldora. Amarillo para la acción principal de la pantalla; blanco para el resto.">
+    <Section id="buttons" title="Buttons" intro={<>Slightly rounded corners with <code>--radius-btn</code>. Yellow for the main action on the screen; white for everything else.</>}>
       <div className="ds-grid-2">
-        <Specimen name="Botón" source="src/styles.css · .btn" code={'<button className="btn primary">\n<button className="btn">\n<button className="btn ghost">\n<button className="btn danger">'}>
+        <Specimen name="Button" source="src/styles.css · .btn" code={'<button className="btn primary">\n<button className="btn">\n<button className="btn ghost">\n<button className="btn danger">'}>
           <div className="ds-row">
             <button className="btn primary">+ Nueva receta</button>
             <button className="btn">Editar</button>
@@ -313,7 +314,7 @@ function Buttons() {
             <button className="btn danger">Borrar</button>
           </div>
         </Specimen>
-        <Specimen name="Tamaños" source="src/styles.css · .btn.small / .btn.big" code={'<button className="btn small">\n<button className="btn primary big">'}>
+        <Specimen name="Sizes" source="src/styles.css · .btn.small / .btn.big" code={'<button className="btn small">\n<button className="btn primary big">'}>
           <div className="ds-row">
             <button className="btn small">
               <Icon name="dice" size={18} /> Rellenar huecos al azar
@@ -321,7 +322,7 @@ function Buttons() {
             <button className="btn primary big">¡Dame una!</button>
           </div>
         </Specimen>
-        <Specimen name="Botón de icono" source="src/styles.css · .icon-btn" code={'<button className="icon-btn"><Icon name="dice" /></button>'}>
+        <Specimen name="Icon button" source="src/styles.css · .icon-btn" code={'<button className="icon-btn"><Icon name="dice" /></button>'}>
           <div className="ds-row">
             <button className="icon-btn" aria-label="Al azar">
               <Icon name="dice" />
@@ -331,7 +332,7 @@ function Buttons() {
             </button>
           </div>
         </Specimen>
-        <Specimen name="Botón de crear (móvil)" source="src/App.tsx · .tab-add" code={'<button className="tab-add">'}>
+        <Specimen name="Create button (mobile)" source="src/App.tsx · .tab-add" code={'<button className="tab-add">'}>
           <div className="ds-row">
             <button className="ds-tab-add" aria-label="Nueva receta">
               <Icon name="plus" size={22} />
@@ -348,9 +349,9 @@ function Controls() {
   const [chip, setChip] = useState(true);
   const [toggle, setToggle] = useState(true);
   return (
-    <Section id="controles" title="Controles" intro="Campos sobre fondo blanco o gris claro, siempre muy redondeados.">
+    <Section id="controls" title="Controls" intro="Fields on white or light grey, always very rounded.">
       <div className="ds-grid-2">
-        <Specimen name="Control segmentado" source="src/views/MealFilter.tsx" code={'<MealFilter value={…} onChange={…} />'}>
+        <Specimen name="Segmented control" source="src/views/MealFilter.tsx" code={'<MealFilter value={…} onChange={…} />'}>
           <MealFilter value={meal} onChange={setMeal} />
         </Specimen>
         <Specimen name="Chips" source="src/styles.css · .chip" code={'<button className="chip">\n<button className="chip on">'}>
@@ -362,7 +363,7 @@ function Controls() {
             <button className="chip">Champiñones</button>
           </div>
         </Specimen>
-        <Specimen name="Interruptores" source="src/styles.css · .toggle" code={'<button className="toggle on">'}>
+        <Specimen name="Toggles" source="src/styles.css · .toggle" code={'<button className="toggle on">'}>
           <div className="toggle-group">
             <button className={toggle ? 'toggle on' : 'toggle'} onClick={() => setToggle((t) => !t)}>
               Principal
@@ -371,7 +372,7 @@ function Controls() {
             <button className="toggle on tag-thermomix">✓ Sí, la tenemos</button>
           </div>
         </Specimen>
-        <Specimen name="Campos" source="src/styles.css · input, select, .field" code={'<label className="field"><span>…</span><input /></label>'}>
+        <Specimen name="Fields" source="src/styles.css · input, select, .field" code={'<label className="field"><span>…</span><input /></label>'}>
           <div className="ds-fields">
             <label className="field" htmlFor="ds-name">
               <span>Nombre</span>
@@ -394,9 +395,9 @@ function Controls() {
 function Tags() {
   const [lentejas, salmon, , crema] = SAMPLE_RECIPES;
   return (
-    <Section id="etiquetas" title="Etiquetas" intro="Pastel con texto del mismo tono. Comida en rosa, cena en lila, acompañamiento en arena y Thermomix en verde.">
+    <Section id="tags" title="Tags" intro="Pastel with text in the same hue. Lunch in pink, dinner in lilac, side dish in sand and Thermomix in green.">
       <div className="ds-grid-2">
-        <Specimen name="Etiquetas de receta" source="src/components/RecipeCard.tsx · <MealTags />" code={'<MealTags recipe={receta} />'}>
+        <Specimen name="Recipe tags" source="src/components/RecipeCard.tsx · <MealTags />" code={'<MealTags recipe={recipe} />'}>
           <div className="ds-stack">
             <div className="meta">
               <MealTags recipe={lentejas} />
@@ -409,7 +410,7 @@ function Tags() {
             </div>
           </div>
         </Specimen>
-        <Specimen name="Avisos" source="src/styles.css · .best / .today-badge" code={'<span className="best">\n<span className="today-badge">'}>
+        <Specimen name="Badges" source="src/styles.css · .best / .today-badge" code={'<span className="best">\n<span className="today-badge">'}>
           <div className="ds-row">
             <span className="best">La más parecida</span>
             <span className="today-badge ds-on-yellow">Hoy</span>
@@ -422,8 +423,8 @@ function Tags() {
 
 function Recipes() {
   return (
-    <Section id="recetas" title="Tarjeta de receta" intro="Todas igual de altas. Si no hay foto, sale la comida cuqui de su tipo de alimento.">
-      <Specimen name="RecipeCard" source="src/components/RecipeCard.tsx" code={'<RecipeCard recipe={receta} onClick={…} />'} wide>
+    <Section id="recipe-card" title="Recipe card" intro="All the same height. Without a photo, it shows the food sprite for its food group.">
+      <Specimen name="RecipeCard" source="src/components/RecipeCard.tsx" code={'<RecipeCard recipe={recipe} onClick={…} />'} wide>
         <div className="grid">
           {SAMPLE_RECIPES.slice(0, 4).map((r) => (
             <RecipeCard key={r.id} recipe={r} onClick={() => {}} />
@@ -453,12 +454,12 @@ function Week() {
   }
 
   return (
-    <Section id="semana" title="Semana" intro="Piezas del menú semanal, con datos de ejemplo. Puedes tocarlas: no se guarda nada.">
+    <Section id="week" title="Week" intro="Pieces of the weekly menu, with sample data. Go ahead and play with them: nothing is saved.">
       <div className="ds-grid-2">
-        <Specimen name="Fila de días" source="src/views/WeekView.tsx · <DayStrip />" code={'<DayStrip days={…} today={…} hasPlan={…} />'} wide>
+        <Specimen name="Day strip" source="src/views/WeekView.tsx · <DayStrip />" code={'<DayStrip days={…} today={…} hasPlan={…} />'} wide>
           <DayStrip days={days} today={today} hasPlan={(d) => d <= toISODate(addDays(monday, 3))} />
         </Specimen>
-        <Specimen name="Tarjeta de día (hoy)" source="src/views/WeekView.tsx · .day + <Slot />" code={'<div className="day today">\n  <Slot … />'}>
+        <Specimen name="Day card (today)" source="src/views/WeekView.tsx · .day + <Slot />" code={'<div className="day today">\n  <Slot … />'}>
           <div className="day today ds-day">
             <div className="day-head">
               <strong>Hoy</strong>
@@ -477,7 +478,7 @@ function Week() {
             ))}
           </div>
         </Specimen>
-        <Specimen name="Tarjeta de día" source="src/views/WeekView.tsx · .day" code={'<div className="day">'}>
+        <Specimen name="Day card" source="src/views/WeekView.tsx · .day" code={'<div className="day">'}>
           <div className="day ds-day">
             <div className="day-head">
               <strong>Viernes</strong>
@@ -487,7 +488,7 @@ function Week() {
             <Slot slot="cena" recipes={SAMPLE_RECIPES} values={[EATING_OUT, '']} onChange={() => {}} onRandom={() => {}} onOpen={() => {}} />
           </div>
         </Specimen>
-        <Specimen name="Equilibrio de la semana" source="src/views/WeekView.tsx · <WeekBalance />" code={'<WeekBalance counts={…} repeated={…} />'} wide>
+        <Specimen name="Weekly balance" source="src/views/WeekView.tsx · <WeekBalance />" code={'<WeekBalance counts={…} repeated={…} />'} wide>
           <WeekBalance counts={counts} repeated={1} />
         </Specimen>
       </div>
@@ -497,10 +498,18 @@ function Week() {
 
 function Discover() {
   return (
-    <Section id="descubrir" title="Descubrir" intro="La tarjeta de «¿Qué cocinamos hoy?» real, con recetas de ejemplo. «Para hoy» aquí no guarda nada.">
-      <Specimen name="¿Qué cocinamos hoy?" source="src/views/RandomView.tsx" code={'<RandomView />'} wide>
-        <RandomView demo />
-      </Specimen>
+    <Section id="discover" title="Discover" intro="The «Hi chef!» greeting and the real random recipe card, with sample recipes. «Para hoy» doesn't save anything here.">
+      <div className="ds-grid-2">
+        <Specimen name="Greeting" source="src/views/DiscoverView.tsx · <Greeting />" code={'<Greeting avatar="pizza" />'}>
+          <Greeting avatar="pizza" />
+        </Specimen>
+        <Specimen name="Greeting (no avatar)" source="src/views/DiscoverView.tsx · <Greeting />" code={'<Greeting avatar={null} />'}>
+          <Greeting avatar={null} />
+        </Specimen>
+        <Specimen name="Random recipe" source="src/views/RandomView.tsx" code={'<RandomView />'} wide>
+          <RandomView demo />
+        </Specimen>
+      </div>
     </Section>
   );
 }

@@ -80,7 +80,7 @@ export default function RandomView({ demo = false }: { demo?: boolean }) {
     <section className="discover-random">
       <div className="hero">
         <div className="hero-head">
-          <h2>¿Qué cocinamos hoy?</h2>
+          <h2>Una receta al azar</h2>
           <p>
             {moodTitle ? `${moodTitle}, al azar entre nuestras recetas` : `Una de nuestras ${recipes.length} recetas, al azar`}
             {mood !== 'todo' && (

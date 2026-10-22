@@ -141,7 +141,7 @@ function Shell(props: { email: string | null; author: string | null; avatar: str
 
       <main className="content">
         {view === 'recetas' && <RecipesView />}
-        {view === 'descubrir' && <DiscoverView />}
+        {view === 'descubrir' && <DiscoverView avatar={avatar} />}
         {view === 'semana' && <WeekView />}
         {view === 'cuenta' && <AccountView email={email} avatar={avatar} onChooseAvatar={props.onChooseAvatar} />}
       </main>

@@ -71,7 +71,7 @@ export default function RecipeDetail({ recipe, onDeleted }: { recipe: Recipe; on
         {pantry && (
           <div className="cook-row">
             <button className="btn primary" onClick={cook} disabled={busy}>
-              ¡La hemos cocinado!
+              ¡La he cocinado!
             </button>
             <span className="muted small">
               {times === 0 ? 'Gana una comida para tu despensa' : times === 1 ? 'La has cocinado 1 vez' : `La has cocinado ${times} veces`}

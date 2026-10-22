@@ -369,7 +369,7 @@ function Dish(props: {
               </button>
             ) : (
               <button className="slot-cook" onClick={() => props.onCook!(position)}>
-                ¿La habéis hecho?
+                ¿La has hecho?
               </button>
             ))}
         </div>

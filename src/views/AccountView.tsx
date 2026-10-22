@@ -42,7 +42,7 @@ export default function AccountView(props: { email: string | null; avatar: strin
           <h2>Mi despensa</h2>
           <p className="muted small">
             {pantry.items.length === 0
-              ? 'Cada vez que cocinéis una receta, márcala y ganas una comida para tu bote.'
+              ? 'Cada vez que cocines una receta, márcala y ganarás una comida para tu bote.'
               : `${pantry.items.length === 1 ? '1 comida ganada' : `${pantry.items.length} comidas ganadas`} cocinando. Coge una y lánzala, o sacude el bote.`}
           </p>
           <PantryJar items={pantry.items} />

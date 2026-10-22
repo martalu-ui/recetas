@@ -63,6 +63,10 @@
   --radius-lg: 16px;
   /* Tipografía */
   --font-martian-mono: 'Martian Mono', ui-monospace, Menlo, Consolas, monospace;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
   --tracking-tight: -0.03em;
   --tracking-tighter: -0.05em;
   /* Movimiento (valores de Fluid Functionalism): rápido, moderado y lento, con salidas más cortas */
@@ -129,6 +133,11 @@
   --motion-exit: var(--duration-slow-exit) var(--ease-in-out); /* desaparecer */
   /* Tipografía e iconos */
   --font-body: var(--font-martian-mono);
+  /* Pesos: Martian Mono pesa mucho, así que todo va un escalón por debajo de lo habitual */
+  --font-weight-body: var(--weight-regular);
+  --font-weight-ui: var(--weight-regular); /* pestañas, botones, filtros, etiquetas */
+  --font-weight-strong: var(--weight-medium); /* lo elegido, el botón principal, textos destacados */
+  --font-weight-heading: var(--weight-semibold); /* títulos y marca */
   --tracking-body: var(--tracking-tight); /* Martian Mono viene muy espaciada */
   --tracking-heading: var(--tracking-tighter);
   --icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%237c766f' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
@@ -178,6 +187,7 @@ body {
   color: var(--color-text);
   font: 1rem/1.55 var(--font-body);
   letter-spacing: var(--tracking-body);
+  font-weight: var(--font-weight-body);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -185,10 +195,15 @@ body.no-scroll {
   overflow: hidden;
 }
 
+strong,
+b {
+  font-weight: var(--font-weight-heading);
+}
+
 h1,
 h2,
 h3 {
-  font-weight: 700;
+  font-weight: var(--font-weight-heading);
   letter-spacing: var(--tracking-heading);
   text-wrap: balance;
 }
@@ -309,7 +324,7 @@ a:focus-visible {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-weight: 700;
+  font-weight: var(--font-weight-heading);
   font-size: 1.3rem;
   letter-spacing: var(--tracking-heading);
   text-decoration: none;
@@ -341,7 +356,7 @@ a:focus-visible {
   border-radius: calc(var(--radius-button) - 3px);
   text-decoration: none;
   color: var(--color-text-muted);
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
 }
 
 .tab:hover {
@@ -439,7 +454,7 @@ a:focus-visible {
   .tab.active {
     background: none;
     color: var(--color-text);
-    font-weight: 600;
+    font-weight: var(--font-weight-strong);
   }
   .tab-add {
     display: grid;
@@ -482,7 +497,7 @@ a:focus-visible {
   border-radius: var(--radius-button);
   background: var(--color-surface);
   cursor: pointer;
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
   white-space: nowrap;
 }
 
@@ -498,7 +513,7 @@ a:focus-visible {
 .btn.primary {
   background: var(--color-primary);
   color: var(--color-on-primary);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .btn.primary:hover:not(:disabled) {
@@ -565,7 +580,7 @@ a:focus-visible {
   border-radius: calc(var(--radius-button) - 3px);
   cursor: pointer;
   color: var(--color-text-muted);
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
 }
 
 .segmented button.on {
@@ -580,7 +595,7 @@ a:focus-visible {
   padding: 2px 10px;
   border-radius: var(--radius-tag);
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
 }
 
 .tag-comida {
@@ -693,11 +708,11 @@ a:focus-visible {
   background: var(--color-primary);
   color: var(--color-on-primary);
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .match-info {
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
 }
 
 .empty {
@@ -819,7 +834,7 @@ a:focus-visible {
 
 .field > span {
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
   color: var(--color-text-muted);
 }
 
@@ -846,7 +861,7 @@ a:focus-visible {
   border-radius: var(--radius-button);
   background: var(--color-surface-subtle);
   cursor: pointer;
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
 }
 
 .toggle.on {
@@ -897,7 +912,7 @@ a:focus-visible {
 .add-ingredient {
   align-self: flex-start;
   color: var(--color-text);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .ingredient-item {
@@ -1028,7 +1043,7 @@ a:focus-visible {
 }
 
 .link {
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 @keyframes pop {
@@ -1108,7 +1123,7 @@ a:focus-visible {
 .check-group legend {
   padding: 16px 0 4px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
   color: var(--color-text-muted);
 }
 
@@ -1184,7 +1199,7 @@ a:focus-visible {
 .week-label {
   min-width: 130px;
   text-align: center;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 /* Fila de días: el número en un cuadrado redondeado, hoy en amarillo */
@@ -1220,18 +1235,18 @@ a:focus-visible {
   border-radius: var(--radius-button);
   background: var(--color-surface);
   font-size: 1.05rem;
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
 }
 
 .strip-day.today .strip-name {
   color: var(--color-text);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .strip-day.today .strip-num {
   background: var(--color-primary);
   color: var(--color-on-primary);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 /* Puntito si ese día ya tiene menú */
@@ -1272,7 +1287,7 @@ a:focus-visible {
 
 .day-head strong {
   font-size: 1.15rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .day-date {
@@ -1299,7 +1314,7 @@ a:focus-visible {
   background: var(--color-surface);
   color: var(--color-text);
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 /* Días de esta semana que ya han pasado: al final y más apagados */
@@ -1323,7 +1338,7 @@ a:focus-visible {
   padding: 1px 10px;
   border-radius: var(--radius-tag);
   font-size: 0.78rem;
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
 }
 
 .slot-comida .slot-label {
@@ -1368,7 +1383,7 @@ a:focus-visible {
 }
 
 .slot-add {
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .day.today .slot-add,
@@ -1449,7 +1464,7 @@ a:focus-visible {
 }
 
 .bar-count {
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
   font-size: 0.95rem;
   font-variant-numeric: tabular-nums;
 }
@@ -1491,7 +1506,7 @@ a:focus-visible {
 .bar-label {
   max-width: 100%;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
   line-height: 1.2;
 }
 
@@ -1502,13 +1517,13 @@ a:focus-visible {
 
 .bar.low .bar-rec {
   color: var(--color-text);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .bar.high .bar-label,
 .bar.high .bar-rec {
   color: var(--color-danger);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .balance-note {
@@ -1566,7 +1581,7 @@ a:focus-visible {
 .greeting-hi {
   margin: 0;
   color: var(--color-text-muted);
-  font-weight: 700;
+  font-weight: var(--font-weight-heading);
 }
 
 /* Tarjeta amarilla de "¿Qué cocinamos hoy?" */
@@ -1681,7 +1696,7 @@ a:focus-visible {
 }
 
 .hero-link {
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
   font-size: 0.9rem;
 }
 
@@ -1697,7 +1712,7 @@ a:focus-visible {
 
 .hero-today .chip {
   padding: 5px 14px;
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
 }
 
 .hero-today .slot-chip-comida {
@@ -1712,7 +1727,7 @@ a:focus-visible {
 
 .hero-added {
   color: var(--color-success);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .btn.hero-roll {
@@ -1721,7 +1736,7 @@ a:focus-visible {
   background: var(--color-text);
   color: var(--color-surface);
   font-size: 1.05rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .btn.hero-roll:hover:not(:disabled) {
@@ -1902,7 +1917,7 @@ a:focus-visible {
   padding: 0 10px;
   border-radius: var(--radius-tag);
   background: var(--color-surface-subtle);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1975,11 +1990,11 @@ a:focus-visible {
   background: var(--color-primary);
   color: var(--color-on-primary);
   font-size: 1.4rem;
-  font-weight: 700;
+  font-weight: var(--font-weight-heading);
 }
 
 .account-email {
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
   overflow-wrap: anywhere;
 }
 
@@ -2188,7 +2203,7 @@ a:focus-visible {
 .avatar-option.on {
   border-color: var(--color-primary);
   background: var(--color-highlight);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .avatar .pizza,
@@ -2263,7 +2278,7 @@ a:focus-visible {
   background: transparent;
   color: var(--color-text-muted);
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
   cursor: pointer;
 }
 
@@ -2322,7 +2337,7 @@ a:focus-visible {
 .reward-text a {
   color: var(--color-text);
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 @keyframes reward-in {
@@ -2459,7 +2474,7 @@ a:focus-visible {
 
 .score-name {
   overflow: hidden;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -2542,7 +2557,7 @@ a:focus-visible {
 .onb-kicker {
   color: var(--color-text-muted);
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
 }
 
 .onb-dots {
@@ -2636,12 +2651,12 @@ textarea {
 /* La pestaña o la opción elegida se pone más negrita; con letra monoespaciada no se mueve nada */
 .tab,
 .segmented button {
-  font-weight: 500;
+  font-weight: var(--font-weight-ui);
 }
 
 .tab.active,
 .segmented button.on {
-  font-weight: 700;
+  font-weight: var(--font-weight-heading);
 }
 
 /* Resaltado que se desliza: el de la opción elegida y el que sigue al ratón (ver useGlide) */

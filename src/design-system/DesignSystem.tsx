@@ -337,15 +337,21 @@ function Radius({ tokens }: { tokens: Token[] }) {
 }
 
 function TypeTokens({ tokens }: { tokens: Token[] }) {
-  const fonts = tokens.filter((t) => t.name.startsWith('--font') || t.name.startsWith('--tracking'));
+  const fonts = tokens.filter((t) => /^--(font|tracking|weight)/.test(t.name));
+  const sampleStyle = (name: string) =>
+    /weight/.test(name)
+      ? { fontWeight: `var(${name})` }
+      : name.startsWith('--tracking')
+        ? { letterSpacing: `var(${name})` }
+        : { fontFamily: `var(${name})` };
   return (
-    <Section id="type-tokens" title="Typography" intro="One family for everything, with tighter letter spacing. Hierarchy comes from size and weight (see Explore → Typography).">
+    <Section id="type-tokens" title="Typography" intro="One family for everything, with tighter letter spacing and weights one step lighter than usual (Martian Mono is heavy). Hierarchy comes from size and weight (see Explore → Typography).">
       <div className="ds-type">
         {fonts.map((t) => (
           <div key={t.name} className="ds-type-row">
             <span
               className="ds-type-sample"
-              style={t.name.startsWith('--tracking') ? { letterSpacing: `var(${t.name})`, fontSize: '1.4rem' } : { fontFamily: `var(${t.name})`, fontSize: '1.4rem' }}
+              style={{ ...sampleStyle(t.name), fontSize: '1.4rem' }}
             >
               Aa Bb Cc 123 · ¿Qué cocinamos hoy?
             </span>

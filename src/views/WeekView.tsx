@@ -231,7 +231,7 @@ export default function WeekView() {
   );
 }
 
-function Slot(props: {
+export function Slot(props: {
   slot: MealType;
   recipes: Recipe[];
   values: [string, string];
@@ -346,7 +346,7 @@ const GROUP_ICON: Record<FoodGroup, IconName> = {
 };
 
 /** Fila de días como círculos (hoy en amarillo); al tocar uno baja hasta ese día */
-function DayStrip({ days, today, hasPlan }: { days: Date[]; today: string; hasPlan(day: string): boolean }) {
+export function DayStrip({ days, today, hasPlan }: { days: Date[]; today: string; hasPlan(day: string): boolean }) {
   return (
     <div className="day-strip" role="list" aria-label="Días de la semana">
       {days.map((d) => {
@@ -371,7 +371,7 @@ function DayStrip({ days, today, hasPlan }: { days: Date[]; today: string; hasPl
 }
 
 /** Equilibrio de la semana como barras verticales, una por tipo de alimento */
-function WeekBalance({ counts, repeated }: { counts: Record<FoodGroup, number>; repeated: number }) {
+export function WeekBalance({ counts, repeated }: { counts: Record<FoodGroup, number>; repeated: number }) {
   // La barra llena equivale al mayor de: lo recomendado o lo que ya hay
   const scale = Math.max(4, ...FOOD_GROUPS.map((g) => counts[g]));
   return (

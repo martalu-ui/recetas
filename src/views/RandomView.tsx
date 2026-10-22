@@ -28,7 +28,8 @@ function poolFor(recipes: Recipe[], mood: Mood): Recipe[] {
   return mains.length ? mains : matching;
 }
 
-export default function RandomView() {
+/** `demo`: en el sistema de diseño, «Para hoy» no guarda nada */
+export default function RandomView({ demo = false }: { demo?: boolean }) {
   const { recipes, openRecipe } = useData();
   const [mood, setMood] = useState<Mood>('todo');
   const [resultId, setResultId] = useState<string | null>(null);
@@ -66,7 +67,7 @@ export default function RandomView() {
 
   async function addToday(recipe: Recipe, slot: MealType) {
     try {
-      await store.setPlan(toISODate(new Date()), slot, 1, recipe.id);
+      if (!demo) await store.setPlan(toISODate(new Date()), slot, 1, recipe.id);
       setAdded(`Puesta en la ${MEAL_LABEL[slot].toLowerCase()} de hoy`);
     } catch (e) {
       setAdded(`No se ha podido guardar: ${(e as Error).message}`);

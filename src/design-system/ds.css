@@ -1,0 +1,436 @@
+/* Página del sistema de diseño (sistema.html).
+   Solo usa los tokens de src/styles.css: aquí no se define ningún :root
+   para que la lectura de tokens refleje exactamente los de la app. */
+
+html {
+  scroll-behavior: smooth;
+}
+
+.ds {
+  min-height: 100vh;
+}
+
+/* ---------- Cabecera ---------- */
+
+.ds-top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.ds-top .brand {
+  color: var(--text);
+}
+
+.ds-top-label {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.ds-theme {
+  margin-left: auto;
+}
+
+/* ---------- Estructura ---------- */
+
+.ds-layout {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.ds-nav {
+  position: sticky;
+  top: 86px;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ds-nav a {
+  padding: 8px 14px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ds-nav a:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.ds-main {
+  min-width: 0;
+}
+
+.ds-intro {
+  margin-bottom: 32px;
+}
+
+.ds-intro h1 {
+  margin: 0 0 8px;
+  font-size: 2.2rem;
+}
+
+.ds-intro p {
+  max-width: 62ch;
+  margin: 0;
+}
+
+.ds-section {
+  scroll-margin-top: 86px;
+  padding: 28px 0;
+  border-top: 1px solid var(--border);
+}
+
+.ds-section h2 {
+  margin: 0 0 6px;
+  font-size: 1.6rem;
+}
+
+.ds-section h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.ds-section-intro {
+  max-width: 62ch;
+  margin: 0 0 20px;
+}
+
+.ds code {
+  font-family: var(--font);
+  font-size: 0.85em;
+}
+
+/* ---------- Ejemplos ---------- */
+
+.ds-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.ds-specimen {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+}
+
+.ds-specimen.wide {
+  grid-column: 1 / -1;
+}
+
+.ds-preview {
+  flex: 1;
+  min-width: 0;
+  padding: 24px;
+  background: var(--bg);
+  margin: 8px 8px 0;
+  border-radius: var(--radius);
+  overflow-x: auto;
+}
+
+.ds-specimen-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 18px 18px;
+}
+
+.ds-source {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.ds-code {
+  margin: 6px 0 0;
+  padding: 10px 14px;
+  background: var(--surface-2);
+  border-radius: 12px;
+  font: 0.85rem/1.5 var(--font);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.ds-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.ds-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ds-fields {
+  display: grid;
+  gap: 12px;
+}
+
+/* ---------- Colores ---------- */
+
+.ds-group {
+  margin-bottom: 24px;
+}
+
+.ds-group > p {
+  margin: 2px 0 12px;
+}
+
+.ds-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+}
+
+.ds-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 8px 8px 14px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+}
+
+.ds-chip-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  height: 72px;
+  margin-bottom: 6px;
+  overflow: hidden;
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.ds-chip-pair span {
+  display: block;
+}
+
+.ds-token-name {
+  margin: 0 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: 700 0.95rem var(--font);
+  cursor: pointer;
+}
+
+.ds-token-name:hover {
+  text-decoration: underline;
+}
+
+.ds-values,
+.ds-uses {
+  margin: 0 6px;
+  font-size: 0.82rem;
+  overflow-wrap: anywhere;
+}
+
+.ds-values {
+  color: var(--muted);
+}
+
+/* ---------- Tipografía y forma ---------- */
+
+.ds-type {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ds-type-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 22px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+}
+
+.ds-type-sample {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ds-radii {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+}
+
+.ds-radius {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 16px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+}
+
+.ds-radius > span:first-child {
+  display: block;
+  width: 100%;
+  height: 72px;
+  margin-bottom: 8px;
+  background: var(--accent);
+}
+
+.ds-radius .ds-token-name,
+.ds-radius .ds-values {
+  margin: 0;
+}
+
+/* ---------- Iconos ---------- */
+
+.ds-icons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.ds-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 8px 12px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.ds-icon code {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.ds-preview .ds-icon {
+  background: var(--surface);
+}
+
+/* ---------- Piezas que en la app dependen del contexto ---------- */
+
+/* .tab-add solo se ve en la barra del móvil; aquí se replica para enseñarlo */
+.ds-tab-add {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 6px 16px rgb(251 184 41 / 45%);
+  cursor: pointer;
+}
+
+/* .today-badge vive sobre la tarjeta amarilla de hoy */
+.ds-on-yellow {
+  outline: 6px solid var(--today);
+  background-clip: padding-box;
+}
+
+.ds-day {
+  max-width: 420px;
+  min-height: 0;
+}
+
+.ds-preview .grid {
+  margin: 0;
+}
+
+/* ---------- Móvil ---------- */
+
+@media (max-width: 860px) {
+  .ds-top {
+    gap: 8px;
+    padding: 12px 16px;
+  }
+
+  .ds-theme button {
+    padding: 6px 10px;
+  }
+
+  .ds-top-label {
+    display: none;
+  }
+
+  .ds-layout {
+    display: block;
+    padding: 0 16px 32px;
+  }
+
+  .ds-nav {
+    position: sticky;
+    top: 62px;
+    z-index: 15;
+    flex-direction: row;
+    gap: 4px;
+    margin: 0 -16px;
+    padding: 8px 16px;
+    overflow-x: auto;
+    background: var(--bg);
+    scrollbar-width: none;
+  }
+
+  .ds-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ds-nav a {
+    flex: none;
+    background: var(--surface);
+  }
+
+  .ds-intro {
+    margin: 16px 0 24px;
+  }
+
+  .ds-intro h1 {
+    font-size: 1.8rem;
+  }
+
+  .ds-section {
+    scroll-margin-top: 120px;
+  }
+
+  .ds-grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ds-preview {
+    padding: 16px;
+  }
+
+  .ds-swatches,
+  .ds-radii {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ds-icons {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

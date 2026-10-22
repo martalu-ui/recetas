@@ -79,3 +79,25 @@ export function DataProvider({ author, onOpen, onEdit, children }: ProviderProps
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }
+
+/**
+ * Proveedor con recetas fijas y sin guardar nada: lo usa el sistema de diseño
+ * para pintar los componentes reales con datos de ejemplo.
+ */
+export function StaticDataProvider({ recipes, children }: { recipes: Recipe[]; children: ReactNode }) {
+  const value = useMemo<DataContextValue>(
+    () => ({
+      recipes,
+      loading: false,
+      error: null,
+      author: null,
+      reload: async () => {},
+      saveRecipe: async () => recipes[0],
+      deleteRecipe: async () => {},
+      openRecipe: () => {},
+      editRecipe: () => {},
+    }),
+    [recipes],
+  );
+  return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
+}

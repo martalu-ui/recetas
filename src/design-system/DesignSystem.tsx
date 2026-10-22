@@ -54,7 +54,7 @@ const COLOR_GROUPS: { title: string; hint: string; names: string[] }[] = [
   },
 ];
 
-type Tab = 'tokens' | 'components';
+type Tab = 'tokens' | 'explore';
 
 const SECTIONS: Record<Tab, [string, string][]> = {
   tokens: [
@@ -64,7 +64,7 @@ const SECTIONS: Record<Tab, [string, string][]> = {
     ['type-tokens', 'Typography'],
     ['all-tokens', 'All tokens'],
   ],
-  components: [
+  explore: [
     ['typography', 'Typography'],
     ['icons', 'Icons'],
     ['illustrations', 'Illustrations'],
@@ -81,7 +81,7 @@ const SECTIONS: Record<Tab, [string, string][]> = {
 export default function DesignSystem() {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [theme, setTheme] = useState<Theme>('sistema');
-  const [tab, setTab] = useState<Tab>(() => (location.hash === '#components' ? 'components' : 'tokens'));
+  const [tab, setTab] = useState<Tab>(() => (location.hash === '#explore' ? 'explore' : 'tokens'));
 
   function chooseTab(t: Tab) {
     setTab(t);
@@ -103,9 +103,9 @@ export default function DesignSystem() {
           </a>
           <span className="ds-top-label">Design system</span>
           <div className="ds-tabs segmented" role="tablist" aria-label="Design system">
-            {(['tokens', 'components'] as Tab[]).map((t) => (
+            {(['tokens', 'explore'] as Tab[]).map((t) => (
               <button key={t} role="tab" aria-selected={t === tab} className={t === tab ? 'on' : ''} onClick={() => chooseTab(t)}>
-                {t === 'tokens' ? 'Tokens' : 'Components'}
+                {t === 'tokens' ? 'Tokens' : 'Explore'}
               </button>
             ))}
           </div>
@@ -147,7 +147,7 @@ export default function DesignSystem() {
             ) : (
               <>
                 <section className="ds-intro">
-                  <h1>Components</h1>
+                  <h1>Explore</h1>
                   <p className="muted">
                     Every example is the real component from <code>src/</code>, filled with sample recipes and styled with the semantic
                     tokens. Change something in the code and this page changes with it.
@@ -323,7 +323,7 @@ function Radius({ tokens }: { tokens: Token[] }) {
 function TypeTokens({ tokens }: { tokens: Token[] }) {
   const fonts = tokens.filter((t) => t.name.startsWith('--font'));
   return (
-    <Section id="type-tokens" title="Typography" intro="One family for everything. Hierarchy comes from size and weight (see Components → Typography).">
+    <Section id="type-tokens" title="Typography" intro="One family for everything. Hierarchy comes from size and weight (see Explore → Typography).">
       <div className="ds-type">
         {fonts.map((t) => (
           <div key={t.name} className="ds-type-row">

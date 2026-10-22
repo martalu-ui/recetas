@@ -69,7 +69,7 @@ export default function SearchView() {
                       {idx === 0 && <span className="best">La más parecida</span>}
                     </span>
                     <span className="muted small">
-                      {m.missing.length === 0 ? '¡Tienes todo!' : `Te falta: ${m.missing.join(', ')}`}
+                      {m.missing.length === 0 ? 'Lo tienes todo' : `Te falta: ${m.missing.join(', ')}`}
                     </span>
                   </span>
                   <span className="match-score" aria-label={`Usa ${m.matched.length} de ${selected.length} ingredientes elegidos`}>

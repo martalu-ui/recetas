@@ -467,7 +467,6 @@ a:focus-visible {
     border-radius: 50%;
     background: var(--color-primary);
     color: var(--color-on-primary);
-    box-shadow: 0 6px 16px rgb(251 184 41 / 45%);
     cursor: pointer;
   }
   .logout {
@@ -1957,12 +1956,16 @@ a:focus-visible {
 
 /* ---------- Cuenta ---------- */
 
+/* Cuenta sin tarjetas: secciones separadas por una línea */
 .account-card {
-  max-width: 520px;
-  margin-top: 16px;
-  padding: 24px;
-  background: var(--color-surface);
-  border-radius: var(--radius-card);
+  max-width: 560px;
+  padding: 24px 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.account > h1 + .account-card {
+  border-top: 0;
+  padding-top: 20px;
 }
 
 .account-card p {
@@ -2951,14 +2954,6 @@ textarea {
   padding: 12px 14px;
 }
 
-.ticket-kicker {
-  font-size: 0.75rem;
-  font-weight: var(--font-weight-strong);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.7;
-}
-
 .ticket-title {
   font-weight: var(--font-weight-heading);
   line-height: 1.25;
@@ -3171,4 +3166,59 @@ textarea {
   .kind-what {
     grid-column: 1 / -1;
   }
+}
+
+/* Vales en lista: qué es, lo que cuesta y la acción */
+.voucher-list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.voucher-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.voucher-list li:has(> :nth-child(2):last-child) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.voucher-what {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.voucher-cost {
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.voucher-cost::after {
+  content: ' comidas';
+}
+
+.voucher-list li.done .voucher-what {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+.voucher-list .btn {
+  min-width: 6.5rem;
+}
+
+/* Sobre el fondo gris de Cuenta, el bote y las opciones van en blanco */
+.account .jar,
+.account .kind-row,
+.account .avatar-option {
+  background-color: var(--color-surface);
+}
+
+.account .kind-row.new {
+  background: var(--color-highlight);
 }

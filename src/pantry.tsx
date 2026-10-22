@@ -61,7 +61,7 @@ export function PantryProvider({ children }: { children: ReactNode }) {
       if (known.current) {
         for (const v of list) {
           if (!v.mine && !known.current.has(v.id) && document.hidden && 'Notification' in window && Notification.permission === 'granted') {
-            new Notification('MajoChef', { body: `${oweText(v.title, v.author)} 🎟️`, icon: `${import.meta.env.BASE_URL}icon-192.png` });
+            new Notification('MajoChef', { body: oweText(v.title, v.author), icon: `${import.meta.env.BASE_URL}icon-192.png` });
           }
         }
       }

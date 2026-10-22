@@ -111,7 +111,7 @@ export default function RandomView({ demo = false }: { demo?: boolean }) {
                   <MealTags recipe={result} />
                   {result.timeMinutes != null && <span className="time">{formatMinutes(result.timeMinutes)}</span>}
                 </span>
-                <span className="hero-link">Ver receta →</span>
+                <span className="hero-link">Ver receta</span>
               </span>
             </button>
             <div className="hero-today">
@@ -131,7 +131,7 @@ export default function RandomView({ demo = false }: { demo?: boolean }) {
         )}
 
         <button className="btn hero-roll" onClick={() => roll()} disabled={rolling !== null || poolFor(recipes, mood).length === 0}>
-          <Icon name="dice" size={20} /> {result ? 'Otra' : '¡Dame una!'}
+          <Icon name="dice" size={20} /> {result ? 'Otra' : 'Elegir una'}
         </button>
       </div>
 

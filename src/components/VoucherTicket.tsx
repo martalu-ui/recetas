@@ -15,8 +15,7 @@ export default function VoucherTicket({
   return (
     <div className={['ticket', done && 'done', children && 'with-stub'].filter(Boolean).join(' ')}>
       <div className="ticket-body">
-        <span className="ticket-kicker">Vale</span>
-        <strong className="ticket-title">{title.replace(/^Vale por /, 'por ')}</strong>
+        <strong className="ticket-title">{title}</strong>
         <span className="ticket-detail">{detail}</span>
       </div>
       {children && <div className="ticket-stub">{children}</div>}

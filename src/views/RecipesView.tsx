@@ -60,7 +60,7 @@ export default function RecipesView() {
       {loading ? (
         <p className="muted">Cargando…</p>
       ) : recipes.length === 0 ? (
-        <Empty text="Todavía no hay recetas. ¡Subid la primera!" />
+        <Empty text="Todavía no hay recetas." />
       ) : shown.length === 0 ? (
         <p className="muted">Ninguna receta coincide con el filtro.</p>
       ) : (

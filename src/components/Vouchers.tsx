@@ -21,7 +21,7 @@ export function VouchersCard() {
     setMessage(null);
     try {
       await pantry.redeem(kind);
-      setMessage({ ok: true, text: `¡Canjeado! Tu pareja ya sabe que te debe ${kind.what}.` });
+      setMessage({ ok: true, text: `Canjeado. Tu pareja ya sabe que te debe ${kind.what}.` });
     } catch (e) {
       setMessage({ ok: false, text: (e as Error).message });
     } finally {
@@ -37,32 +37,26 @@ export function VouchersCard() {
           {editing ? 'Listo' : 'Editar'}
         </button>
       </div>
-      <p className="muted small">
-        {editing ? (
-          'Cambia lo que regala cada vale y lo que cuesta. Los cambios son para los dos.'
-        ) : (
-          <>
-            Tienes <strong>{comidas(balance)}</strong> para gastar.
-          </>
-        )}
-      </p>
+      <p className="muted small">{editing ? 'Los cambios son para los dos.' : `Tienes ${comidas(balance)}.`}</p>
       {message && !editing && <p className={message.ok ? 'ok' : 'error'}>{message.text}</p>}
       {editing ? (
         <KindsEditor />
       ) : (
-        <div className="tickets">
+        <ul className="voucher-list">
           {pantry.kinds.map((v) => {
             const missing = v.cost - balance;
             return (
-              <VoucherTicket key={v.id} title={voucherTitle(v.what)} detail={comidas(v.cost)}>
-                <button className="btn small primary" disabled={missing > 0 || busy !== null} onClick={() => redeem(v)}>
+              <li key={v.id}>
+                <span className="voucher-what">{voucherTitle(v.what)}</span>
+                <span className="voucher-cost">{v.cost}</span>
+                <button className="btn small" disabled={missing > 0 || busy !== null} onClick={() => redeem(v)}>
                   {busy === v.id ? 'Canjeando…' : missing > 0 ? `Faltan ${missing}` : 'Canjear'}
                 </button>
-              </VoucherTicket>
+              </li>
             );
           })}
-          {pantry.kinds.length === 0 && <p className="muted small">No hay vales. Pulsa «Editar» para crear el primero.</p>}
-        </div>
+          {pantry.kinds.length === 0 && <li className="muted small">No hay vales. Pulsa «Editar» para crear el primero.</li>}
+        </ul>
       )}
       {!editing && <NotifyButton />}
     </div>
@@ -161,22 +155,23 @@ export function OwedCard() {
   if (owedToMe.length === 0 && iOwe.length === 0) return null;
 
   const list = (vouchers: Voucher[], owe: boolean) => (
-    <div className="tickets">
+    <ul className="voucher-list">
       {vouchers.map((v) => (
-        <VoucherTicket
-          key={v.id}
-          title={v.title}
-          done={v.status === 'cumplido'}
-          detail={v.status === 'cumplido' ? 'Cumplido' : owe ? oweText(v.title, v.author) : 'Pendiente'}
-        >
-          {owe && v.status === 'pendiente' && (
+        <li key={v.id} className={v.status === 'cumplido' ? 'done' : undefined}>
+          <span className="voucher-what">
+            {v.title}
+            {owe && v.status === 'pendiente' && <span className="muted small">a {v.author ?? 'tu pareja'}</span>}
+          </span>
+          {owe && v.status === 'pendiente' ? (
             <button className="btn small" onClick={() => pantry.complete(v)}>
-              ¡Cumplido!
+              Cumplido
             </button>
+          ) : (
+            <span className="muted small">{v.status === 'cumplido' ? 'Cumplido' : 'Pendiente'}</span>
           )}
-        </VoucherTicket>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 
   return (
@@ -229,7 +224,7 @@ export function VoucherNotice() {
               await pantry.complete(v);
             }}
           >
-            ¡Ya está cumplido!
+            Ya está
           </button>
         </div>
       </div>

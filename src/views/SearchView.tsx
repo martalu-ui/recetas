@@ -27,10 +27,7 @@ export default function SearchView() {
   return (
     <section className="discover-search fridge">
       <div className="fridge-head">
-        <div>
-          <h2>¿Qué hay en la nevera?</h2>
-          <p className="muted">Marca lo que tenéis y te decimos qué receta se parece más.</p>
-        </div>
+        <h2>¿Qué hay en la nevera?</h2>
         <button className="btn primary" onClick={() => setSheetOpen(true)}>
           {selected.length ? 'Cambiar' : 'Elegir ingredientes'}
         </button>

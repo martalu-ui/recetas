@@ -79,7 +79,9 @@ export interface PantryItem {
   /** Hueco del menú en el que se cocinó, si se marcó desde la semana */
   day: string | null;
   slot: MealType | null;
+  /** Vale en el que se ha gastado; null mientras sigue en el bote */
+  voucherId: string | null;
   createdAt: string;
 }
 
-export type PantryDraft = Omit<PantryItem, 'id' | 'createdAt'>;
+export type PantryDraft = Omit<PantryItem, 'id' | 'createdAt' | 'voucherId'>;

@@ -1,11 +1,23 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { pickReward } from './lib/reward';
 import { useData } from './data';
 import { store, type Score } from './lib/store';
+import { oweText, type Voucher } from './lib/vouchers';
 import type { MealType, PantryItem, Recipe } from './lib/types';
 
 interface PantryContextValue {
+  /** Todas las comidas ganadas (también las gastadas en vales) */
   items: PantryItem[];
+  /** Las que siguen en el bote y se pueden canjear */
+  available: PantryItem[];
+  /** Vales de los dos: los míos me los deben; los de mi pareja los debo yo */
+  vouchers: Voucher[];
+  /** Gasta comidas en un vale; a la pareja le llega el aviso */
+  redeem(kind: string): Promise<Voucher>;
+  /** Vales que mi pareja ha canjeado y aún no he visto (para el aviso) */
+  incoming: Voucher[];
+  markSeen(voucher: Voucher): Promise<void>;
+  complete(voucher: Voucher): Promise<void>;
   /** Marcador de quién cocina más, de más a menos */
   scores: Score[];
   /** Marca una receta como cocinada y gana una comida; `at` si se marca desde un hueco del menú */
@@ -30,6 +42,26 @@ export function PantryProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<PantryItem[]>([]);
   const [scores, setScores] = useState<Score[]>([]);
   const [reward, setReward] = useState<PantryItem | null>(null);
+  const [vouchers, setVouchers] = useState<Voucher[]>([]);
+  const known = useRef<Set<string> | null>(null);
+
+  const loadVouchers = useCallback(async () => {
+    try {
+      const list = await store.listVouchers();
+      // Si la app está en segundo plano y hay permiso, también avisa con una notificación del sistema
+      if (known.current) {
+        for (const v of list) {
+          if (!v.mine && !known.current.has(v.id) && document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+            new Notification('MajoChef', { body: `${oweText(v.kind, v.title, v.author)} 🎟️`, icon: `${import.meta.env.BASE_URL}icon-192.png` });
+          }
+        }
+      }
+      known.current = new Set(list.map((v) => v.id));
+      setVouchers(list);
+    } catch {
+      setVouchers([]);
+    }
+  }, []);
 
   const loadScores = useCallback(() => {
     store.listScores(author).then(setScores, () => setScores([]));
@@ -38,11 +70,43 @@ export function PantryProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     store.listPantry().then(setItems, () => setItems([]));
     loadScores();
-    // Al volver a la pestaña, por si la otra persona ha cocinado
-    const onVisible = () => document.visibilityState === 'visible' && loadScores();
+    loadVouchers();
+    // Al volver a la pestaña, por si la otra persona ha cocinado o canjeado un vale
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      loadScores();
+      loadVouchers();
+    };
     document.addEventListener('visibilitychange', onVisible);
-    return () => document.removeEventListener('visibilitychange', onVisible);
-  }, [loadScores]);
+    // Y al momento, mientras la app está abierta
+    const stop = store.watchVouchers(loadVouchers);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      stop();
+    };
+  }, [loadScores, loadVouchers]);
+
+  const redeem = useCallback(
+    async (kind: string) => {
+      const voucher = await store.redeemVoucher(kind, author);
+      setItems(await store.listPantry());
+      setVouchers((list) => [voucher, ...list.filter((v) => v.id !== voucher.id)]);
+      known.current?.add(voucher.id);
+      return voucher;
+    },
+    [author],
+  );
+
+  const markSeen = useCallback(async (voucher: Voucher) => {
+    setVouchers((list) => list.map((v) => (v.id === voucher.id ? { ...v, seenAt: new Date().toISOString() } : v)));
+    await store.markVoucherSeen(voucher.id);
+  }, []);
+
+  const complete = useCallback(async (voucher: Voucher) => {
+    const now = new Date().toISOString();
+    setVouchers((list) => list.map((v) => (v.id === voucher.id ? { ...v, status: 'cumplido', doneAt: now, seenAt: v.seenAt ?? now } : v)));
+    await store.completeVoucher(voucher.id);
+  }, []);
 
   const cook = useCallback(
     async (recipe: Recipe, at?: { day: string; slot: MealType }) => {
@@ -77,6 +141,12 @@ export function PantryProvider({ children }: { children: ReactNode }) {
   const value = useMemo<PantryContextValue>(
     () => ({
       items,
+      available: items.filter((i) => !i.voucherId),
+      vouchers,
+      redeem,
+      incoming: vouchers.filter((v) => !v.mine && !v.seenAt && v.status === 'pendiente'),
+      markSeen,
+      complete,
       scores,
       cook,
       uncook,
@@ -84,7 +154,7 @@ export function PantryProvider({ children }: { children: ReactNode }) {
       reward,
       dismissReward: () => setReward(null),
     }),
-    [items, scores, cook, uncook, reward],
+    [items, vouchers, redeem, markSeen, complete, scores, cook, uncook, reward],
   );
 
   return <PantryContext.Provider value={value}>{children}</PantryContext.Provider>;

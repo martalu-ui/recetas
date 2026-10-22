@@ -2915,3 +2915,160 @@ textarea {
     animation: none;
   }
 }
+
+/* ---------- Vales ---------- */
+
+.tickets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+/* Un vale con forma de entrada: cuerpo y matriz separados por una línea de puntos con muescas */
+.ticket {
+  --notch: 8px;
+  --stub: 8.5rem;
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  background: var(--color-highlight);
+  border-radius: var(--radius-inner);
+}
+
+.ticket.with-stub {
+  mask:
+    radial-gradient(circle var(--notch) at calc(100% - var(--stub)) 0, transparent 98%, #000) top / 100% 51% no-repeat,
+    radial-gradient(circle var(--notch) at calc(100% - var(--stub)) 100%, transparent 98%, #000) bottom / 100% 51% no-repeat;
+}
+
+.ticket-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 12px 14px;
+}
+
+.ticket-kicker {
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-strong);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.ticket-title {
+  font-weight: var(--font-weight-heading);
+  line-height: 1.25;
+}
+
+.ticket-detail {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.ticket-stub {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--stub);
+  padding: 8px;
+  border-left: 2px dashed color-mix(in srgb, var(--color-text) 25%, transparent);
+}
+
+.ticket.done {
+  background: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+}
+
+.ticket.done .ticket-title {
+  text-decoration: line-through;
+}
+
+.ticket .btn {
+  max-width: 100%;
+  padding-inline: 10px;
+  background: var(--color-surface);
+  white-space: normal;
+}
+
+.ticket .btn.primary {
+  background: var(--color-text);
+  color: var(--color-surface);
+}
+
+.ticket .btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.account-card h2.owed-second {
+  margin-top: 28px;
+}
+
+.notify-btn {
+  margin-top: 12px;
+}
+
+.voucher-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 4px 4px;
+  text-align: center;
+}
+
+.voucher-notice .ticket {
+  width: 100%;
+  max-width: 320px;
+  text-align: left;
+  animation: ticket-in var(--motion-enter) both;
+}
+
+.voucher-notice h2 {
+  max-width: 100%;
+  margin: 0;
+  font-size: 1.2rem;
+  overflow-wrap: anywhere;
+}
+
+.voucher-notice .onb-actions {
+  flex-wrap: wrap;
+}
+
+@keyframes ticket-in {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) rotate(-4deg);
+  }
+}
+
+/* Numerito de vales pendientes en la pestaña de Cuenta */
+.tab {
+  position: relative;
+}
+
+.tab-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--color-danger);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: var(--font-weight-strong);
+  line-height: 1;
+}
+
+@media (max-width: 720px) {
+  .tab-badge {
+    position: absolute;
+    top: 0;
+    left: calc(50% + 6px);
+  }
+}

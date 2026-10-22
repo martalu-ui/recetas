@@ -337,13 +337,16 @@ function Radius({ tokens }: { tokens: Token[] }) {
 }
 
 function TypeTokens({ tokens }: { tokens: Token[] }) {
-  const fonts = tokens.filter((t) => t.name.startsWith('--font'));
+  const fonts = tokens.filter((t) => t.name.startsWith('--font') || t.name.startsWith('--tracking'));
   return (
-    <Section id="type-tokens" title="Typography" intro="One family for everything. Hierarchy comes from size and weight (see Explore → Typography).">
+    <Section id="type-tokens" title="Typography" intro="One family for everything, with tighter letter spacing. Hierarchy comes from size and weight (see Explore → Typography).">
       <div className="ds-type">
         {fonts.map((t) => (
           <div key={t.name} className="ds-type-row">
-            <span className="ds-type-sample" style={{ fontFamily: `var(${t.name})`, fontSize: '1.4rem' }}>
+            <span
+              className="ds-type-sample"
+              style={t.name.startsWith('--tracking') ? { letterSpacing: `var(${t.name})`, fontSize: '1.4rem' } : { fontFamily: `var(${t.name})`, fontSize: '1.4rem' }}
+            >
               Aa Bb Cc 123 · ¿Qué cocinamos hoy?
             </span>
             <span className="muted small">

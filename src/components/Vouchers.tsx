@@ -206,7 +206,7 @@ export function VoucherNotice() {
   const v = pantry?.incoming[0];
   if (!pantry || !v) return null;
   return (
-    <Modal label="Vale canjeado" onClose={() => pantry.markSeen(v)}>
+    <Modal label="Vale canjeado" onClose={() => pantry.markSeen(v)} centered>
       <div className="voucher-notice">
         <span className="onb-kicker">{v.author ?? 'Tu pareja'} ha canjeado un vale</span>
         <VoucherTicket title={v.title} detail={`${v.cost} comidas de su despensa`} />

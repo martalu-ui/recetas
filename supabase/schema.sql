@@ -174,8 +174,6 @@ insert into public.voucher_kinds (what, cost)
 select v.what, v.cost
 from (values
   ('elegir la peli', 3),
-  ('un «hoy friego yo»', 4),
-  ('una siesta sin interrupciones', 5),
   ('un masaje', 6),
   ('un desayuno en la cama', 8),
   ('un día de cine', 10),

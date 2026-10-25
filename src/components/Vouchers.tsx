@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { usePantry } from '../pantry';
 import { oweText, voucherTitle, type Voucher, type VoucherKind } from '../lib/vouchers';
+import Icon from './Icon';
 import Modal from './Modal';
 import VoucherTicket from './VoucherTicket';
 
@@ -33,8 +34,14 @@ export function VouchersCard() {
     <div className="account-card">
       <div className="card-head">
         <h2>Vales para tu pareja</h2>
-        <button className="btn small" onClick={() => setEditing((e) => !e)} aria-pressed={editing}>
-          {editing ? 'Listo' : 'Editar'}
+        <button
+          className={editing ? 'icon-btn on' : 'icon-btn'}
+          onClick={() => setEditing((e) => !e)}
+          aria-pressed={editing}
+          aria-label={editing ? 'Terminar de editar los vales' : 'Editar los vales'}
+          title={editing ? 'Listo' : 'Editar'}
+        >
+          <Icon name={editing ? 'check' : 'pencil'} />
         </button>
       </div>
       <p className="muted small">{editing ? 'Los cambios son para los dos.' : `Tienes ${comidas(balance)}.`}</p>
@@ -53,7 +60,7 @@ export function VouchersCard() {
               </VoucherTicket>
             );
           })}
-          {pantry.kinds.length === 0 && <p className="muted small">No hay vales. Pulsa «Editar» para crear el primero.</p>}
+          {pantry.kinds.length === 0 && <p className="muted small">No hay vales. Pulsa el lápiz para crear el primero.</p>}
         </div>
       )}
       {!editing && <NotifyButton />}

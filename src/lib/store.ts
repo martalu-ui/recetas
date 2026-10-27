@@ -1,4 +1,5 @@
 import { blobToDataUrl } from './image';
+import type { Household } from './household';
 import { byCost, DEFAULT_VOUCHERS, voucherTitle, type Voucher, type VoucherKind } from './vouchers';
 import type { FoodGroup } from './nutrition';
 import { PHOTO_BUCKET, supabase } from './supabase';
@@ -6,6 +7,11 @@ import { EATING_OUT, LEFTOVERS, type Course, type Ingredient, type MealType, typ
 
 export interface DataStore {
   mode: 'local' | 'supabase';
+  /** El espacio de quien ha entrado; null si aún no está en ninguno */
+  getHousehold(author: string | null): Promise<Household | null>;
+  createHousehold(name: string, author: string | null): Promise<void>;
+  /** Unirse al espacio de la pareja con su código */
+  joinHousehold(code: string, author: string | null): Promise<void>;
   listRecipes(): Promise<Recipe[]>;
   saveRecipe(draft: RecipeDraft, existing: Recipe | null, author: string | null): Promise<Recipe>;
   deleteRecipe(recipe: Recipe): Promise<void>;
@@ -86,6 +92,12 @@ function readLocalPlan(): PlanEntry[] {
 
 const localStore: DataStore = {
   mode: 'local',
+  // En local no hay cuentas: un único espacio de mentira para que la app y la vista previa funcionen igual
+  async getHousehold(author) {
+    return { id: 'local', name: 'MajoChef', inviteCode: 'MAJO42', members: [{ name: author ?? 'Tú', me: true }] };
+  },
+  async createHousehold() {},
+  async joinHousehold() {},
   async listRecipes() {
     // Las recetas guardadas antes de existir estos campos se toman como principales
     return readLS<Recipe[]>(LS_RECIPES, []).map((r) => ({
@@ -289,8 +301,33 @@ const supabaseVouchers: Pick<DataStore, 'listVouchers' | 'listVoucherKinds' | 's
   },
 };
 
+/** Espacio de quien ha entrado, para guardar el menú en el suyo */
+let householdId: string | null = null;
+
 const supabaseStore: DataStore = {
   mode: 'supabase',
+  async getHousehold() {
+    const uid = await currentUserId();
+    const homes = check(await supabase!.from('households').select('id, name, invite_code').limit(1)) as { id: string; name: string; invite_code: string }[];
+    if (!homes.length) {
+      householdId = null;
+      return null;
+    }
+    const members = check(await supabase!.from('household_members').select('user_id, name').order('joined_at')) as { user_id: string; name: string | null }[];
+    householdId = homes[0].id;
+    return {
+      id: homes[0].id,
+      name: homes[0].name,
+      inviteCode: homes[0].invite_code,
+      members: members.map((m) => ({ name: m.name ?? 'Alguien', me: m.user_id === uid })),
+    };
+  },
+  async createHousehold(name, author) {
+    check(await supabase!.rpc('create_household', { p_name: name.trim(), p_author: author }));
+  },
+  async joinHousehold(code, author) {
+    check(await supabase!.rpc('join_household', { p_code: code, p_author: author }));
+  },
   ...supabaseVouchers,
   async listRecipes() {
     const rows = check(await supabase!.from('recipes').select('*').order('created_at', { ascending: false }));
@@ -343,8 +380,8 @@ const supabaseStore: DataStore = {
         await supabase!
           .from('meal_plan')
           .upsert(
-            { day, slot, position, leftovers, eating_out: eatingOut, recipe_id: leftovers || eatingOut ? null : value },
-            { onConflict: 'day,slot,position' },
+            { household_id: householdId, day, slot, position, leftovers, eating_out: eatingOut, recipe_id: leftovers || eatingOut ? null : value },
+            { onConflict: 'household_id,day,slot,position' },
           ),
       );
     } else {

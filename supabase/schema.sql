@@ -169,14 +169,176 @@ drop policy if exists "catálogo de vales compartido" on public.voucher_kinds;
 create policy "catálogo de vales compartido" on public.voucher_kinds
   for all to authenticated using (true) with check (true);
 
--- Catálogo inicial, solo si está vacío
-insert into public.voucher_kinds (what, cost)
-select v.what, v.cost
-from (values
-  ('elegir la peli', 3),
-  ('un masaje', 6),
-  ('un desayuno en la cama', 8),
-  ('un día de cine', 10),
-  ('una cena fuera', 15)
-) as v(what, cost)
-where not exists (select 1 from public.voucher_kinds);
+-- (El catálogo inicial se crea con cada espacio: ver create_household más abajo)
+
+-- Espacios ----------------------------------------------------------------
+-- Cada pareja tiene su espacio: sus recetas, su menú, su despensa y sus vales.
+-- Cada persona está en un espacio; lo crea o se une al de su pareja con un código.
+create table if not exists public.households (
+  id          uuid primary key default gen_random_uuid(),
+  name        text not null check (length(trim(name)) between 1 and 60),
+  invite_code text not null unique,
+  created_by  uuid references auth.users(id) on delete set null,
+  created_at  timestamptz not null default now()
+);
+
+create table if not exists public.household_members (
+  household_id uuid not null references public.households(id) on delete cascade,
+  user_id      uuid not null unique references auth.users(id) on delete cascade,
+  name         text,
+  joined_at    timestamptz not null default now(),
+  primary key (household_id, user_id)
+);
+
+alter table public.households enable row level security;
+alter table public.household_members enable row level security;
+
+-- El espacio de quien hace la consulta (security definer para no depender de las políticas)
+create or replace function public.my_household()
+returns uuid
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select household_id from public.household_members where user_id = auth.uid() limit 1;
+$$;
+revoke all on function public.my_household() from public, anon;
+grant execute on function public.my_household() to authenticated;
+
+drop policy if exists "ver mi espacio" on public.households;
+create policy "ver mi espacio" on public.households for select to authenticated using (id = (select public.my_household()));
+drop policy if exists "renombrar mi espacio" on public.households;
+create policy "renombrar mi espacio" on public.households for update to authenticated
+  using (id = (select public.my_household())) with check (id = (select public.my_household()));
+drop policy if exists "ver los miembros de mi espacio" on public.household_members;
+create policy "ver los miembros de mi espacio" on public.household_members for select to authenticated
+  using (household_id = (select public.my_household()));
+
+-- Códigos de invitación de 6 caracteres, sin letras que se confundan (O/0, I/1)
+create or replace function public.new_invite_code()
+returns text
+language plpgsql
+volatile
+set search_path = ''
+as $$
+declare
+  alphabet constant text := 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  code text;
+begin
+  loop
+    code := '';
+    for i in 1..6 loop
+      code := code || substr(alphabet, 1 + floor(random() * length(alphabet))::int, 1);
+    end loop;
+    exit when not exists (select 1 from public.households where invite_code = code);
+  end loop;
+  return code;
+end;
+$$;
+revoke all on function public.new_invite_code() from public, anon, authenticated;
+
+-- Todo lo de la app es de un espacio; por defecto, del de quien lo guarda
+alter table public.recipes       add column if not exists household_id uuid not null default public.my_household() references public.households(id) on delete cascade;
+alter table public.meal_plan     add column if not exists household_id uuid not null default public.my_household() references public.households(id) on delete cascade;
+alter table public.pantry        add column if not exists household_id uuid not null default public.my_household() references public.households(id) on delete cascade;
+alter table public.vouchers      add column if not exists household_id uuid not null default public.my_household() references public.households(id) on delete cascade;
+alter table public.voucher_kinds add column if not exists household_id uuid not null default public.my_household() references public.households(id) on delete cascade;
+create index if not exists recipes_household_idx       on public.recipes (household_id);
+create index if not exists pantry_household_idx        on public.pantry (household_id);
+create index if not exists vouchers_household_idx      on public.vouchers (household_id);
+create index if not exists voucher_kinds_household_idx on public.voucher_kinds (household_id);
+create unique index if not exists meal_plan_household_slot_key on public.meal_plan (household_id, day, slot, position);
+
+
+-- Cada tabla: solo lo de mi espacio
+drop policy if exists "recetas para usuarios logueados" on public.recipes;
+drop policy if exists "recetas de mi espacio" on public.recipes;
+create policy "recetas de mi espacio" on public.recipes for all to authenticated
+  using (household_id = (select public.my_household())) with check (household_id = (select public.my_household()));
+
+drop policy if exists "menu para usuarios logueados" on public.meal_plan;
+drop policy if exists "menú de mi espacio" on public.meal_plan;
+create policy "menú de mi espacio" on public.meal_plan for all to authenticated
+  using (household_id = (select public.my_household())) with check (household_id = (select public.my_household()));
+
+drop policy if exists "catálogo de vales compartido" on public.voucher_kinds;
+drop policy if exists "vales del catálogo de mi espacio" on public.voucher_kinds;
+create policy "vales del catálogo de mi espacio" on public.voucher_kinds for all to authenticated
+  using (household_id = (select public.my_household())) with check (household_id = (select public.my_household()));
+
+drop policy if exists "despensa visible para el marcador" on public.pantry;
+drop policy if exists "mi despensa" on public.pantry;
+create policy "despensa de mi espacio para el marcador" on public.pantry for select to authenticated
+  using (household_id = (select public.my_household()));
+create policy "mi despensa" on public.pantry for all to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()) and household_id = (select public.my_household()));
+
+drop policy if exists "vales visibles para los dos" on public.vouchers;
+drop policy if exists "canjear mis vales" on public.vouchers;
+drop policy if exists "la pareja marca visto o cumplido" on public.vouchers;
+create policy "vales de mi espacio" on public.vouchers for select to authenticated
+  using (household_id = (select public.my_household()));
+create policy "canjear mis vales" on public.vouchers for insert to authenticated
+  with check (user_id = (select auth.uid()) and household_id = (select public.my_household()));
+create policy "la pareja marca visto o cumplido" on public.vouchers for update to authenticated
+  using (user_id <> (select auth.uid()) and household_id = (select public.my_household()))
+  with check (user_id <> (select auth.uid()) and household_id = (select public.my_household()));
+
+-- Crear un espacio: quien lo crea entra en él y se le pone el catálogo de vales inicial
+create or replace function public.create_household(p_name text, p_author text)
+returns public.households
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare h public.households;
+begin
+  if auth.uid() is null then raise exception 'Hay que entrar primero'; end if;
+  if exists (select 1 from public.household_members where user_id = auth.uid()) then
+    raise exception 'Ya estás en un espacio';
+  end if;
+  if length(trim(coalesce(p_name, ''))) = 0 then raise exception 'Ponle un nombre al espacio'; end if;
+  insert into public.households (name, invite_code, created_by)
+  values (left(trim(p_name), 60), public.new_invite_code(), auth.uid())
+  returning * into h;
+  insert into public.household_members (household_id, user_id, name) values (h.id, auth.uid(), p_author);
+  insert into public.voucher_kinds (household_id, what, cost) values
+    (h.id, 'elegir la peli', 3),
+    (h.id, 'un masaje', 6),
+    (h.id, 'un desayuno en la cama', 8),
+    (h.id, 'un día de cine', 10),
+    (h.id, 'una cena fuera', 15);
+  return h;
+end;
+$$;
+
+-- Unirse al espacio de la pareja con su código
+create or replace function public.join_household(p_code text, p_author text)
+returns public.households
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare h public.households;
+begin
+  if auth.uid() is null then raise exception 'Hay que entrar primero'; end if;
+  if exists (select 1 from public.household_members where user_id = auth.uid()) then
+    raise exception 'Ya estás en un espacio';
+  end if;
+  select * into h from public.households where invite_code = upper(regexp_replace(coalesce(p_code, ''), '[^A-Za-z0-9]', '', 'g'));
+  if not found then raise exception 'Ese código no existe'; end if;
+  insert into public.household_members (household_id, user_id, name) values (h.id, auth.uid(), p_author);
+  return h;
+end;
+$$;
+
+revoke all on function public.create_household(text, text) from public, anon;
+revoke all on function public.join_household(text, text) from public, anon;
+grant execute on function public.create_household(text, text) to authenticated;
+grant execute on function public.join_household(text, text) to authenticated;
+
+-- Al publicar: la clave del menú pasa a incluir el espacio (dos parejas pueden planear el mismo día)
+alter table public.meal_plan drop constraint if exists meal_plan_pkey;
+alter table public.meal_plan add constraint meal_plan_pkey primary key using index meal_plan_household_slot_key;

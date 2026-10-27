@@ -2,13 +2,20 @@ import { useState } from 'react';
 import { useData } from '../data';
 import { appUrl, supabase } from '../lib/supabase';
 import Avatar, { AVATARS } from '../components/Avatar';
+import HouseholdCard from '../components/HouseholdCard';
 import PantryJar from '../components/PantryJar';
+import type { Household } from '../lib/household';
 import { OwedCard, VouchersCard } from '../components/Vouchers';
 import { usePantry } from '../pantry';
 import type { Score } from '../lib/store';
 
-export default function AccountView(props: { email: string | null; avatar: string | null; onChooseAvatar(value: string): Promise<void> }) {
-  const { email, avatar } = props;
+export default function AccountView(props: {
+  email: string | null;
+  avatar: string | null;
+  household: Household;
+  onChooseAvatar(value: string): Promise<void>;
+}) {
+  const { email, avatar, household } = props;
   const { recipes } = useData();
   const pantry = usePantry();
   const [info, setInfo] = useState<string | null>(null);
@@ -60,6 +67,8 @@ export default function AccountView(props: { email: string | null; avatar: strin
         </div>
       )}
 
+      <HouseholdCard household={household} />
+
       <div className="account-card">
         {supabase && email ? (
           <>
@@ -73,7 +82,7 @@ export default function AccountView(props: { email: string | null; avatar: strin
               </div>
             </div>
             <p className="muted small">
-              {recipes.length === 1 ? '1 receta' : `${recipes.length} recetas`} compartidas en MajoChef.
+              {recipes.length === 1 ? '1 receta' : `${recipes.length} recetas`} en {household.name}.
             </p>
             {info && <p className="ok">{info}</p>}
             {error && <p className="error">{error}</p>}

@@ -8,6 +8,9 @@ import Avatar, { isAvatar } from './components/Avatar';
 import Icon from './components/Icon';
 import { useGlide } from './lib/useGlide';
 import Login from './components/Login';
+import HouseholdSetup from './components/HouseholdSetup';
+import { clearPendingCode, codeFromHash, type Household } from './lib/household';
+import { store } from './lib/store';
 import SetPassword from './components/SetPassword';
 import Modal from './components/Modal';
 import RecipeDetail from './components/RecipeDetail';
@@ -88,12 +91,59 @@ export default function App() {
     }
   }
 
-  return <Shell email={email} author={email ? email.split('@')[0] : null} avatar={avatar} onChooseAvatar={chooseAvatar} />;
+  const author = email ? email.split('@')[0] : null;
+  return (
+    <HouseholdGate key={session?.user.id ?? 'local'} author={author}>
+      {(household) => <Shell email={email} author={author} avatar={avatar} household={household} onChooseAvatar={chooseAvatar} />}
+    </HouseholdGate>
+  );
+}
+
+/** Carga el espacio de quien ha entrado; si aún no tiene, le deja crearlo o unirse al de su pareja */
+function HouseholdGate({ author, children }: { author: string | null; children(household: Household): JSX.Element }) {
+  const [household, setHousehold] = useState<Household | null | undefined>(undefined); // undefined = cargando
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(() => {
+    store.getHousehold(author).then(
+      (h) => {
+        setHousehold(h);
+        setError(null);
+        // Ya está en un espacio: un enlace de invitación que quedara pendiente ya no sirve
+        if (h) {
+          clearPendingCode();
+          if (codeFromHash(window.location.hash)) window.location.hash = '#/recetas';
+        }
+      },
+      (e) => setError((e as Error).message),
+    );
+  }, [author]);
+
+  useEffect(load, [load]);
+
+  if (error)
+    return (
+      <div className="center-screen">
+        <p className="error">No se ha podido cargar vuestro espacio: {error}</p>
+        <button className="btn" onClick={load}>
+          Reintentar
+        </button>
+      </div>
+    );
+  if (household === undefined) return <div className="center-screen">Cargando…</div>;
+  if (household === null) return <HouseholdSetup author={author} onDone={load} />;
+  return children(household);
 }
 
 const LS_AVATAR = 'recetas.avatar';
 
-function Shell(props: { email: string | null; author: string | null; avatar: string | null; onChooseAvatar(value: string): Promise<void> }) {
+function Shell(props: {
+  email: string | null;
+  author: string | null;
+  avatar: string | null;
+  household: Household;
+  onChooseAvatar(value: string): Promise<void>;
+}) {
   const { email, author, avatar } = props;
   const [view, setView] = useState<ViewId>(viewFromHash);
   const [openId, setOpenId] = useState<string | null>(null);
@@ -152,7 +202,7 @@ function Shell(props: { email: string | null; author: string | null; avatar: str
           {view === 'recetas' && <RecipesView />}
           {view === 'descubrir' && <DiscoverView avatar={avatar} />}
           {view === 'semana' && <WeekView />}
-          {view === 'cuenta' && <AccountView email={email} avatar={avatar} onChooseAvatar={props.onChooseAvatar} />}
+          {view === 'cuenta' && <AccountView email={email} avatar={avatar} household={props.household} onChooseAvatar={props.onChooseAvatar} />}
         </main>
 
         <RecipeModals openId={openId} onCloseDetail={() => setOpenId(null)} editing={editing} onCloseForm={() => setEditing(undefined)} />

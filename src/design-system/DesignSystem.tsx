@@ -7,6 +7,8 @@ import Avatar, { AVATARS } from '../components/Avatar';
 import Chef from '../components/Chef';
 import { Sprite, SPRITE_LABEL, SPRITE_NAMES } from '../components/FoodSprite';
 import Icon, { ICON_NAMES } from '../components/Icon';
+import HouseholdCard from '../components/HouseholdCard';
+import HouseholdSetup from '../components/HouseholdSetup';
 import PantryJar from '../components/PantryJar';
 import VoucherTicket from '../components/VoucherTicket';
 import RecipeCard, { MealTags } from '../components/RecipeCard';
@@ -822,6 +824,16 @@ function Pantry() {
         </Specimen>
         <Specimen name="Voucher (done)" source="src/components/VoucherTicket.tsx" code={'<VoucherTicket title="…" detail="Cumplido" done />'}>
           <VoucherTicket title="Vale por elegir la peli" detail="Cumplido" done />
+        </Specimen>
+        <Specimen name="Create or join a space" source="src/components/HouseholdSetup.tsx" code={'<HouseholdSetup author={author} onDone={reload} />'} wide>
+          <div className="ds-setup">
+            <HouseholdSetup author={null} onDone={() => {}} />
+          </div>
+        </Specimen>
+        <Specimen name="Space" source="src/components/HouseholdCard.tsx" code={'<HouseholdCard household={household} />'} wide>
+          <HouseholdCard
+            household={{ id: 'demo', name: 'Ana y Leo', inviteCode: 'AB3K9X', members: [{ name: 'ana', me: true }, { name: 'leo', me: false }] }}
+          />
         </Specimen>
       </div>
     </Section>

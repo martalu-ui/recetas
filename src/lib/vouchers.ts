@@ -9,8 +9,6 @@ export interface VoucherKind {
 /** Catálogo inicial (en Supabase se crea igual en la tabla voucher_kinds) */
 export const DEFAULT_VOUCHERS: VoucherKind[] = [
   { id: 'peli', what: 'elegir la peli', cost: 3 },
-  { id: 'friego', what: 'un «hoy friego yo»', cost: 4 },
-  { id: 'siesta', what: 'una siesta sin interrupciones', cost: 5 },
   { id: 'masaje', what: 'un masaje', cost: 6 },
   { id: 'desayuno', what: 'un desayuno en la cama', cost: 8 },
   { id: 'cine', what: 'un día de cine', cost: 10 },

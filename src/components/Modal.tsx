@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 
-export default function Modal({ label, onClose, children }: { label: string; onClose(): void; children: ReactNode }) {
+/** `centered`: ventana en el centro también en el móvil (en vez de hoja que sube desde abajo), para avisos cortos */
+export default function Modal({ label, onClose, children, centered = false }: { label: string; onClose(): void; children: ReactNode; centered?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const [closing, setClosing] = useState(false);
 
@@ -23,7 +24,7 @@ export default function Modal({ label, onClose, children }: { label: string; onC
 
   return (
     <div
-      className={closing ? 'modal-backdrop closing' : 'modal-backdrop'}
+      className={['modal-backdrop', centered && 'centered', closing && 'closing'].filter(Boolean).join(' ')}
       onMouseDown={(e) => e.target === e.currentTarget && close()}
       onAnimationEnd={(e) => closing && e.target === e.currentTarget && onClose()}
     >

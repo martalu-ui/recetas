@@ -82,7 +82,7 @@ export default function Onboarding() {
   const last = step === STEPS.length - 1;
 
   return (
-    <Modal label="Novedades" onClose={close}>
+    <Modal label="Novedades" onClose={close} centered>
       <div className="onboarding">
         {s.art}
         <div className="onb-text">

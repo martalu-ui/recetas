@@ -720,3 +720,9 @@ html {
     gap: 6px;
   }
 }
+
+/* La pantalla de crear o unirse a un espacio dentro de un ejemplo: sin ocupar toda la altura */
+.ds-setup .center-screen {
+  min-height: 0;
+  padding: 0;
+}

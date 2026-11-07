@@ -234,12 +234,12 @@ export default function RecipeForm({ recipe, onDone }: { recipe: Recipe | null; 
                 </button>
               </div>
               {activeRow === idx && suggestionsFor(ing.name).length > 0 && (
-                <div className="chips suggestions" aria-label="Ingredientes que ya usamos">
+                <div className="select-tags suggestions" aria-label="Ingredientes que ya usamos">
                   {suggestionsFor(ing.name).map((k) => (
                     <button
                       type="button"
                       key={k}
-                      className="chip"
+                      className="select-tag"
                       onClick={() => {
                         updateIngredient(idx, { name: k });
                         setActiveRow(null);
@@ -274,9 +274,9 @@ export default function RecipeForm({ recipe, onDone }: { recipe: Recipe | null; 
                 aria-label="Buscar entre los ingredientes que ya usamos"
               />
             )}
-            <div className="chips">
+            <div className="select-tags">
               {pickerItems.map((k) => (
-                <button type="button" key={k} className="chip" onClick={() => addKnown(k)}>
+                <button type="button" key={k} className="select-tag" onClick={() => addKnown(k)}>
                   + {k}
                 </button>
               ))}

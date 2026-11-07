@@ -612,22 +612,12 @@ function Buttons() {
 
 function Controls() {
   const [meal, setMeal] = useState<MealFilterValue>('todas');
-  const [chip, setChip] = useState(true);
   const [toggle, setToggle] = useState(true);
   return (
     <Section id="controls" title="Controls" intro="Fields on white or light grey, always very rounded.">
       <div className="ds-grid-2">
         <Specimen name="Segmented control" source="src/views/MealFilter.tsx" code={'<MealFilter value={…} onChange={…} />'}>
           <MealFilter value={meal} onChange={setMeal} />
-        </Specimen>
-        <Specimen name="Chips" source="src/styles.css · .chip" code={'<button className="chip">\n<button className="chip on">'}>
-          <div className="chips">
-            <button className={chip ? 'chip on' : 'chip'} onClick={() => setChip((c) => !c)}>
-              Calabaza ×
-            </button>
-            <button className="chip">Arroz</button>
-            <button className="chip">Champiñones</button>
-          </div>
         </Specimen>
         <Specimen name="Toggles" source="src/styles.css · .toggle" code={'<button className="toggle on">'}>
           <div className="toggle-group">
@@ -660,9 +650,19 @@ function Controls() {
 
 function Tags() {
   const [lentejas, salmon, , crema] = SAMPLE_RECIPES;
+  const [selected, setSelected] = useState(true);
   return (
-    <Section id="tags" title="Tags" intro={<>Squarish corners with <code>--radius-tag</code>. Pastel with text in the same hue: lunch in pink, dinner in lilac, side dish in sand and Thermomix in green.</>}>
+    <Section id="tags" title="Tags" intro={<>Squarish corners with <code>--radius-tag</code>. Recipe tags are pastel with text in the same hue (lunch in pink, dinner in lilac, side dish in sand, Thermomix in green); selectable tags are the ones you tap, like ingredients.</>}>
       <div className="ds-grid-2">
+        <Specimen name="Selectable tags" source="src/styles.css · .select-tag" code={'<button className="select-tag">\n<button className="select-tag on">'}>
+          <div className="select-tags">
+            <button className={selected ? 'select-tag on' : 'select-tag'} onClick={() => setSelected((v) => !v)}>
+              Calabaza ×
+            </button>
+            <button className="select-tag">Arroz</button>
+            <button className="select-tag">Champiñones</button>
+          </div>
+        </Specimen>
         <Specimen name="Recipe tags" source="src/components/RecipeCard.tsx · <MealTags />" code={'<MealTags recipe={recipe} />'}>
           <div className="ds-stack">
             <div className="meta">

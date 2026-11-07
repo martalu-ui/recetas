@@ -117,7 +117,7 @@ export default function RandomView({ demo = false }: { demo?: boolean }) {
             <div className="hero-today">
               <span className="muted small">Para hoy:</span>
               {(['comida', 'cena'] as MealType[]).map((slot) => (
-                <button key={slot} className={`chip slot-chip-${slot}`} onClick={() => addToday(result, slot)}>
+                <button key={slot} className={`select-tag slot-tag-${slot}`} onClick={() => addToday(result, slot)}>
                   {MEAL_LABEL[slot]}
                 </button>
               ))}

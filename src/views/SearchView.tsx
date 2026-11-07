@@ -34,9 +34,9 @@ export default function SearchView() {
       </div>
 
       {selected.length > 0 && (
-        <div className="chips selected">
+        <div className="select-tags selected">
           {selected.map((s) => (
-            <button key={s} className="chip on" onClick={() => toggle(s)} aria-label={`Quitar ${s}`}>
+            <button key={s} className="select-tag on" onClick={() => toggle(s)} aria-label={`Quitar ${s}`}>
               {s} ×
             </button>
           ))}

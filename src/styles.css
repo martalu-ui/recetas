@@ -117,7 +117,7 @@
   --color-group-cereales: var(--sand-300);
   --color-group-verdura: var(--olive-500);
   /* Forma */
-  --radius-tag: var(--radius-xs); /* etiquetas, avisos y chips */
+  --radius-tag: var(--radius-xs); /* etiquetas (también las seleccionables) y avisos */
   --radius-button: var(--radius-sm); /* botones, controles segmentados y pestañas */
   --radius-field: var(--radius-sm); /* inputs y desplegables */
   --radius-inner: var(--radius-md); /* cajas dentro de tarjetas */
@@ -940,11 +940,11 @@ a:focus-visible {
   gap: 4px;
 }
 
-.chips.suggestions {
+.select-tags.suggestions {
   margin: 0;
 }
 
-.chips.suggestions .chip {
+.select-tags.suggestions .select-tag {
   padding: 4px 12px;
   font-size: 0.85rem;
 }
@@ -958,7 +958,7 @@ a:focus-visible {
   border-radius: var(--radius-inner);
 }
 
-.ingredient-picker .chips {
+.ingredient-picker .select-tags {
   margin: 0;
 }
 
@@ -1160,18 +1160,18 @@ a:focus-visible {
   margin-top: 12px;
 }
 
-.chips {
+.select-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 12px;
 }
 
-.chips.selected {
+.select-tags.selected {
   align-items: center;
 }
 
-.chip {
+.select-tag {
   padding: 7px 14px;
   border: 0;
   border-radius: var(--radius-tag);
@@ -1180,15 +1180,15 @@ a:focus-visible {
   font-size: 0.9rem;
 }
 
-.modal .chip {
+.modal .select-tag {
   background: var(--color-surface-subtle);
 }
 
-.chip:hover {
+.select-tag:hover {
   background: var(--color-surface-hover);
 }
 
-.chip.on {
+.select-tag.on {
   background: var(--color-text);
   color: var(--color-surface);
 }
@@ -1723,17 +1723,17 @@ a:focus-visible {
   border-top: 1px solid var(--color-border);
 }
 
-.hero-today .chip {
+.hero-today .select-tag {
   padding: 5px 14px;
   font-weight: var(--font-weight-ui);
 }
 
-.hero-today .slot-chip-comida {
+.hero-today .slot-tag-comida {
   background: var(--color-lunch);
   color: var(--color-on-lunch);
 }
 
-.hero-today .slot-chip-cena {
+.hero-today .slot-tag-cena {
   background: var(--color-dinner);
   color: var(--color-on-dinner);
 }
@@ -1846,7 +1846,7 @@ a:focus-visible {
   margin: 0;
 }
 
-.fridge .chips.selected {
+.fridge .select-tags.selected {
   margin: 16px 0 0;
 }
 
@@ -1863,7 +1863,7 @@ a:focus-visible {
   color: var(--color-text);
 }
 
-.fridge .chip:not(.on) {
+.fridge .select-tag:not(.on) {
   background: var(--color-surface-subtle);
 }
 
@@ -2613,7 +2613,7 @@ button,
 a,
 .btn,
 .tab,
-.chip,
+.select-tag,
 .toggle,
 .icon-btn,
 .segmented button,
@@ -2646,7 +2646,7 @@ textarea {
 
 .btn:active:not(:disabled),
 .icon-btn:active,
-.chip:active,
+.select-tag:active,
 .toggle:active,
 .tab-add:active,
 .segmented button:active,

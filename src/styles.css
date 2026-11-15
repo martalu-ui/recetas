@@ -1597,274 +1597,177 @@ a:focus-visible {
   font-weight: var(--font-weight-heading);
 }
 
-/* Tarjeta amarilla de "¿Qué cocinamos hoy?" */
-.hero {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  padding: 24px;
-  background: var(--color-highlight);
-  border-radius: var(--radius-card);
-}
-
-.discover-random {
+/* Descubrir: una receta protagonista */
+.feature {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.hero-head {
+/* Filtros encima de la receta: en el móvil se deslizan de lado */
+.mood-tags {
+  align-self: flex-start;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.mood-tags::-webkit-scrollbar {
+  display: none;
+}
+
+.mood-tags button {
+  flex: none;
+}
+
+.feature-card {
   display: flex;
   flex-direction: column;
-}
-
-.hero-head h2 {
-  margin: 0 0 4px;
-  font-size: 1.6rem;
-}
-
-.hero-head p {
-  margin: 0;
-}
-
-.hero-clear {
-  margin-left: 8px;
-  padding: 2px 10px;
-  border: 0;
-  border-radius: var(--radius-tag);
-  background: rgb(255 255 255 / 55%);
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-
-/* Caja blanca dentro de la tarjeta amarilla: espera, "pensando" con el chef cocinando, o el resultado */
-.hero-stage {
-  display: flex;
-  align-items: center;
+  width: 100%;
+  padding: 10px;
   text-align: left;
-  gap: 18px;
-  min-height: 132px;
-  padding: 14px 18px;
-  border-radius: var(--radius-inner);
   background: var(--color-surface);
-}
-
-.hero-stage-text {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.hero-stage-text strong {
-  font-size: 1.15rem;
-  line-height: 1.25;
-}
-
-.hero-stage.result {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 12px;
-  animation: pop 0.25s ease;
-}
-
-.hero-pick {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 0;
   border: 0;
-  background: none;
-  text-align: left;
+  border-radius: var(--radius-card);
   cursor: pointer;
 }
 
-.hero-sprite {
+.feature-media {
   display: grid;
   place-items: center;
-  flex: none;
-  width: 88px;
-  height: 88px;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
+  background: var(--color-highlight);
   border-radius: var(--radius-inner);
-  background: var(--color-surface-subtle);
 }
 
-.hero-sprite img {
+.feature-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.hero-result-body {
+.feature-body {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  min-width: 0;
+  gap: 8px;
+  padding: 14px 8px 8px;
 }
 
-.hero-result-body strong {
-  font-size: 1.35rem;
-  line-height: 1.2;
+.feature-title {
+  font-size: 1.6rem;
+  font-weight: var(--font-weight-heading);
+  letter-spacing: var(--tracking-heading);
+  line-height: 1.15;
 }
 
-.hero-link {
-  font-weight: var(--font-weight-strong);
-  font-size: 0.9rem;
+.feature.rolling .feature-title {
+  color: var(--color-text-muted);
 }
 
-/* "Para hoy: Comida / Cena" */
-.hero-today {
+/* En pantallas anchas la receta va en horizontal: dibujo a la izquierda, datos a la derecha */
+@media (min-width: 721px) {
+  .feature-card {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .feature-media {
+    flex: none;
+    width: min(360px, 40%);
+    aspect-ratio: 4 / 3;
+  }
+
+  .feature-body {
+    padding: 16px 20px;
+  }
+
+  .feature-title {
+    font-size: 2rem;
+  }
+}
+
+.feature-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  padding-top: 12px;
-  border-top: 1px solid var(--color-border);
 }
 
-.hero-today .select-tag {
-  padding: 5px 14px;
-  font-weight: var(--font-weight-ui);
+.today-options {
+  display: flex;
+  gap: 6px;
+  animation: fade-in var(--motion-enter) both;
 }
 
-.hero-today .slot-tag-comida {
-  background: var(--color-lunch);
-  color: var(--color-on-lunch);
-}
-
-.hero-today .slot-tag-cena {
-  background: var(--color-dinner);
-  color: var(--color-on-dinner);
-}
-
-.hero-added {
+.feature-added {
   color: var(--color-success);
-  font-weight: var(--font-weight-strong);
 }
 
-.btn.hero-roll {
-  align-self: flex-start;
-  padding: 13px 26px;
-  background: var(--color-text);
-  color: var(--color-surface);
-  font-size: 1.05rem;
-  font-weight: var(--font-weight-strong);
+/* Flechita de «Para hoy»: gira al abrirse */
+.caret {
+  display: inline-block;
+  width: 10px;
+  height: 7px;
+  background: var(--icon-chevron) center / contain no-repeat;
+  transition: transform var(--motion-hover);
 }
 
-.btn.hero-roll:hover:not(:disabled) {
-  background: var(--color-text);
-  opacity: 0.9;
+.caret.open {
+  transform: rotate(180deg);
 }
 
-/* Atajos de colores: fila deslizable en el móvil */
-.moods {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.mood {
+/* ¿Qué hay en la nevera?: un buscador que abre la lista de ingredientes */
+.fridge {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  min-height: 84px;
-  padding: 14px 16px;
-  border: 2px solid transparent;
-  border-radius: var(--radius-card);
-  text-align: left;
-  cursor: pointer;
-  color: var(--color-text);
+  gap: 10px;
+  margin-top: 8px;
 }
 
-.mood strong {
-  font-size: 1.05rem;
+.fridge h2 {
+  margin: 0;
+  font-size: 1.2rem;
 }
 
-.mood span {
-  font-size: 0.85rem;
-  opacity: 0.8;
-}
-
-.mood .mood-count {
-  margin-top: auto;
-  padding: 2px 10px;
-  border-radius: var(--radius-tag);
-  background: rgb(255 255 255 / 70%);
-  color: #1d1b19;
-  font-size: 0.78rem;
-  opacity: 1;
-}
-
-.mood.on {
-  border-color: var(--color-text);
-}
-
-.mood:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
-
-.mood-comida {
-  background: var(--color-lunch);
-}
-
-.mood-cena {
-  background: var(--color-dinner);
-}
-
-.mood-rapida {
-  background: var(--color-neutral-soft);
-}
-
-.mood-thermomix {
-  background: var(--color-thermomix);
-}
-
-/* Tarjeta blanca de "¿Qué hay en la nevera?" con resultados en lista */
-.fridge {
-  padding: 22px;
-  background: var(--color-surface);
-  border-radius: var(--radius-card);
-}
-
-.fridge-head {
+.fridge-field {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px 16px;
-}
-
-.fridge-head h2 {
-  margin: 0 0 4px;
-  font-size: 1.4rem;
-}
-
-.fridge-head p {
-  margin: 0;
-}
-
-.fridge .select-tags.selected {
-  margin: 16px 0 0;
-}
-
-.fridge-filter {
-  margin-top: 12px;
-}
-
-.fridge-filter .segmented {
-  background: var(--color-surface-subtle);
-}
-
-.fridge-filter .segmented button.on {
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  text-align: left;
+  color: var(--color-text-muted);
   background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-field);
+  cursor: pointer;
+}
+
+.fridge-field span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fridge-field.filled {
   color: var(--color-text);
 }
 
-.fridge .select-tag:not(.on) {
-  background: var(--color-surface-subtle);
+.fridge-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.fridge .match-list {
+  padding: 4px 14px;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
 }
 
 .match-list {
@@ -1937,35 +1840,6 @@ a:focus-visible {
 .match-list li:first-child .match-score {
   background: var(--color-primary);
   color: var(--color-on-primary);
-}
-
-@media (max-width: 720px) {
-  .hero,
-  .fridge {
-    padding: 18px;
-  }
-  .moods {
-    display: flex;
-    overflow-x: auto;
-    margin: 0 -16px;
-    padding: 0 16px 4px;
-    scrollbar-width: none;
-  }
-  .mood {
-    flex: none;
-    width: 150px;
-  }
-  .hero-sprite {
-    width: 72px;
-    height: 72px;
-  }
-  .hero-stage {
-    gap: 12px;
-    padding: 14px;
-  }
-  .fridge-head .btn {
-    width: 100%;
-  }
 }
 
 /* ---------- Cuenta ---------- */
@@ -2617,7 +2491,6 @@ a,
 .toggle,
 .icon-btn,
 .segmented button,
-.mood,
 .avatar-option,
 .strip-num,
 .slot-cook {
@@ -2650,7 +2523,6 @@ textarea {
 .toggle:active,
 .tab-add:active,
 .segmented button:active,
-.mood:active,
 .avatar-option:active,
 .strip-day:active .strip-num,
 .slot-cook:active {
@@ -2927,7 +2799,7 @@ textarea {
 
 /* Estas listas solo se deslizan de lado en el móvil; en pantallas grandes no se difuminan */
 @media (min-width: 721px) {
-  .moods.scroll-fade-x {
+  .mood-tags.scroll-fade-x {
     mask-image: none;
     animation: none;
   }
@@ -3113,11 +2985,6 @@ textarea {
   background: var(--color-surface);
   transform: rotate(1.5deg);
   animation-delay: 80ms;
-}
-
-/* Sin texto mientras espera: solo el chef, centrado */
-.hero-stage.empty {
-  justify-content: center;
 }
 
 /* Cabecera de tarjeta con título y una acción a la derecha */

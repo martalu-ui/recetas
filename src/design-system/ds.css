@@ -9,8 +9,52 @@ html {
 }
 
 .ds {
+  /* La documentación va en Inter; los ejemplos y el código siguen en la letra de la app */
+  --ds-font: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   min-height: 100vh;
   background: var(--color-surface);
+  font-family: var(--ds-font);
+  font-size: 15px;
+  letter-spacing: -0.006em;
+}
+
+.ds h1,
+.ds h2,
+.ds h3 {
+  letter-spacing: -0.02em;
+}
+
+.ds button,
+.ds input {
+  letter-spacing: inherit;
+}
+
+/* Dentro del marco de cada ejemplo (y en las muestras de letra), todo como en la app */
+.ds .ds-preview,
+.ds .ds-type-sample {
+  font: 1rem/1.55 var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+.ds .ds-preview h1,
+.ds .ds-preview h2,
+.ds .ds-preview h3,
+.ds .ds-type-sample h1,
+.ds .ds-type-sample h2,
+.ds .ds-type-sample h3 {
+  letter-spacing: var(--tracking-heading);
+}
+
+/* El código y los nombres de tokens, en monoespaciada */
+.ds code,
+.ds pre,
+.ds .ds-token-name,
+.ds .ds-ref,
+.ds .ds-values,
+.ds .ds-source,
+.ds .ds-motion-name {
+  font-family: var(--font-body);
+  letter-spacing: var(--tracking-body);
 }
 
 body:has(.ds) {
@@ -158,7 +202,6 @@ body:has(.ds) {
 }
 
 .ds code {
-  font-family: var(--font-body);
   font-size: 0.85em;
 }
 
@@ -793,4 +836,9 @@ body:has(.ds) {
 .ds-setup .center-screen {
   min-height: 0;
   padding: 0;
+}
+
+/* Las rutas de archivo, discretas junto al texto en Inter */
+.ds .ds-source {
+  font-size: 0.7rem;
 }

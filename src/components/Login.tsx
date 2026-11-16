@@ -53,7 +53,7 @@ export default function Login() {
     <div className="center-screen">
       <form className="card login" onSubmit={submit}>
         <img className="login-logo" src={`${import.meta.env.BASE_URL}icon-192.png`} alt="" />
-        <h1>MajoChef</h1>
+        <h1>Chef Majo</h1>
         {invited && <p className="muted small">Te han invitado a un espacio. Crea tu cuenta (o entra) y te unirás.</p>}
         <label className="field">
           <span>Email</span>

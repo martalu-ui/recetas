@@ -126,7 +126,7 @@ export default function DesignSystem() {
       <div className="ds">
         <header className="ds-top">
           <a className="brand" href="./index.html">
-            <img className="brand-icon" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" /> MajoChef
+            <img className="brand-icon" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" /> Chef Majo
           </a>
           <span className="ds-top-label">Design system</span>
           <div className="ds-tabs" role="tablist" aria-label="Design system">

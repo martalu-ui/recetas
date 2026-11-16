@@ -8,10 +8,10 @@ export default function HouseholdCard({ household }: { household: Household }) {
   const link = inviteLink(appUrl(), household.inviteCode);
 
   async function share() {
-    const text = `Únete a «${household.name}» en MajoChef con el código ${household.inviteCode}`;
+    const text = `Únete a «${household.name}» en Chef Majo con el código ${household.inviteCode}`;
     try {
       if (navigator.share) {
-        await navigator.share({ title: 'MajoChef', text, url: link });
+        await navigator.share({ title: 'Chef Majo', text, url: link });
         return;
       }
       await navigator.clipboard.writeText(link);

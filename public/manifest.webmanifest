@@ -1,6 +1,6 @@
 {
-  "name": "MajoChef",
-  "short_name": "MajoChef",
+  "name": "Chef Majo",
+  "short_name": "Chef Majo",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

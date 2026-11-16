@@ -28,7 +28,7 @@ export default function SetPassword({ email, onDone }: { email: string | null; o
       <form className="card login" onSubmit={submit}>
         <img className="login-logo" src={`${import.meta.env.BASE_URL}icon-192.png`} alt="" />
         <h1>Elige tu contraseña</h1>
-        {email && <p className="muted">Para entrar en MajoChef con {email}</p>}
+        {email && <p className="muted">Para entrar en Chef Majo con {email}</p>}
         <label className="field">
           <span>Contraseña nueva</span>
           <input type="password" autoComplete="new-password" required value={password} onChange={(e) => setPassword(e.target.value)} autoFocus />

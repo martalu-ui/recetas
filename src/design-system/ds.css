@@ -1,4 +1,6 @@
 /* Página del sistema de diseño (sistema.html).
+   Minimalista, como la documentación de Fluid Functionalism: texto, líneas finas y aire;
+   los ejemplos van en un marco con el fondo de la app, que es donde viven.
    Solo usa los tokens de src/styles.css: aquí no se define ningún :root
    para que la lectura de tokens refleje exactamente los de la app. */
 
@@ -7,7 +9,56 @@ html {
 }
 
 .ds {
+  /* La documentación va en Inter; los ejemplos y el código siguen en la letra de la app */
+  --ds-font: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   min-height: 100vh;
+  background: var(--color-surface);
+  font-family: var(--ds-font);
+  font-size: 15px;
+  letter-spacing: -0.006em;
+}
+
+.ds h1,
+.ds h2,
+.ds h3 {
+  letter-spacing: -0.02em;
+}
+
+.ds button,
+.ds input {
+  letter-spacing: inherit;
+}
+
+/* Dentro del marco de cada ejemplo (y en las muestras de letra), todo como en la app */
+.ds .ds-preview,
+.ds .ds-type-sample {
+  font: 1rem/1.55 var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+.ds .ds-preview h1,
+.ds .ds-preview h2,
+.ds .ds-preview h3,
+.ds .ds-type-sample h1,
+.ds .ds-type-sample h2,
+.ds .ds-type-sample h3 {
+  letter-spacing: var(--tracking-heading);
+}
+
+/* El código y los nombres de tokens, en monoespaciada */
+.ds code,
+.ds pre,
+.ds .ds-token-name,
+.ds .ds-ref,
+.ds .ds-values,
+.ds .ds-source,
+.ds .ds-motion-name {
+  font-family: var(--font-body);
+  letter-spacing: var(--tracking-body);
+}
+
+body:has(.ds) {
+  background: var(--color-surface);
 }
 
 /* ---------- Cabecera ---------- */
@@ -18,19 +69,47 @@ html {
   z-index: 20;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 14px 24px;
-  background: var(--color-bg);
+  gap: 20px;
+  padding: 12px 24px;
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--color-border);
 }
 
 .ds-top .brand {
   color: var(--color-text);
+  font-size: 1rem;
+}
+
+.ds-top .brand-icon {
+  width: 22px;
+  height: 22px;
 }
 
 .ds-top-label {
   color: var(--color-text-muted);
-  font-weight: var(--font-weight-strong);
+  font-size: 0.85rem;
+}
+
+/* Pestañas como texto: la elegida se distingue por el color y una línea */
+.ds-tabs {
+  display: flex;
+  gap: 16px;
+}
+
+.ds-tabs button {
+  padding: 4px 0;
+  color: var(--color-text-muted);
+  background: none;
+  border: 0;
+  border-bottom: 1.5px solid transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.ds-tabs button.on {
+  color: var(--color-text);
+  border-bottom-color: var(--color-text);
 }
 
 .ds-theme {
@@ -41,33 +120,44 @@ html {
 
 .ds-layout {
   display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
-  gap: 32px;
-  max-width: 1200px;
+  grid-template-columns: 200px minmax(0, 760px);
+  gap: 56px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 40px 24px 96px;
 }
 
 .ds-nav {
   position: sticky;
-  top: 86px;
+  top: 80px;
   align-self: start;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
+}
+
+.ds-nav-title {
+  margin: 0 0 8px;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
 }
 
 .ds-nav a {
-  padding: 8px 14px;
-  border-radius: var(--radius-button);
+  padding: 5px 10px;
+  margin-left: -10px;
   color: var(--color-text-muted);
-  font-weight: var(--font-weight-strong);
+  font-size: 0.85rem;
   text-decoration: none;
+  border-radius: var(--radius-tag);
 }
 
 .ds-nav a:hover {
-  background: var(--color-surface);
   color: var(--color-text);
+}
+
+.ds-nav a.current {
+  color: var(--color-text);
+  background: var(--color-surface-subtle);
 }
 
 .ds-main {
@@ -75,148 +165,215 @@ html {
 }
 
 .ds-intro {
-  margin-bottom: 32px;
+  margin-bottom: 48px;
 }
 
 .ds-intro h1 {
-  margin: 0 0 8px;
-  font-size: 2.2rem;
+  margin: 0 0 10px;
+  font-size: 1.9rem;
 }
 
 .ds-intro p {
-  max-width: 62ch;
+  max-width: 60ch;
   margin: 0;
+  line-height: 1.7;
 }
 
 .ds-section {
-  scroll-margin-top: 86px;
-  padding: 28px 0;
-  border-top: 1px solid var(--color-border);
+  scroll-margin-top: 80px;
+  padding: 0 0 64px;
 }
 
-.ds-section h2 {
+.ds-section > h2 {
   margin: 0 0 6px;
-  font-size: 1.6rem;
+  font-size: 1.35rem;
 }
 
 .ds-section h3 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 0.95rem;
 }
 
 .ds-section-intro {
-  max-width: 62ch;
-  margin: 0 0 20px;
+  max-width: 60ch;
+  margin: 0 0 28px;
+  font-size: 0.9rem;
+  line-height: 1.7;
 }
 
 .ds code {
-  font-family: var(--font-body);
   font-size: 0.85em;
 }
 
-/* ---------- Ejemplos ---------- */
+/* ---------- Ejemplos: nombre, Preview / Code, marco y props ---------- */
 
 .ds-grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 44px;
 }
 
 .ds-specimen {
   display: flex;
   flex-direction: column;
+  gap: 10px;
   min-width: 0;
-  overflow: hidden;
+}
+
+.ds-specimen-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ds-specimen-desc {
+  margin: -4px 0 2px;
+  font-size: 0.85rem;
+}
+
+.ds-view {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--color-surface-subtle);
+  border-radius: var(--radius-button);
+}
+
+.ds-view button {
+  padding: 3px 10px;
+  color: var(--color-text-muted);
+  background: none;
+  border: 0;
+  border-radius: calc(var(--radius-button) - 2px);
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.ds-view button.on {
+  color: var(--color-text);
   background: var(--color-surface);
-  border-radius: var(--radius-card);
+  box-shadow: 0 0 0 1px var(--color-border);
 }
 
-.ds-specimen.wide {
-  grid-column: 1 / -1;
-}
-
+/* El marco: el fondo de la app y mucho aire, sin tarjeta alrededor */
 .ds-preview {
-  flex: 1;
-  min-width: 0;
-  padding: 24px;
-  background: var(--color-bg);
-  margin: 8px 8px 0;
-  border-radius: var(--radius-inner);
-  overflow-x: auto;
-}
-
-.ds-specimen-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 14px 18px 18px;
+  justify-content: center;
+  min-width: 0;
+  min-height: 160px;
+  padding: 40px 32px;
+  overflow-x: auto;
+  background: var(--color-bg);
+  border-radius: var(--radius-inner);
+}
+
+.ds-code {
+  margin: 0;
+  padding: 18px 20px;
+  overflow-x: auto;
+  color: var(--color-text);
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-inner);
+  font: 0.8rem/1.7 var(--font-body);
+  white-space: pre;
 }
 
 .ds-source {
   color: var(--color-text-muted);
+  font-size: 0.75rem;
   overflow-wrap: anywhere;
 }
 
-.ds-code {
-  margin: 6px 0 0;
-  padding: 10px 14px;
-  background: var(--color-surface-subtle);
-  border-radius: var(--radius-button);
-  font: 0.85rem/1.5 var(--font-body);
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+/* Tabla de props, como en la documentación de componentes */
+.ds-props {
+  width: 100%;
+  margin-top: 4px;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.ds-props th {
+  padding: 8px 10px 8px 0;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-ui);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ds-props td {
+  padding: 9px 10px 9px 0;
+  vertical-align: top;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ds-props td:first-child code {
+  font-weight: var(--font-weight-strong);
+}
+
+.ds-props td:nth-child(2) code,
+.ds-props td:nth-child(3) code {
+  color: var(--color-text-muted);
+}
+
+.ds-props-wrap {
+  overflow-x: auto;
 }
 
 .ds-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: 12px;
 }
 
 .ds-stack {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 10px;
 }
 
 .ds-fields {
   display: grid;
   gap: 12px;
+  width: min(100%, 360px);
+  margin: 0 auto;
 }
 
 /* ---------- Colores ---------- */
 
 .ds-group {
-  margin-bottom: 24px;
+  margin-bottom: 36px;
 }
 
 .ds-group > p {
-  margin: 2px 0 12px;
+  margin: 2px 0 14px;
 }
 
 .ds-swatches {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 20px 16px;
 }
 
 .ds-swatch {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
-  padding: 8px 8px 14px;
-  background: var(--color-surface);
-  border-radius: var(--radius-card);
+  gap: 3px;
+  min-width: 0;
 }
 
 .ds-chip-pair {
   display: grid;
   grid-template-columns: 1fr 1fr;
   width: 100%;
-  height: 72px;
-  margin-bottom: 6px;
+  height: 56px;
+  margin-bottom: 8px;
   overflow: hidden;
   border-radius: var(--radius-inner);
   box-shadow: inset 0 0 0 1px var(--color-border);
@@ -227,13 +384,15 @@ html {
 }
 
 .ds-token-name {
-  margin: 0 6px;
+  margin: 0;
   padding: 0;
-  border: 0;
-  background: none;
   color: var(--color-text);
-  font: var(--font-weight-heading) 0.95rem var(--font-body);
+  background: none;
+  border: 0;
   cursor: pointer;
+  font: var(--font-weight-strong) 0.8rem var(--font-body);
+  letter-spacing: var(--tracking-body);
+  text-align: left;
 }
 
 .ds-token-name:hover {
@@ -242,8 +401,7 @@ html {
 
 .ds-values,
 .ds-uses {
-  margin: 0 6px;
-  font-size: 0.82rem;
+  font-size: 0.72rem;
   overflow-wrap: anywhere;
 }
 
@@ -253,21 +411,16 @@ html {
 
 /* ---------- Tokens ---------- */
 
-.ds-tabs {
-  margin-left: 8px;
-}
-
 .ds-ref {
-  margin: 0 6px;
   color: var(--color-text);
-  font-size: 0.82rem;
+  font-size: 0.72rem;
   overflow-wrap: anywhere;
 }
 
 .ds-ramp {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 16px 8px;
 }
 
 .ds-ramp-step {
@@ -275,22 +428,15 @@ html {
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
-  padding: 6px 6px 10px;
-  background: var(--color-surface);
-  border-radius: var(--radius-inner);
-}
-
-.ds-ramp-step .ds-token-name,
-.ds-ramp-step .ds-values {
-  margin: 0 4px;
+  min-width: 0;
 }
 
 .ds-ramp-chip {
   display: block;
   width: 100%;
-  height: 48px;
+  height: 40px;
   margin-bottom: 6px;
-  border-radius: calc(var(--radius-inner) - 4px);
+  border-radius: var(--radius-button);
   box-shadow: inset 0 0 0 1px var(--color-border);
 }
 
@@ -308,52 +454,40 @@ html {
 
 .ds-table-wrap {
   overflow-x: auto;
-  background: var(--color-surface);
-  border-radius: var(--radius-card);
-  padding: 8px 12px;
 }
 
 .ds-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.88rem;
+  font-size: 0.8rem;
 }
 
 .ds-table th {
-  padding: 10px 8px;
+  padding: 8px 10px 8px 0;
   color: var(--color-text-muted);
-  font-weight: var(--font-weight-strong);
+  font-weight: var(--font-weight-ui);
   text-align: left;
   white-space: nowrap;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .ds-table td {
-  padding: 8px;
-  border-top: 1px solid var(--color-border);
+  padding: 8px 10px 8px 0;
   vertical-align: middle;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .ds-table .ds-token-name {
-  margin: 0;
   white-space: nowrap;
 }
 
 .ds-tier {
-  display: inline-block;
-  padding: 1px 8px;
-  border-radius: var(--radius-tag);
-  font-size: 0.78rem;
-  font-weight: var(--font-weight-strong);
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
 }
 
 .ds-tier.semantic {
-  background: var(--color-dinner);
   color: var(--color-on-dinner);
-}
-
-.ds-tier.primitive {
-  background: var(--color-neutral-soft);
-  color: var(--color-on-neutral-soft);
 }
 
 .ds-token-value {
@@ -365,9 +499,9 @@ html {
 
 .ds-dot {
   flex: none;
-  width: 14px;
-  height: 14px;
-  border-radius: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
   box-shadow: inset 0 0 0 1px var(--color-border);
 }
 
@@ -376,16 +510,18 @@ html {
 .ds-type {
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
 
 .ds-type-row {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 18px 22px;
-  background: var(--color-surface);
-  border-radius: var(--radius-card);
+  gap: 4px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ds-type-row:first-child {
+  border-top: 1px solid var(--color-border);
 }
 
 .ds-type-sample {
@@ -395,40 +531,34 @@ html {
 
 .ds-radii {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 20px 16px;
 }
 
 .ds-radius {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
-  padding: 16px;
-  background: var(--color-surface);
-  border-radius: var(--radius-card);
+  gap: 3px;
 }
 
 .ds-radius > span:first-child {
   display: block;
-  width: 100%;
+  width: 72px;
   height: 72px;
   margin-bottom: 8px;
-  background: var(--color-primary);
-}
-
-.ds-radius .ds-token-name,
-.ds-radius .ds-values {
-  margin: 0;
+  background: var(--color-bg);
+  box-shadow: inset 0 0 0 1px var(--color-border);
 }
 
 /* ---------- Iconos ---------- */
 
 .ds-icons {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
   margin-bottom: 8px;
+  border-top: 1px solid var(--color-border);
+  border-left: 1px solid var(--color-border);
 }
 
 .ds-icon {
@@ -436,19 +566,21 @@ html {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 16px 8px 12px;
-  background: var(--color-surface);
-  border-radius: var(--radius-inner);
+  padding: 18px 6px 12px;
   text-align: center;
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .ds-icon code {
   color: var(--color-text-muted);
+  font-size: 0.72rem;
   overflow-wrap: anywhere;
 }
 
 .ds-preview .ds-icon {
-  background: var(--color-surface);
+  border: 0;
+  padding: 6px;
 }
 
 /* ---------- Piezas que en la app dependen del contexto ---------- */
@@ -463,7 +595,6 @@ html {
   border-radius: 50%;
   background: var(--color-primary);
   color: var(--color-on-primary);
-  box-shadow: 0 6px 16px rgb(251 184 41 / 45%);
   cursor: pointer;
 }
 
@@ -474,8 +605,9 @@ html {
 }
 
 .ds-day {
-  max-width: 420px;
+  width: min(100%, 420px);
   min-height: 0;
+  margin: 0 auto;
 }
 
 .ds-preview .grid {
@@ -486,47 +618,33 @@ html {
 
 @media (max-width: 860px) {
   .ds-top {
-    gap: 8px;
-    padding: 12px 16px;
-  }
-
-  .ds-theme button {
-    padding: 6px 10px;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    padding: 10px 16px;
   }
 
   .ds-top-label {
     display: none;
   }
 
-  .ds-top {
-    flex-wrap: wrap;
-  }
-
-  /* Pestañas en su propia fila en el móvil */
   .ds-tabs {
     order: 3;
     width: 100%;
-    margin-left: 0;
-  }
-
-  .ds-tabs button {
-    flex: 1;
   }
 
   .ds-layout {
     display: block;
-    padding: 0 16px 32px;
+    padding: 0 16px 64px;
   }
 
   .ds-nav {
     position: static;
-    z-index: 15;
     flex-direction: row;
     gap: 4px;
-    margin: 0 -16px;
-    padding: 8px 16px;
+    margin: 0 -16px 24px;
+    padding: 12px 16px;
     overflow-x: auto;
-    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
     scrollbar-width: none;
   }
 
@@ -534,29 +652,21 @@ html {
     display: none;
   }
 
+  .ds-nav-title {
+    display: none;
+  }
+
   .ds-nav a {
     flex: none;
-    background: var(--color-surface);
-  }
-
-  .ds-intro {
-    margin: 16px 0 24px;
-  }
-
-  .ds-intro h1 {
-    font-size: 1.8rem;
+    margin: 0;
   }
 
   .ds-section {
-    scroll-margin-top: 120px;
-  }
-
-  .ds-grid-2 {
-    grid-template-columns: minmax(0, 1fr);
+    scroll-margin-top: 110px;
   }
 
   .ds-preview {
-    padding: 16px;
+    padding: 28px 16px;
   }
 
   .ds-swatches,
@@ -565,7 +675,7 @@ html {
   }
 
   .ds-icons {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -676,16 +786,17 @@ html {
   grid-template-columns: minmax(120px, 1fr) minmax(0, 14rem) minmax(0, 1fr);
   align-items: center;
   gap: 12px;
-  padding: 10px 14px;
+  padding: 12px 0;
   text-align: left;
-  background: var(--color-surface);
+  background: none;
   border: 0;
-  border-radius: var(--radius-inner);
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 0;
   cursor: pointer;
 }
 
-.ds-motion-row:hover {
-  background: var(--color-surface-hover);
+.ds-motion-row:hover .ds-motion-name {
+  text-decoration: underline;
 }
 
 .ds-motion-track {
@@ -725,4 +836,9 @@ html {
 .ds-setup .center-screen {
   min-height: 0;
   padding: 0;
+}
+
+/* Las rutas de archivo, discretas junto al texto en Inter */
+.ds .ds-source {
+  font-size: 0.7rem;
 }

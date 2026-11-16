@@ -94,7 +94,7 @@ const localStore: DataStore = {
   mode: 'local',
   // En local no hay cuentas: un único espacio de mentira para que la app y la vista previa funcionen igual
   async getHousehold(author) {
-    return { id: 'local', name: 'MajoChef', inviteCode: 'MAJO42', members: [{ name: author ?? 'Tú', me: true }] };
+    return { id: 'local', name: 'Chef Majo', inviteCode: 'MAJO42', members: [{ name: author ?? 'Tú', me: true }] };
   },
   async createHousehold() {},
   async joinHousehold() {},

@@ -167,7 +167,7 @@ function Shell(props: {
       <PantryProvider>
         <header className="topbar">
           <a className="brand" href="#/recetas">
-            <img className="brand-icon" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" /> MajoChef
+            <img className="brand-icon" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" /> Chef Majo
           </a>
           <nav ref={tabsRef} className="tabs" aria-label="Secciones">
             {VIEWS.map((v, i) => (

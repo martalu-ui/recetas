@@ -4,6 +4,7 @@ import { allIngredients, ingredientKey, normalize, rankBySelectedIngredients } f
 import { INGREDIENT_CATEGORIES, ingredientCategory } from '../lib/nutrition';
 import Modal from '../components/Modal';
 import FoodSprite from '../components/FoodSprite';
+import Icon from '../components/Icon';
 import Empty from './Empty';
 import MealFilter, { filterByMeal, type MealFilterValue } from './MealFilter';
 
@@ -25,30 +26,20 @@ export default function SearchView() {
   if (recipes.length === 0) return <Empty text="Cuando subáis recetas podréis buscar por ingredientes." />;
 
   return (
-    <section className="discover-search fridge">
-      <div className="fridge-head">
-        <h2>¿Qué hay en la nevera?</h2>
-        <button className="btn primary" onClick={() => setSheetOpen(true)}>
-          {selected.length ? 'Cambiar' : 'Elegir ingredientes'}
-        </button>
-      </div>
+    <section className="fridge">
+      <h2>¿Qué hay en la nevera?</h2>
+      {/* Parece un buscador: al tocarlo se abre la lista de ingredientes */}
+      <button className={selected.length ? 'fridge-field filled' : 'fridge-field'} onClick={() => setSheetOpen(true)}>
+        <Icon name="search" size={18} />
+        <span>{selected.length ? selected.join(', ') : 'calabaza, arroz…'}</span>
+      </button>
 
       {selected.length > 0 && (
-        <div className="chips selected">
-          {selected.map((s) => (
-            <button key={s} className="chip on" onClick={() => toggle(s)} aria-label={`Quitar ${s}`}>
-              {s} ×
-            </button>
-          ))}
+        <div className="fridge-tools">
+          <MealFilter value={meal} onChange={setMeal} />
           <button className="btn ghost small" onClick={() => setSelected([])}>
             Limpiar
           </button>
-        </div>
-      )}
-
-      {selected.length > 0 && (
-        <div className="fridge-filter">
-          <MealFilter value={meal} onChange={setMeal} />
         </div>
       )}
 

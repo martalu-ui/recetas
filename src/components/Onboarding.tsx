@@ -18,7 +18,7 @@ const RAIN: SpriteName[] = ['tomato', 'fries', 'egg', 'carrot', 'cheese', 'bread
 const STEPS = [
   {
     title: 'Hi chef!',
-    text: 'MajoChef es vuestro recetario: las recetas de los dos, el menú de la semana y una despensa con premios por cocinar.',
+    text: 'Chef Majo es vuestro recetario: las recetas de los dos, el menú de la semana y una despensa con premios por cocinar.',
     art: (
       <div className="onb-art" aria-hidden>
         <Chef size={130} />
@@ -131,7 +131,7 @@ export default function Onboarding() {
   const last = step === STEPS.length - 1;
 
   return (
-    <Modal label="Cómo funciona MajoChef" onClose={close} centered>
+    <Modal label="Cómo funciona Chef Majo" onClose={close} centered>
       <div className="onboarding">
         {s.art}
         <div className="onb-text">

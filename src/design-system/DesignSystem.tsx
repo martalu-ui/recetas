@@ -88,8 +88,6 @@ export default function DesignSystem() {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [theme, setTheme] = useState<Theme>('sistema');
   const [inspect, setInspect] = useState(false);
-  const tabsRef = useGlide<HTMLDivElement>();
-  const themeRef = useGlide<HTMLDivElement>();
   const dark = theme === 'oscuro' || (theme === 'sistema' && window.matchMedia?.('(prefers-color-scheme: dark)').matches);
   const [tab, setTab] = useState<Tab>(() => (location.hash === '#explore' ? 'explore' : 'tokens'));
 
@@ -101,6 +99,24 @@ export default function DesignSystem() {
   }
 
   useEffect(() => setTokens(readTokens()), []);
+
+  // La sección que se está leyendo se marca en el menú
+  const [current, setCurrent] = useState<string>(SECTIONS[tab][0][0]);
+  useEffect(() => {
+    setCurrent(SECTIONS[tab][0][0]);
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+        if (visible) setCurrent(visible.target.id);
+      },
+      { rootMargin: '-80px 0px -65% 0px' },
+    );
+    SECTIONS[tab].forEach(([id]) => {
+      const el = document.getElementById(id);
+      if (el) io.observe(el);
+    });
+    return () => io.disconnect();
+  }, [tab, tokens.length]);
   useEffect(() => {
     if (tokens.length) applyTheme(tokens, theme);
   }, [tokens, theme]);
@@ -110,17 +126,17 @@ export default function DesignSystem() {
       <div className="ds">
         <header className="ds-top">
           <a className="brand" href="./index.html">
-            <img className="brand-icon" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" /> MajoChef
+            <img className="brand-icon" src={`${import.meta.env.BASE_URL}favicon.png`} alt="" /> Chef Majo
           </a>
           <span className="ds-top-label">Design system</span>
-          <div ref={tabsRef} className="ds-tabs segmented" role="tablist" aria-label="Design system">
+          <div className="ds-tabs" role="tablist" aria-label="Design system">
             {(['tokens', 'explore'] as Tab[]).map((t) => (
               <button key={t} role="tab" aria-selected={t === tab} className={t === tab ? 'on' : ''} onClick={() => chooseTab(t)}>
                 {t === 'tokens' ? 'Tokens' : 'Explore'}
               </button>
             ))}
           </div>
-          <div ref={themeRef} className="ds-theme segmented" role="group" aria-label="Theme">
+          <div className="ds-theme ds-view" role="group" aria-label="Theme">
             {(['sistema', 'claro', 'oscuro'] as Theme[]).map((t) => (
               <button key={t} className={t === theme ? 'on' : ''} aria-pressed={t === theme} onClick={() => setTheme(t)}>
                 {t === 'sistema' ? 'Auto' : t === 'claro' ? 'Light' : 'Dark'}
@@ -131,8 +147,9 @@ export default function DesignSystem() {
 
         <div className="ds-layout">
           <nav className="ds-nav scroll-fade-x" aria-label="Sections">
+            <p className="ds-nav-title">{tab === 'tokens' ? 'Foundations' : 'Components'}</p>
             {SECTIONS[tab].map(([id, label]) => (
-              <a key={id} href={`#${id}`}>
+              <a key={id} href={`#${id}`} className={id === current ? 'current' : undefined}>
                 {label}
               </a>
             ))}
@@ -144,9 +161,8 @@ export default function DesignSystem() {
                 <section className="ds-intro">
                   <h1>Tokens</h1>
                   <p className="muted">
-                    Read live from <code>src/styles.css</code>, in two layers. <strong>Primitives</strong> are the raw palette (
-                    <code>--mustard-400</code>). <strong>Semantic</strong> tokens say what a value is for (<code>--color-primary</code>)
-                    and point to a primitive. Components only use semantic tokens, and only semantic tokens change in dark mode.
+                    Read live from <code>src/styles.css</code>. Primitives are the raw palette; semantic tokens say what each value is for.
+                    Components only use semantic tokens.
                   </p>
                 </section>
                 <SemanticColors tokens={tokens} />
@@ -160,10 +176,7 @@ export default function DesignSystem() {
               <>
                 <section className="ds-intro">
                   <h1>Explore</h1>
-                  <p className="muted">
-                    Every example is the real component from <code>src/</code>, filled with sample recipes and styled with the semantic
-                    tokens. Change something in the code and this page changes with it.
-                  </p>
+                  <p className="muted">The real components from <code>src/</code>, with sample recipes. Change the code and this page changes with it.</p>
                 </section>
                 <Typography />
                 <Icons />
@@ -201,16 +214,73 @@ function Section({ id, title, children, intro }: { id: string; title: string; in
   );
 }
 
-/** Live example + where it lives in the code */
-function Specimen({ name, source, code, children, wide }: { name: string; source: string; code?: string; wide?: boolean; children: ReactNode }) {
+/** Una prop documentada: nombre, tipo, valor por defecto y para qué sirve */
+type Prop = [name: string, type: string, defaultValue: string, description: string];
+
+/** Ejemplo en vivo, como en la documentación de componentes: nombre, Preview / Code, de dónde sale y sus props */
+function Specimen({
+  name,
+  source,
+  code,
+  description,
+  props,
+  children,
+}: {
+  name: string;
+  source: string;
+  code?: string;
+  description?: ReactNode;
+  props?: Prop[];
+  children: ReactNode;
+}) {
+  const [view, setView] = useState<'preview' | 'code'>('preview');
   return (
-    <div className={wide ? 'ds-specimen wide' : 'ds-specimen'}>
-      <div className="ds-preview">{children}</div>
-      <div className="ds-specimen-info">
-        <strong>{name}</strong>
-        <code className="ds-source">{source}</code>
-        {code && <pre className="ds-code">{code}</pre>}
+    <div className="ds-specimen">
+      <div className="ds-specimen-head">
+        <h3>{name}</h3>
+        {code && (
+          <div className="ds-view" role="tablist" aria-label={`${name}: preview or code`}>
+            {(['preview', 'code'] as const).map((v) => (
+              <button key={v} role="tab" aria-selected={view === v} className={view === v ? 'on' : ''} onClick={() => setView(v)}>
+                {v === 'preview' ? 'Preview' : 'Code'}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
+      {description && <p className="muted ds-specimen-desc">{description}</p>}
+      {view === 'code' && code ? <pre className="ds-code">{code}</pre> : <div className="ds-preview">{children}</div>}
+      <code className="ds-source">{source}</code>
+      {props && (
+        <div className="ds-props-wrap">
+          <table className="ds-props">
+            <thead>
+              <tr>
+                <th>Prop</th>
+                <th>Type</th>
+                <th>Default</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {props.map(([n, t, d, desc]) => (
+                <tr key={n}>
+                  <td>
+                    <code>{n}</code>
+                  </td>
+                  <td>
+                    <code>{t}</code>
+                  </td>
+                  <td>
+                    <code>{d}</code>
+                  </td>
+                  <td className="muted">{desc}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
@@ -263,7 +333,7 @@ function SemanticColors({ tokens }: { tokens: Token[] }) {
     <Section
       id="semantic-colors"
       title="Semantic colors"
-      intro="What components use. Each swatch shows light | dark, the primitive it points to and how many times styles.css uses it. Click a name to copy var(--token)."
+      intro="What components use: light | dark, the primitive behind it and how often styles.css uses it. Click a name to copy it."
     >
       {groups.map((g) => {
         const items = g.names.map((n) => colors.find((t) => t.name === n)).filter((t): t is Token => !!t);
@@ -538,7 +608,7 @@ function Illustrations() {
   return (
     <Section id="illustrations" title="Illustrations" intro="Cute food for recipes without a photo, the cooking chef and the avatars.">
       <div className="ds-grid-2">
-        <Specimen name="Food sprites" source="src/components/FoodSprite.tsx" code={'<Sprite name="egg" />\n<FoodSprite recipe={recipe} />'}>
+        <Specimen name="Food sprites" props={[['name', 'SpriteName', '—', 'Which food to draw (Sprite)'], ['recipe', 'Recipe', '—', 'Picks the food from the recipe\'s food group (FoodSprite)'], ['size', 'number', '64', 'Width and height in px']]} source="src/components/FoodSprite.tsx" code={'<Sprite name="egg" />\n<FoodSprite recipe={recipe} />'}>
           <div className="ds-row">
             {SPRITE_NAMES.map((n) => (
               <div key={n} className="ds-icon">
@@ -548,13 +618,13 @@ function Illustrations() {
             ))}
           </div>
         </Specimen>
-        <Specimen name="Cooking chef" source="src/components/Chef.tsx" code={'<Chef />\n<Chef cooking={false} />'}>
+        <Specimen name="Cooking chef" props={[['size', 'number', '120', 'Width in px'], ['cooking', 'boolean', 'true', 'Animate the pan and the pancake']]} source="src/components/Chef.tsx" code={'<Chef />\n<Chef cooking={false} />'}>
           <div className="ds-row">
             <Chef size={110} />
             <Chef size={110} cooking={false} />
           </div>
         </Specimen>
-        <Specimen name="Avatars" source="src/components/Avatar.tsx" code={'<Avatar value="pizza" />'} wide>
+        <Specimen name="Avatars" props={[['value', 'string', '—', 'Avatar id: onigiri, egg, fish, broccoli, pot or pizza'], ['size', 'number', '40', 'Width and height in px']]} source="src/components/Avatar.tsx" code={'<Avatar value="pizza" />'}>
           <div className="ds-row">
             {AVATARS.map((a) => (
               <span key={a.id} className="avatar" title={a.label}>
@@ -572,7 +642,7 @@ function Buttons() {
   return (
     <Section id="buttons" title="Buttons" intro={<>Slightly rounded corners with <code>--radius-button</code>. Yellow for the main action on the screen; white for everything else.</>}>
       <div className="ds-grid-2">
-        <Specimen name="Button" source="src/styles.css · .btn" code={'<button className="btn primary">\n<button className="btn">\n<button className="btn ghost">\n<button className="btn danger">'}>
+        <Specimen name="Button" description="Yellow for the main action of the screen, white for the rest." source="src/styles.css · .btn" code={'<button className="btn primary">\n<button className="btn">\n<button className="btn ghost">\n<button className="btn danger">'}>
           <div className="ds-row">
             <button className="btn primary">+ Nueva receta</button>
             <button className="btn">Editar</button>
@@ -612,22 +682,12 @@ function Buttons() {
 
 function Controls() {
   const [meal, setMeal] = useState<MealFilterValue>('todas');
-  const [chip, setChip] = useState(true);
   const [toggle, setToggle] = useState(true);
   return (
     <Section id="controls" title="Controls" intro="Fields on white or light grey, always very rounded.">
       <div className="ds-grid-2">
-        <Specimen name="Segmented control" source="src/views/MealFilter.tsx" code={'<MealFilter value={…} onChange={…} />'}>
+        <Specimen name="Segmented control" props={[['value', '\'todas\' | \'comida\' | \'cena\'', '—', 'Selected option'], ['onChange', '(value) => void', '—', 'Called with the new option'], ['allLabel', 'string', '\'Todas\'', 'Label of the first option']]} source="src/views/MealFilter.tsx" code={'<MealFilter value={…} onChange={…} />'}>
           <MealFilter value={meal} onChange={setMeal} />
-        </Specimen>
-        <Specimen name="Chips" source="src/styles.css · .chip" code={'<button className="chip">\n<button className="chip on">'}>
-          <div className="chips">
-            <button className={chip ? 'chip on' : 'chip'} onClick={() => setChip((c) => !c)}>
-              Calabaza ×
-            </button>
-            <button className="chip">Arroz</button>
-            <button className="chip">Champiñones</button>
-          </div>
         </Specimen>
         <Specimen name="Toggles" source="src/styles.css · .toggle" code={'<button className="toggle on">'}>
           <div className="toggle-group">
@@ -660,10 +720,20 @@ function Controls() {
 
 function Tags() {
   const [lentejas, salmon, , crema] = SAMPLE_RECIPES;
+  const [selected, setSelected] = useState(true);
   return (
-    <Section id="tags" title="Tags" intro={<>Squarish corners with <code>--radius-tag</code>. Pastel with text in the same hue: lunch in pink, dinner in lilac, side dish in sand and Thermomix in green.</>}>
+    <Section id="tags" title="Tags" intro={<>Squarish corners with <code>--radius-tag</code>. Recipe tags are pastel with text in the same hue (lunch in pink, dinner in lilac, side dish in sand, Thermomix in green); selectable tags are the ones you tap, like ingredients.</>}>
       <div className="ds-grid-2">
-        <Specimen name="Recipe tags" source="src/components/RecipeCard.tsx · <MealTags />" code={'<MealTags recipe={recipe} />'}>
+        <Specimen name="Selectable tags" description="The ones you tap, like ingredients." source="src/styles.css · .select-tag" code={'<button className="select-tag">\n<button className="select-tag on">'}>
+          <div className="select-tags">
+            <button className={selected ? 'select-tag on' : 'select-tag'} onClick={() => setSelected((v) => !v)}>
+              Calabaza ×
+            </button>
+            <button className="select-tag">Arroz</button>
+            <button className="select-tag">Champiñones</button>
+          </div>
+        </Specimen>
+        <Specimen name="Recipe tags" props={[['recipe', 'Recipe', '—', 'Shows lunch, dinner, side dish and Thermomix tags']]} source="src/components/RecipeCard.tsx · <MealTags />" code={'<MealTags recipe={recipe} />'}>
           <div className="ds-stack">
             <div className="meta">
               <MealTags recipe={lentejas} />
@@ -690,7 +760,7 @@ function Tags() {
 function Recipes() {
   return (
     <Section id="recipe-card" title="Recipe card" intro="All the same height. Without a photo, it shows the food sprite for its food group.">
-      <Specimen name="RecipeCard" source="src/components/RecipeCard.tsx" code={'<RecipeCard recipe={recipe} onClick={…} />'} wide>
+      <Specimen name="RecipeCard" props={[['recipe', 'Recipe', '—', 'Recipe to show'], ['onClick', '() => void', '—', 'Opens the recipe'], ['children', 'ReactNode', '—', 'Extra content under the tags']]} source="src/components/RecipeCard.tsx" code={'<RecipeCard recipe={recipe} onClick={…} />'}>
         <div className="grid">
           {SAMPLE_RECIPES.slice(0, 4).map((r) => (
             <RecipeCard key={r.id} recipe={r} onClick={() => {}} />
@@ -722,7 +792,7 @@ function Week() {
   return (
     <Section id="week" title="Week" intro="Pieces of the weekly menu, with sample data. Go ahead and play with them: nothing is saved.">
       <div className="ds-grid-2">
-        <Specimen name="Day strip" source="src/views/WeekView.tsx · <DayStrip />" code={'<DayStrip days={…} today={…} hasPlan={…} />'} wide>
+        <Specimen name="Day strip" props={[['days', 'Date[]', '—', 'The seven days of the week'], ['today', 'string', '—', 'Today as YYYY-MM-DD'], ['hasPlan', '(day) => boolean', '—', 'Shows a dot under days with a menu']]} source="src/views/WeekView.tsx · <DayStrip />" code={'<DayStrip days={…} today={…} hasPlan={…} />'}>
           <DayStrip days={days} today={today} hasPlan={(d) => d <= toISODate(addDays(monday, 3))} />
         </Specimen>
         <Specimen name="Day card (today)" source="src/views/WeekView.tsx · .day + <Slot />" code={'<div className="day today">\n  <Slot … />'}>
@@ -754,7 +824,7 @@ function Week() {
             <Slot slot="cena" recipes={SAMPLE_RECIPES} values={[EATING_OUT, '']} onChange={() => {}} onRandom={() => {}} onOpen={() => {}} />
           </div>
         </Specimen>
-        <Specimen name="Weekly balance" source="src/views/WeekView.tsx · <WeekBalance />" code={'<WeekBalance counts={…} repeated={…} />'} wide>
+        <Specimen name="Weekly balance" props={[['counts', 'Record<FoodGroup, number>', '—', 'Main dishes per food group'], ['repeated', 'number', '—', 'Recipes repeated this week']]} source="src/views/WeekView.tsx · <WeekBalance />" code={'<WeekBalance counts={…} repeated={…} />'}>
           <WeekBalance counts={counts} repeated={1} />
         </Specimen>
       </div>
@@ -766,13 +836,13 @@ function Discover() {
   return (
     <Section id="discover" title="Discover" intro="The «Hi chef!» greeting and the real random recipe card, with sample recipes. «Para hoy» doesn't save anything here.">
       <div className="ds-grid-2">
-        <Specimen name="Greeting" source="src/views/DiscoverView.tsx · <Greeting />" code={'<Greeting avatar="pizza" />'}>
+        <Specimen name="Greeting" props={[['avatar', 'string | null', '—', 'Food avatar next to the greeting']]} source="src/views/DiscoverView.tsx · <Greeting />" code={'<Greeting avatar="pizza" />'}>
           <Greeting avatar="pizza" />
         </Specimen>
         <Specimen name="Greeting (no avatar)" source="src/views/DiscoverView.tsx · <Greeting />" code={'<Greeting avatar={null} />'}>
           <Greeting avatar={null} />
         </Specimen>
-        <Specimen name="Random recipe" source="src/views/RandomView.tsx" code={'<RandomView />'} wide>
+        <Specimen name="Random recipe" props={[['demo', 'boolean', 'false', 'Don\'t save «Para hoy» (used in this page)']]} source="src/views/RandomView.tsx" code={'<RandomView />'}>
           <RandomView demo />
         </Specimen>
       </div>
@@ -809,10 +879,10 @@ function Pantry() {
       }
     >
       <div className="ds-grid-2">
-        <Specimen name="Pantry jar" source="src/components/PantryJar.tsx" code={'<PantryJar items={pantry.available} />'} wide>
+        <Specimen name="Pantry jar" description="Drag a food and throw it, tap one to make it hop." props={[['items', 'PantryItem[]', '—', 'Foods in the jar; new ones fall in with gravity']]} source="src/components/PantryJar.tsx" code={'<PantryJar items={pantry.available} />'}>
           <PantryJar items={items} />
         </Specimen>
-        <Specimen name="Voucher" source="src/components/VoucherTicket.tsx" code={'<VoucherTicket title="Vale por un masaje" detail="6 comidas">\n  <button className="btn small primary">Canjear</button>\n</VoucherTicket>'}>
+        <Specimen name="Voucher" props={[['title', 'string', '—', '«Vale por …»'], ['detail', 'ReactNode', '—', 'Cost or who owes it'], ['done', 'boolean', 'false', 'Crossed out once fulfilled'], ['children', 'ReactNode', '—', 'Action in the stub (redeem, done)']]} source="src/components/VoucherTicket.tsx" code={'<VoucherTicket title="Vale por un masaje" detail="6 comidas">\n  <button className="btn small primary">Canjear</button>\n</VoucherTicket>'}>
           <div className="ds-stack">
             <VoucherTicket title="Vale por un masaje" detail="6 comidas">
               <button className="btn small primary">Canjear</button>
@@ -825,12 +895,12 @@ function Pantry() {
         <Specimen name="Voucher (done)" source="src/components/VoucherTicket.tsx" code={'<VoucherTicket title="…" detail="Cumplido" done />'}>
           <VoucherTicket title="Vale por elegir la peli" detail="Cumplido" done />
         </Specimen>
-        <Specimen name="Create or join a space" source="src/components/HouseholdSetup.tsx" code={'<HouseholdSetup author={author} onDone={reload} />'} wide>
+        <Specimen name="Create or join a space" props={[['author', 'string | null', '—', 'Name saved with the membership'], ['onDone', '() => void', '—', 'Called after creating or joining']]} source="src/components/HouseholdSetup.tsx" code={'<HouseholdSetup author={author} onDone={reload} />'}>
           <div className="ds-setup">
             <HouseholdSetup author={null} onDone={() => {}} />
           </div>
         </Specimen>
-        <Specimen name="Space" source="src/components/HouseholdCard.tsx" code={'<HouseholdCard household={household} />'} wide>
+        <Specimen name="Space" props={[['household', 'Household', '—', 'Name, members and invite code']]} source="src/components/HouseholdCard.tsx" code={'<HouseholdCard household={household} />'}>
           <HouseholdCard
             household={{ id: 'demo', name: 'Ana y Leo', inviteCode: 'AB3K9X', members: [{ name: 'ana', me: true }, { name: 'leo', me: false }] }}
           />

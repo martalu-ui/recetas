@@ -1,3 +1,5 @@
+import type { FoodGroup } from '../lib/nutrition';
+
 /**
  * Iconos en pixel art (16x16), dibujados a mano en el estilo de los iconos pixel de línea:
  * cada carácter es un píxel ('x' = color del texto, '.' = transparente).
@@ -260,6 +262,16 @@ const ICONS = {
 export type IconName = keyof typeof ICONS;
 
 export const ICON_NAMES = Object.keys(ICONS) as IconName[];
+
+/** Icono de cada tipo de alimento (semana, recetas) */
+export const FOOD_GROUP_ICON: Record<FoodGroup, IconName> = {
+  legumbres: 'bean',
+  pescado: 'fish',
+  carne: 'meat',
+  huevos: 'egg',
+  cereales: 'pasta',
+  verdura: 'leaf',
+};
 
 export default function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
   const rows = ICONS[name];

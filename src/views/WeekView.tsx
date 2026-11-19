@@ -6,7 +6,7 @@ import { balanceState, FOOD_GROUP_INFO, FOOD_GROUPS, foodGroupOf, recommendation
 import { emptyGroupCounts, pickBalanced, type PickContext } from '../lib/planner';
 import { store } from '../lib/store';
 import { EATING_OUT, LEFTOVERS, MEAL_LABEL, MEAL_TYPES, type Course, type MealType, type PlanPosition, type Recipe } from '../lib/types';
-import Icon, { type IconName } from '../components/Icon';
+import Icon, { FOOD_GROUP_ICON } from '../components/Icon';
 import { usePantry } from '../pantry';
 import Empty from './Empty';
 
@@ -378,15 +378,6 @@ function Dish(props: {
   );
 }
 
-const GROUP_ICON: Record<FoodGroup, IconName> = {
-  legumbres: 'bean',
-  pescado: 'fish',
-  carne: 'meat',
-  huevos: 'egg',
-  cereales: 'pasta',
-  verdura: 'leaf',
-};
-
 /** Fila de días como círculos (hoy en amarillo); al tocar uno baja hasta ese día */
 export function DayStrip({ days, today, hasPlan }: { days: Date[]; today: string; hasPlan(day: string): boolean }) {
   return (
@@ -439,7 +430,7 @@ export function WeekBalance({ counts, repeated }: { counts: Record<FoodGroup, nu
                   <span className="bar-count empty">0</span>
                 )}
               </div>
-              <Icon name={GROUP_ICON[g]} size={22} />
+              <Icon name={FOOD_GROUP_ICON[g]} size={22} />
               <span className="bar-label">{info.label}</span>
               {rec && <span className="bar-rec">{rec}</span>}
             </div>

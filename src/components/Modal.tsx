@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 
-/** `centered`: ventana en el centro también en el móvil (en vez de hoja que sube desde abajo), para avisos cortos */
-export default function Modal({ label, onClose, children, centered = false }: { label: string; onClose(): void; children: ReactNode; centered?: boolean }) {
+/** `children` puede ser una función que recibe `close` para cerrar con la animación. `centered`: ventana en el centro también en el móvil (en vez de hoja que sube desde abajo), para avisos cortos */
+export default function Modal({ label, onClose, children, centered = false }: { label: string; onClose(): void; children: ReactNode | ((close: () => void) => ReactNode); centered?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const [closing, setClosing] = useState(false);
 
@@ -22,7 +23,8 @@ export default function Modal({ label, onClose, children, centered = false }: { 
     };
   }, [close]);
 
-  return (
+  // En el body: dentro de una vista con animación (transform) el fondo fijo no taparía toda la pantalla
+  return createPortal(
     <div
       className={['modal-backdrop', centered && 'centered', closing && 'closing'].filter(Boolean).join(' ')}
       onMouseDown={(e) => e.target === e.currentTarget && close()}
@@ -32,8 +34,9 @@ export default function Modal({ label, onClose, children, centered = false }: { 
         <button className="modal-close" onClick={close} aria-label="Cerrar">
           ×
         </button>
-        {children}
+        {typeof children === 'function' ? children(close) : children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

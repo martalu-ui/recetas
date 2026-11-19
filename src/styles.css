@@ -1479,6 +1479,94 @@ a:focus-visible {
   font-style: italic;
 }
 
+/* Botón del hueco: parece un desplegable y abre el selector con buscador */
+.dish-select {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  padding: 7px 34px 7px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-field);
+  background: var(--color-surface-subtle) var(--icon-chevron) no-repeat right 14px center / 12px 8px;
+  text-align: left;
+  line-height: 1.35;
+  cursor: pointer;
+  transition: background-color var(--motion-hover);
+}
+
+.dish-select span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@media (hover: hover) {
+  .dish-select:hover {
+    background-color: var(--color-surface-hover);
+  }
+}
+
+.dish-select.special {
+  font-style: italic;
+}
+
+.dish-select.empty {
+  color: var(--color-text-muted);
+}
+
+/* Selector de plato */
+.dish-picker .recipe-search {
+  margin: 0;
+  background: var(--color-surface-subtle);
+  border-color: transparent;
+}
+
+.dish-picker .select-tags {
+  margin: 0;
+}
+
+.pick-group h3 {
+  margin: 16px 0 4px;
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-strong);
+  color: var(--color-text-muted);
+}
+
+.pick-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 46px;
+  padding: 8px 4px;
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--motion-hover);
+}
+
+@media (hover: hover) {
+  .pick-row:hover {
+    background: var(--color-surface-subtle);
+  }
+}
+
+.pick-row.on {
+  font-weight: var(--font-weight-strong);
+}
+
+.pick-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.pick-row .muted {
+  flex: none;
+}
+
 .slot-add,
 .slot-open {
   align-self: flex-start;

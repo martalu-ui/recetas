@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useData } from '../data';
-import { normalize } from '../lib/match';
+import { normalize, recipeMatches } from '../lib/match';
 import { FOOD_GROUP_INFO, FOOD_GROUPS, foodGroupOf, type FoodGroup } from '../lib/nutrition';
 import { COURSES, type Course, type Recipe } from '../lib/types';
 import Icon, { FOOD_GROUP_ICON } from '../components/Icon';
@@ -10,11 +10,6 @@ import Empty from './Empty';
 import MealFilter, { filterByMeal, type MealFilterValue } from './MealFilter';
 
 type Sort = 'recientes' | 'nombre' | 'tiempo';
-
-/** Busca por nombre y por ingredientes: «garbanzos» encuentra el curry aunque no lo diga el título */
-function matchesQuery(recipe: Recipe, q: string): boolean {
-  return !q || normalize(recipe.title).includes(q) || recipe.ingredients.some((i) => normalize(i.name).includes(q));
-}
 
 export default function RecipesView() {
   const { recipes, loading, error, editRecipe, openRecipe } = useData();
@@ -28,7 +23,7 @@ export default function RecipesView() {
   // Todo lo filtrado menos el tipo de alimento (para contar cuántas hay de cada tipo)
   const filtered = useMemo(() => {
     const q = normalize(query.trim());
-    const list = filterByMeal(recipes, meal).filter((r) => matchesQuery(r, q) && (course === 'todos' || r.course === course));
+    const list = filterByMeal(recipes, meal).filter((r) => recipeMatches(r, q) && (course === 'todos' || r.course === course));
     if (sort === 'nombre') return [...list].sort((a, b) => a.title.localeCompare(b.title, 'es'));
     if (sort === 'tiempo') return [...list].sort((a, b) => (a.timeMinutes ?? Infinity) - (b.timeMinutes ?? Infinity));
     return list;

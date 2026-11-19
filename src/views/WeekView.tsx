@@ -7,6 +7,7 @@ import { emptyGroupCounts, pickBalanced, type PickContext } from '../lib/planner
 import { store } from '../lib/store';
 import { EATING_OUT, LEFTOVERS, MEAL_LABEL, MEAL_TYPES, type Course, type MealType, type PlanPosition, type Recipe } from '../lib/types';
 import Icon, { FOOD_GROUP_ICON } from '../components/Icon';
+import DishPicker, { dishLabel } from '../components/DishPicker';
 import { usePantry } from '../pantry';
 import Empty from './Empty';
 
@@ -243,6 +244,7 @@ export default function WeekView() {
                   onChange={(position, value) => assign(day, slot, position, value)}
                   onRandom={(position) => randomFor(day, slot, position)}
                   onOpen={openRecipe}
+                  dayName={weekdayName(d)}
                   {...(pantry && day <= today ? cookProps(day, slot) : {})}
                 />
               ))}
@@ -263,6 +265,8 @@ export function Slot(props: {
   onChange(position: PlanPosition, value: string | null): void;
   onRandom(position: PlanPosition): void;
   onOpen(r: Recipe): void;
+  /** Para el título del selector de plato: «Lunes» */
+  dayName?: string;
   /** Para hoy y días pasados: si el plato ya está marcado como hecho y cómo marcarlo (gana una comida) */
   cooked?(position: PlanPosition): boolean;
   onCook?(position: PlanPosition): void;
@@ -306,48 +310,29 @@ function Dish(props: {
   onChange(position: PlanPosition, value: string | null): void;
   onRandom(position: PlanPosition): void;
   onOpen(r: Recipe): void;
+  dayName?: string;
   onRemove?(): void;
   cooked?(position: PlanPosition): boolean;
   onCook?(position: PlanPosition): void;
 }) {
   const { slot, recipes, position, value } = props;
   const recipe = recipes.find((r) => r.id === value) ?? null;
-  const byName = (a: Recipe, b: Recipe) => a.title.localeCompare(b.title, 'es');
-
-  // Ordenamos los grupos según el plato: en el primero salen antes los principales y en el segundo los acompañamientos
-  const courseOrder: Course[] = position === 1 ? ['principal', 'acompanamiento'] : ['acompanamiento', 'principal'];
-  const groups = [
-    ...courseOrder.map((c) => ({
-      label: `${c === 'principal' ? 'Principales' : 'Acompañamientos'} para ${slot}`,
-      items: recipes.filter((r) => r.course === c && r.mealTypes.includes(slot)),
-    })),
-    { label: 'Otras', items: recipes.filter((r) => !r.mealTypes.includes(slot)) },
-  ].filter((g) => g.items.length > 0);
+  const [picking, setPicking] = useState(false);
+  const special = value === LEFTOVERS || value === EATING_OUT;
 
   const label = `${MEAL_LABEL[slot]}, plato ${position}`;
 
   return (
     <div className="dish">
       <div className="slot-controls">
-        <select
-          value={value}
-          onChange={(e) => props.onChange(position, e.target.value || null)}
-          aria-label={label}
-          className={value === LEFTOVERS || value === EATING_OUT ? 'special' : undefined}
+        <button
+          className={['dish-select', special && 'special', !value && 'empty'].filter(Boolean).join(' ')}
+          onClick={() => setPicking(true)}
+          aria-label={`${label}: ${dishLabel(value, recipe, position)}`}
+          aria-haspopup="dialog"
         >
-          <option value="">{position === 1 ? '—' : '— Segundo plato —'}</option>
-          <option value={LEFTOVERS}>Sobras</option>
-          <option value={EATING_OUT}>Comemos fuera</option>
-          {groups.map((g) => (
-            <optgroup key={g.label} label={g.label}>
-              {[...g.items].sort(byName).map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.title}
-                </option>
-              ))}
-            </optgroup>
-          ))}
-        </select>
+          <span>{dishLabel(value, recipe, position)}</span>
+        </button>
         <button className="icon-btn" onClick={() => props.onRandom(position)} title="Elegir al azar" aria-label={`${label} al azar`}>
           <Icon name="dice" />
         </button>
@@ -357,6 +342,17 @@ function Dish(props: {
           </button>
         )}
       </div>
+      {picking && (
+        <DishPicker
+          slot={slot}
+          position={position}
+          recipes={recipes}
+          value={value}
+          dayName={props.dayName}
+          onPick={(v) => props.onChange(position, v)}
+          onClose={() => setPicking(false)}
+        />
+      )}
       {recipe && (
         <div className="slot-links">
           <button className="slot-open" onClick={() => props.onOpen(recipe)}>

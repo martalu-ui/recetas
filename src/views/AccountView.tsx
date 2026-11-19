@@ -4,6 +4,9 @@ import { appUrl, supabase } from '../lib/supabase';
 import Avatar, { AVATARS } from '../components/Avatar';
 import HouseholdCard from '../components/HouseholdCard';
 import PantryJar from '../components/PantryJar';
+import SettingsCard from '../components/SettingsCard';
+import { useHousehold } from '../household';
+import { shortDate } from '../lib/dates';
 import type { Household } from '../lib/household';
 import { OwedCard, VouchersCard } from '../components/Vouchers';
 import { usePantry } from '../pantry';
@@ -60,14 +63,11 @@ export default function AccountView(props: {
       {pantry && <OwedCard />}
       {pantry && <VouchersCard />}
 
-      {pantry && pantry.scores.length > 0 && (
-        <div className="account-card">
-          <h2>¿Quién cocina más?</h2>
-          <Scoreboard scores={pantry.scores} />
-        </div>
-      )}
+      {pantry && pantry.scores.length > 0 && <ScoreCard scores={pantry.scores} />}
 
       <HouseholdCard household={household} />
+
+      <SettingsCard />
 
       <div className="account-card">
         {supabase && email ? (
@@ -126,6 +126,55 @@ export default function AccountView(props: {
   );
 }
 
+/** El marcador con su botón para empezar de cero (las comidas de la despensa no se tocan) */
+function ScoreCard({ scores }: { scores: Score[] }) {
+  const ctx = useHousehold();
+  const [confirming, setConfirming] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const since = ctx?.household.scoresSince;
+  const total = scores.reduce((n, s) => n + s.count, 0);
+
+  async function reset() {
+    setError(null);
+    try {
+      await ctx!.update({ scoresSince: new Date().toISOString() });
+      setConfirming(false);
+    } catch (e) {
+      setError(`No se ha podido reiniciar: ${(e as Error).message}`);
+    }
+  }
+
+  return (
+    <div className="account-card">
+      <div className="card-head">
+        <h2>¿Quién cocina más?</h2>
+        {ctx && !confirming && total > 0 && (
+          <button className="btn small" onClick={() => setConfirming(true)}>
+            Reiniciar
+          </button>
+        )}
+      </div>
+      {since && <p className="muted small">Desde el {shortDate(new Date(since))}</p>}
+      {confirming ? (
+        <div className="confirm-reset">
+          <p className="small">El marcador vuelve a 0 para los dos. Las comidas de la despensa y los vales se quedan.</p>
+          <div className="confirm-reset-actions">
+            <button className="btn small danger" onClick={reset}>
+              Poner a 0
+            </button>
+            <button className="btn small" onClick={() => setConfirming(false)}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      ) : (
+        <Scoreboard scores={scores} />
+      )}
+      {error && <p className="error">{error}</p>}
+    </div>
+  );
+}
+
 /** Marcador: una barra por persona, la que más ha cocinado con corona */
 function Scoreboard({ scores }: { scores: Score[] }) {
   const max = Math.max(1, ...scores.map((s) => s.count));
@@ -134,7 +183,6 @@ function Scoreboard({ scores }: { scores: Score[] }) {
       {scores.map((s, i) => (
         <li key={`${s.author}-${i}`} className={s.me ? 'score me' : 'score'}>
           <span className="score-name">
-            
             {s.me && s.author !== 'Tú' ? `${s.author} (tú)` : s.author}
           </span>
           <span className="score-bar" aria-hidden>

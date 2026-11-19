@@ -1,9 +1,11 @@
 import type { ReactNode } from 'react';
 import { formatMinutes } from '../lib/dates';
 import FoodSprite from './FoodSprite';
+import { useSettings } from '../household';
 import { COURSE_LABEL, MEAL_LABEL, type Recipe } from '../lib/types';
 
 export function MealTags({ recipe }: { recipe: Recipe }) {
+  const { thermomix } = useSettings();
   return (
     <>
       {recipe.mealTypes.map((t) => (
@@ -12,7 +14,7 @@ export function MealTags({ recipe }: { recipe: Recipe }) {
         </span>
       ))}
       {recipe.course === 'acompanamiento' && <span className="tag tag-course">{COURSE_LABEL.acompanamiento}</span>}
-      {recipe.thermomix && <span className="tag tag-thermomix">Thermomix</span>}
+      {thermomix && recipe.thermomix && <span className="tag tag-thermomix">Thermomix</span>}
     </>
   );
 }

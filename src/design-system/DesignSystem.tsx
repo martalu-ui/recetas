@@ -10,6 +10,8 @@ import Icon, { ICON_NAMES } from '../components/Icon';
 import HouseholdCard from '../components/HouseholdCard';
 import HouseholdSetup from '../components/HouseholdSetup';
 import PantryJar from '../components/PantryJar';
+import Switch from '../components/Switch';
+import { DEFAULT_SETTINGS } from '../lib/household';
 import VoucherTicket from '../components/VoucherTicket';
 import RecipeCard, { MealTags } from '../components/RecipeCard';
 import MealFilter, { type MealFilterValue } from '../views/MealFilter';
@@ -683,6 +685,7 @@ function Buttons() {
 function Controls() {
   const [meal, setMeal] = useState<MealFilterValue>('todas');
   const [toggle, setToggle] = useState(true);
+  const [on, setOn] = useState(true);
   return (
     <Section id="controls" title="Controls" intro="Fields on white or light grey, always very rounded.">
       <div className="ds-grid-2">
@@ -696,6 +699,12 @@ function Controls() {
             </button>
             <button className="toggle">Acompañamiento</button>
             <button className="toggle on tag-thermomix">✓ Sí, la tenemos</button>
+          </div>
+        </Specimen>
+        <Specimen name="Switch" description="On/off for settings, like «Thermomix» in Cuenta → Ajustes." props={[['checked', 'boolean', '—', 'On or off'], ['onChange', '(next: boolean) => void', '—', 'Called with the new value'], ['label', 'string', '—', 'Accessible name'], ['disabled', 'boolean', 'false', 'While saving']]} source="src/components/Switch.tsx" code={'<Switch checked={on} onChange={setOn} label="Tenemos Thermomix" />'}>
+          <div className="setting ds-setting">
+            <span>Thermomix</span>
+            <Switch checked={on} onChange={setOn} label="Tenemos Thermomix" />
           </div>
         </Specimen>
         <Specimen name="Fields" source="src/styles.css · input, select, .field" code={'<label className="field"><span>…</span><input /></label>'}>
@@ -902,7 +911,7 @@ function Pantry() {
         </Specimen>
         <Specimen name="Space" props={[['household', 'Household', '—', 'Name, members and invite code']]} source="src/components/HouseholdCard.tsx" code={'<HouseholdCard household={household} />'}>
           <HouseholdCard
-            household={{ id: 'demo', name: 'Ana y Leo', inviteCode: 'AB3K9X', members: [{ name: 'ana', me: true }, { name: 'leo', me: false }] }}
+            household={{ id: 'demo', name: 'Ana y Leo', inviteCode: 'AB3K9X', members: [{ name: 'ana', me: true }, { name: 'leo', me: false }], scoresSince: null, settings: DEFAULT_SETTINGS }}
           />
         </Specimen>
       </div>

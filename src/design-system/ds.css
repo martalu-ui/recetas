@@ -842,3 +842,8 @@ body:has(.ds) {
 .ds .ds-source {
   font-size: 0.7rem;
 }
+
+.ds-setting {
+  width: min(280px, 100%);
+  margin: 0;
+}

@@ -182,6 +182,10 @@ create table if not exists public.households (
   created_at  timestamptz not null default now()
 );
 
+-- Ajustes del espacio (p. ej. {"thermomix": false}) y desde cuándo cuenta el marcador de «¿Quién cocina más?»
+alter table public.households add column if not exists scores_since timestamptz;
+alter table public.households add column if not exists settings jsonb not null default '{}'::jsonb;
+
 create table if not exists public.household_members (
   household_id uuid not null references public.households(id) on delete cascade,
   user_id      uuid not null unique references auth.users(id) on delete cascade,

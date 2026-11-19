@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useData } from '../data';
+import { useSettings } from '../household';
 import { compressImage } from '../lib/image';
 import { allIngredients, ingredientKey, normalize } from '../lib/match';
 import { FOOD_GROUP_INFO, FOOD_GROUPS, inferFoodGroup, type FoodGroup } from '../lib/nutrition';
@@ -9,6 +10,7 @@ const EMPTY_INGREDIENT: Ingredient = { name: '', quantity: '' };
 
 export default function RecipeForm({ recipe, onDone }: { recipe: Recipe | null; onDone(saved: Recipe | null): void }) {
   const { recipes, saveRecipe } = useData();
+  const settings = useSettings();
   const [title, setTitle] = useState(recipe?.title ?? '');
   const [mealTypes, setMealTypes] = useState<MealType[]>(recipe?.mealTypes ?? []);
   const [course, setCourse] = useState<Course>(recipe?.course ?? 'principal');
@@ -181,19 +183,21 @@ export default function RecipeForm({ recipe, onDone }: { recipe: Recipe | null; 
       </label>
 
       <div className="row">
-        <div className="field">
-          <span>Thermomix</span>
-          <div className="toggle-group">
-            <button
-              type="button"
-              className={thermomix ? 'toggle on tag-thermomix' : 'toggle'}
-              aria-pressed={thermomix}
-              onClick={() => setThermomix((t) => !t)}
-            >
-              {thermomix ? '✓ Sí, la tenemos' : 'Sí, la tenemos'}
-            </button>
+        {settings.thermomix && (
+          <div className="field">
+            <span>Thermomix</span>
+            <div className="toggle-group">
+              <button
+                type="button"
+                className={thermomix ? 'toggle on tag-thermomix' : 'toggle'}
+                aria-pressed={thermomix}
+                onClick={() => setThermomix((t) => !t)}
+              >
+                {thermomix ? '✓ Sí, la tenemos' : 'Sí, la tenemos'}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
         <label className="field time-field">
           <span>Tiempo (min)</span>
           <input type="number" min={0} inputMode="numeric" value={time} onChange={(e) => setTime(e.target.value)} placeholder="30" />

@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { pickReward } from './lib/reward';
 import { useData } from './data';
+import { useHousehold } from './household';
 import { store, type Score } from './lib/store';
 import { oweText, type Voucher, type VoucherKind } from './lib/vouchers';
 import type { MealType, PantryItem, Recipe } from './lib/types';
@@ -43,6 +44,7 @@ export function usePantry(): PantryContextValue | null {
 
 export function PantryProvider({ children }: { children: ReactNode }) {
   const { author } = useData();
+  const since = useHousehold()?.household.scoresSince ?? null;
   const [items, setItems] = useState<PantryItem[]>([]);
   const [scores, setScores] = useState<Score[]>([]);
   const [reward, setReward] = useState<PantryItem | null>(null);
@@ -73,8 +75,8 @@ export function PantryProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const loadScores = useCallback(() => {
-    store.listScores(author).then(setScores, () => setScores([]));
-  }, [author]);
+    store.listScores(author, since).then(setScores, () => setScores([]));
+  }, [author, since]);
 
   useEffect(() => {
     store.listPantry().then(setItems, () => setItems([]));

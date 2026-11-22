@@ -9,7 +9,8 @@ import Icon from './components/Icon';
 import { useGlide } from './lib/useGlide';
 import Login from './components/Login';
 import HouseholdSetup from './components/HouseholdSetup';
-import { clearPendingCode, codeFromHash, type Household } from './lib/household';
+import { clearPendingCode, codeFromHash, type Household, type HouseholdPatch } from './lib/household';
+import { HouseholdContext } from './household';
 import { store } from './lib/store';
 import SetPassword from './components/SetPassword';
 import Modal from './components/Modal';
@@ -121,6 +122,20 @@ function HouseholdGate({ author, children }: { author: string | null; children(h
 
   useEffect(load, [load]);
 
+  const update = useCallback(async (patch: HouseholdPatch) => {
+    let before: Household | null | undefined;
+    setHousehold((h) => {
+      before = h;
+      return h ? { ...h, ...patch } : h;
+    });
+    try {
+      await store.updateHousehold(patch);
+    } catch (e) {
+      setHousehold(before);
+      throw e;
+    }
+  }, []);
+
   if (error)
     return (
       <div className="center-screen">
@@ -132,7 +147,7 @@ function HouseholdGate({ author, children }: { author: string | null; children(h
     );
   if (household === undefined) return <div className="center-screen">Cargando…</div>;
   if (household === null) return <HouseholdSetup author={author} onDone={load} />;
-  return children(household);
+  return <HouseholdContext.Provider value={{ household, update }}>{children(household)}</HouseholdContext.Provider>;
 }
 
 const LS_AVATAR = 'recetas.avatar';

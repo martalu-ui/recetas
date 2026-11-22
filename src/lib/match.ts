@@ -90,3 +90,8 @@ export function pickRandom<T>(items: T[], avoid?: T): T | undefined {
   const pool = items.length > 1 && avoid !== undefined ? items.filter((i) => i !== avoid) : items;
   return pool[Math.floor(Math.random() * pool.length)];
 }
+
+/** Busca por nombre y por ingredientes: «garbanzos» encuentra el curry aunque no lo diga el título. `q` ya normalizada */
+export function recipeMatches(recipe: Recipe, q: string): boolean {
+  return !q || normalize(recipe.title).includes(q) || recipe.ingredients.some((i) => normalize(i.name).includes(q));
+}

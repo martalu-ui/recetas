@@ -1,5 +1,5 @@
 import { blobToDataUrl } from './image';
-import type { Household } from './household';
+import { readSettings, type Household, type HouseholdPatch } from './household';
 import { byCost, DEFAULT_VOUCHERS, voucherTitle, type Voucher, type VoucherKind } from './vouchers';
 import type { FoodGroup } from './nutrition';
 import { PHOTO_BUCKET, supabase } from './supabase';
@@ -12,6 +12,8 @@ export interface DataStore {
   createHousehold(name: string, author: string | null): Promise<void>;
   /** Unirse al espacio de la pareja con su código */
   joinHousehold(code: string, author: string | null): Promise<void>;
+  /** Cambia los ajustes o reinicia el marcador del espacio (para los dos) */
+  updateHousehold(patch: HouseholdPatch): Promise<void>;
   listRecipes(): Promise<Recipe[]>;
   saveRecipe(draft: RecipeDraft, existing: Recipe | null, author: string | null): Promise<Recipe>;
   deleteRecipe(recipe: Recipe): Promise<void>;
@@ -24,7 +26,8 @@ export interface DataStore {
   addPantry(item: PantryDraft, author: string | null): Promise<PantryItem>;
   removePantry(id: string): Promise<void>;
   /** Marcador de «¿Quién cocina más?»: comidas ganadas por cada persona */
-  listScores(author: string | null): Promise<Score[]>;
+  /** Quién ha cocinado más desde `since` (o desde siempre) */
+  listScores(author: string | null, since?: string | null): Promise<Score[]>;
   /** Vales de los dos, el más reciente primero */
   listVouchers(): Promise<Voucher[]>;
   /** Catálogo de vales, compartido y editable */
@@ -63,6 +66,7 @@ const LS_PLAN = 'recetas.plan';
 const LS_PANTRY = 'recetas.pantry';
 const LS_VOUCHERS = 'recetas.vouchers';
 const LS_VOUCHER_KINDS = 'recetas.voucherKinds';
+const LS_HOUSEHOLD = 'recetas.household';
 
 function readLS<T>(key: string, fallback: T): T {
   try {
@@ -94,10 +98,21 @@ const localStore: DataStore = {
   mode: 'local',
   // En local no hay cuentas: un único espacio de mentira para que la app y la vista previa funcionen igual
   async getHousehold(author) {
-    return { id: 'local', name: 'Chef Majo', inviteCode: 'MAJO42', members: [{ name: author ?? 'Tú', me: true }] };
+    const saved = readLS<{ scoresSince?: string | null; settings?: unknown }>(LS_HOUSEHOLD, {});
+    return {
+      id: 'local',
+      name: 'Chef Majo',
+      inviteCode: 'MAJO42',
+      members: [{ name: author ?? 'Tú', me: true }],
+      scoresSince: saved.scoresSince ?? null,
+      settings: readSettings(saved.settings),
+    };
   },
   async createHousehold() {},
   async joinHousehold() {},
+  async updateHousehold(patch) {
+    writeLS(LS_HOUSEHOLD, { ...readLS<object>(LS_HOUSEHOLD, {}), ...patch });
+  },
   async listRecipes() {
     // Las recetas guardadas antes de existir estos campos se toman como principales
     return readLS<Recipe[]>(LS_RECIPES, []).map((r) => ({
@@ -202,8 +217,9 @@ const localStore: DataStore = {
   watchVouchers() {
     return () => {};
   },
-  async listScores(author) {
-    return [{ author: author ?? 'Tú', count: readLS<PantryItem[]>(LS_PANTRY, []).length, me: true }];
+  async listScores(author, since) {
+    const count = readLS<PantryItem[]>(LS_PANTRY, []).filter((i) => !since || i.createdAt >= since).length;
+    return [{ author: author ?? 'Tú', count, me: true }];
   },
 };
 
@@ -308,7 +324,13 @@ const supabaseStore: DataStore = {
   mode: 'supabase',
   async getHousehold() {
     const uid = await currentUserId();
-    const homes = check(await supabase!.from('households').select('id, name, invite_code').limit(1)) as { id: string; name: string; invite_code: string }[];
+    const homes = check(await supabase!.from('households').select('id, name, invite_code, scores_since, settings').limit(1)) as {
+      id: string;
+      name: string;
+      invite_code: string;
+      scores_since: string | null;
+      settings: unknown;
+    }[];
     if (!homes.length) {
       householdId = null;
       return null;
@@ -320,7 +342,16 @@ const supabaseStore: DataStore = {
       name: homes[0].name,
       inviteCode: homes[0].invite_code,
       members: members.map((m) => ({ name: m.name ?? 'Alguien', me: m.user_id === uid })),
+      scoresSince: homes[0].scores_since,
+      settings: readSettings(homes[0].settings),
     };
+  },
+  async updateHousehold(patch) {
+    if (!householdId) throw new Error('no estás en ningún espacio');
+    const row: Record<string, unknown> = {};
+    if ('scoresSince' in patch) row.scores_since = patch.scoresSince;
+    if (patch.settings) row.settings = patch.settings;
+    check(await supabase!.from('households').update(row).eq('id', householdId).select('id'));
   },
   async createHousehold(name, author) {
     check(await supabase!.rpc('create_household', { p_name: name.trim(), p_author: author }));
@@ -409,9 +440,11 @@ const supabaseStore: DataStore = {
     const rows = check(await supabase!.from('pantry').delete().eq('id', id).is('voucher_id', null).select('id')) as { id: string }[];
     if (rows.length === 0) throw new Error('esa comida ya está gastada en un vale');
   },
-  async listScores(author) {
+  async listScores(author, since) {
     const uid = await currentUserId();
-    const rows = check(await supabase!.from('pantry').select('user_id, author')) as { user_id: string; author: string | null }[];
+    let query = supabase!.from('pantry').select('user_id, author');
+    if (since) query = query.gte('created_at', since);
+    const rows = check(await query) as { user_id: string; author: string | null }[];
     const scores = new Map<string, Score>();
     for (const r of rows) {
       const me = r.user_id === uid;

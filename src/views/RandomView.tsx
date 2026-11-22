@@ -9,6 +9,7 @@ import Chef from '../components/Chef';
 import Icon from '../components/Icon';
 import { MealTags } from '../components/RecipeCard';
 import { useGlide } from '../lib/useGlide';
+import { useSettings } from '../household';
 
 type Mood = 'todo' | 'comida' | 'cena' | 'rapida' | 'thermomix';
 
@@ -44,6 +45,12 @@ export default function RandomView({ demo = false }: { demo?: boolean }) {
   const [added, setAdded] = useState<string | null>(null);
   const timer = useRef<number>();
   const moodsRef = useGlide<HTMLDivElement>();
+  const settings = useSettings();
+  // Sin Thermomix en casa, su filtro sobra
+  const moods = MOODS.filter((m) => m.id !== 'thermomix' || settings.thermomix);
+  useEffect(() => {
+    if (!settings.thermomix && mood === 'thermomix') setMood('todo');
+  }, [settings.thermomix, mood]);
 
   useEffect(() => () => window.clearInterval(timer.current), []);
 
@@ -92,7 +99,7 @@ export default function RandomView({ demo = false }: { demo?: boolean }) {
   return (
     <section className={rolling !== null ? 'feature rolling' : 'feature'}>
       <div ref={moodsRef} className="mood-tags segmented scroll-fade-x" role="group" aria-label="Filtrar la receta al azar">
-        {MOODS.map((m) => (
+        {moods.map((m) => (
           <button
             key={m.id}
             className={mood === m.id ? 'on' : ''}

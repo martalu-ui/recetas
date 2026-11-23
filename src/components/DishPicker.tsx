@@ -31,7 +31,7 @@ export default function DishPicker(props: {
   const title = `${props.dayName ? `${props.dayName} · ` : ''}${MEAL_LABEL[slot]}${position === 2 ? ' · 2º plato' : ''}`;
 
   return (
-    <Modal label={`Elegir plato: ${title}`} onClose={props.onClose}>
+    <Modal label={`Elegir plato: ${title}`} onClose={props.onClose} className="picker-modal">
       {(close) => (
         <PickerBody
           title={title}
@@ -53,6 +53,7 @@ function PickerBody(props: { title: string; slot: MealType; position: PlanPositi
   const { slot, position, recipes, value, onPick } = props;
   const [query, setQuery] = useState('');
   const input = useRef<HTMLInputElement>(null);
+  const list = useRef<HTMLDivElement>(null);
 
   // En el ordenador se puede escribir directamente; en el móvil no abrimos el teclado sin pedirlo
   useEffect(() => {
@@ -85,7 +86,11 @@ function PickerBody(props: { title: string; slot: MealType; position: PlanPositi
             type="search"
             placeholder="Buscar receta o ingrediente…"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              // Al buscar, la lista vuelve arriba para ver los resultados
+              if (list.current) list.current.scrollTop = 0;
+            }}
             aria-label="Buscar receta o ingrediente"
             autoComplete="off"
           />
@@ -107,7 +112,7 @@ function PickerBody(props: { title: string; slot: MealType; position: PlanPositi
         )}
       </div>
 
-      <div className="sheet-body">
+      <div className="sheet-body" ref={list}>
         {sections.length === 0 && <p className="muted">Ninguna receta coincide con «{query.trim()}».</p>}
         {sections.map((s) => (
           <div key={s.label} className="pick-group" role="group" aria-label={s.label}>

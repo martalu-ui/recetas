@@ -191,7 +191,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Con una ventana abierta la página de fondo no se mueve (el top lo pone Modal para no saltar arriba) */
 body.no-scroll {
+  position: fixed;
+  left: 0;
+  right: 0;
   overflow: hidden;
 }
 
@@ -832,6 +836,7 @@ a:focus-visible {
   width: min(640px, 100%);
   max-height: calc(100vh - 32px);
   overflow-y: auto;
+  overscroll-behavior: contain;
   background: var(--color-surface);
   border-radius: var(--radius-card);
   box-shadow: 0 20px 60px rgb(0 0 0 / 25%);
@@ -1515,7 +1520,47 @@ a:focus-visible {
   color: var(--color-text-muted);
 }
 
-/* Selector de plato */
+/* Selector de plato: alto fijo (no salta al filtrar) y solo la lista hace scroll */
+.modal.picker-modal {
+  display: flex;
+  flex-direction: column;
+  height: min(680px, calc(100dvh - 32px));
+  overflow: hidden;
+}
+
+.picker-modal .modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  margin: 0;
+  float: none;
+}
+
+.dish-picker {
+  flex: 1;
+  min-height: 0;
+}
+
+.dish-picker .sheet-head {
+  position: static;
+  flex: none;
+}
+
+.dish-picker .sheet-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 720px) {
+  .modal.picker-modal {
+    height: 88vh;
+    height: 88dvh;
+  }
+}
+
 .dish-picker .recipe-search {
   margin: 0;
   background: var(--color-surface-subtle);
@@ -3547,4 +3592,15 @@ textarea {
 .confirm-reset-actions {
   display: flex;
   gap: 8px;
+}
+
+/* El título del selector a la altura de la X, para que la X no pise el buscador */
+.dish-picker .sheet-head {
+  padding-top: 14px;
+}
+
+.dish-picker .sheet-head h2 {
+  display: flex;
+  align-items: center;
+  min-height: 42px;
 }

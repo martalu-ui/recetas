@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom';
 
 /** `children` puede ser una función que recibe `close` para cerrar con la animación. `centered`: ventana en el centro también en el móvil (en vez de hoja que sube desde abajo), para avisos cortos */
-export default function Modal({ label, onClose, children, centered = false }: { label: string; onClose(): void; children: ReactNode | ((close: () => void) => ReactNode); centered?: boolean }) {
+export default function Modal({ label, onClose, children, centered = false, className }: { label: string; onClose(): void; children: ReactNode | ((close: () => void) => ReactNode); centered?: boolean; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [closing, setClosing] = useState(false);
 
@@ -15,11 +15,11 @@ export default function Modal({ label, onClose, children, centered = false }: { 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && close();
     document.addEventListener('keydown', onKey);
-    document.body.classList.add('no-scroll');
+    const unlock = lockScroll();
     ref.current?.focus();
     return () => {
       document.removeEventListener('keydown', onKey);
-      document.body.classList.remove('no-scroll');
+      unlock();
     };
   }, [close]);
 
@@ -30,7 +30,7 @@ export default function Modal({ label, onClose, children, centered = false }: { 
       onMouseDown={(e) => e.target === e.currentTarget && close()}
       onAnimationEnd={(e) => closing && e.target === e.currentTarget && onClose()}
     >
-      <div className="modal" role="dialog" aria-modal="true" aria-label={label} tabIndex={-1} ref={ref}>
+      <div className={className ? `modal ${className}` : 'modal'} role="dialog" aria-modal="true" aria-label={label} tabIndex={-1} ref={ref}>
         <button className="modal-close" onClick={close} aria-label="Cerrar">
           ×
         </button>
@@ -39,4 +39,27 @@ export default function Modal({ label, onClose, children, centered = false }: { 
     </div>,
     document.body,
   );
+}
+
+/**
+ * Bloquea el scroll de la página de fondo. En el iPhone no basta con overflow: hidden (la página
+ * de detrás se sigue moviendo al deslizar dentro de la hoja): se fija el body donde estaba y al cerrar se vuelve ahí.
+ * Lleva la cuenta por si hay dos ventanas abiertas a la vez.
+ */
+let locks = 0;
+let savedY = 0;
+
+function lockScroll(): () => void {
+  const body = document.body;
+  if (locks++ === 0) {
+    savedY = window.scrollY;
+    body.classList.add('no-scroll');
+    body.style.top = `-${savedY}px`;
+  }
+  return () => {
+    if (--locks > 0) return;
+    body.classList.remove('no-scroll');
+    body.style.top = '';
+    window.scrollTo(0, savedY);
+  };
 }
